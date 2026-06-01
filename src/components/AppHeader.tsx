@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AuthNav from "@/components/AuthNav";
 import Logo from "@/components/Logo";
 import PricingLink from "@/components/PricingLink";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -12,6 +13,7 @@ export default function AppHeader() {
       <div className="flex items-center gap-0.5">
         <PricingLink />
         <ThemeToggle />
+        <AuthNav />
       </div>
     </header>
   );

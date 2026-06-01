@@ -96,13 +96,12 @@ export default function PricingPage() {
                   </li>
                 ))}
               </ul>
-              <button
-                type="button"
-                disabled
-                className="mt-8 w-full cursor-not-allowed rounded-2xl border border-neutral-200 bg-white py-3 text-sm font-medium text-neutral-400 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-600"
+              <Link
+                href="/login"
+                className="mt-8 flex w-full items-center justify-center rounded-2xl border border-neutral-300 bg-white py-3 text-sm font-medium text-neutral-950 transition-colors hover:border-neutral-400 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-50 dark:hover:border-neutral-500"
               >
-                Coming soon
-              </button>
+                Sign in with Google
+              </Link>
             </section>
           </div>
         </main>
