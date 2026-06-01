@@ -6,7 +6,14 @@ import {
 } from "@/lib/rate-limit";
 import {
   ALLOWED_STYLES,
+  isCrossLanguageRewrite,
+  isValidRewriteTarget,
+  isValidSourceLanguage,
   rewriteWithFallback,
+  SOURCE_LANGUAGE_AUTO,
+  TARGET_LANGUAGE_SAME,
+  type LanguageCode,
+  type RewriteInput,
   type RewriteStyle,
 } from "@/lib/rewrite";
 
@@ -14,6 +21,8 @@ type RewriteRequest = {
   text?: string;
   style?: RewriteStyle;
   genzIntensity?: number;
+  sourceLanguage?: string;
+  targetLanguage?: string;
 };
 
 const MAX_TEXT_LENGTH = 2000;
@@ -52,6 +61,12 @@ export async function POST(request: Request) {
     const text = String(body.text ?? "").trim();
     const style = body.style;
     const genzIntensity = clamp(Number(body.genzIntensity ?? 5), 0, 10);
+    const sourceLanguage = String(
+      body.sourceLanguage ?? SOURCE_LANGUAGE_AUTO,
+    ).trim();
+    const targetLanguage = String(
+      body.targetLanguage ?? TARGET_LANGUAGE_SAME,
+    ).trim();
 
     if (text.length === 0) {
       return NextResponse.json(
@@ -77,11 +92,47 @@ export async function POST(request: Request) {
       );
     }
 
-    const data = await rewriteWithFallback({
+    if (!isValidRewriteTarget(targetLanguage)) {
+      return NextResponse.json(
+        { message: "Invalid rewrite language." },
+        { status: 400 },
+      );
+    }
+
+    if (isCrossLanguageRewrite(targetLanguage)) {
+      if (!isValidSourceLanguage(sourceLanguage)) {
+        return NextResponse.json(
+          { message: "Invalid input language." },
+          { status: 400 },
+        );
+      }
+
+      if (
+        sourceLanguage !== SOURCE_LANGUAGE_AUTO &&
+        sourceLanguage === targetLanguage
+      ) {
+        return NextResponse.json(
+          { message: "Input and rewrite languages must differ." },
+          { status: 400 },
+        );
+      }
+    }
+
+    const input: RewriteInput = {
       text,
       style,
       genzIntensity,
-    });
+      ...(isCrossLanguageRewrite(targetLanguage)
+        ? {
+            sourceLanguage: sourceLanguage as
+              | typeof SOURCE_LANGUAGE_AUTO
+              | LanguageCode,
+            targetLanguage: targetLanguage as LanguageCode,
+          }
+        : {}),
+    };
+
+    const data = await rewriteWithFallback(input);
 
     return NextResponse.json(data, {
       status: 200,
