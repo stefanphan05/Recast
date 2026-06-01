@@ -80,6 +80,7 @@ export default function Home() {
 
       setResult(rewritten);
     } catch (error) {
+      setResult("");
       const isKnownError =
         error instanceof Error &&
         (error.name === "ValidationError" || error.name === "RateLimitError");
