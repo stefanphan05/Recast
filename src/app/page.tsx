@@ -2,6 +2,12 @@
 
 import AppHeader from "@/components/AppHeader";
 import Footer from "@/components/Footer";
+import LanguageSelect from "@/components/LanguageSelect";
+import {
+  LANGUAGES,
+  SOURCE_LANGUAGE_AUTO,
+  TARGET_LANGUAGE_SAME,
+} from "@/lib/rewrite";
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 type RewriteStyle = "grammar" | "shorter" | "formal" | "casual" | "genz";
@@ -26,10 +32,26 @@ const STYLES: { value: RewriteStyle; label: string }[] = [
   { value: "genz", label: "Gen Z" },
 ];
 
+const targetLanguageOptions = [
+  { value: TARGET_LANGUAGE_SAME, label: "Same as message" },
+  ...LANGUAGES.map(({ code, label }) => ({ value: code, label })),
+];
+
+const sourceLanguageOptions = [
+  { value: SOURCE_LANGUAGE_AUTO, label: "Auto-detect" },
+  ...LANGUAGES.map(({ code, label }) => ({ value: code, label })),
+];
+
 export default function Home() {
   const [text, setText] = useState("");
   const [style, setStyle] = useState<RewriteStyle>("grammar");
   const [genzIntensity, setGenzIntensity] = useState(5);
+  const [sourceLanguage, setSourceLanguage] = useState<string>(
+    SOURCE_LANGUAGE_AUTO,
+  );
+  const [targetLanguage, setTargetLanguage] = useState<string>(
+    TARGET_LANGUAGE_SAME,
+  );
   const [result, setResult] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -70,6 +92,8 @@ export default function Home() {
     return trimmedLength > 0 && trimmedLength <= MAX_CHARS && !isLoading;
   }, [text, isLoading]);
 
+  const isCrossLanguage = targetLanguage !== TARGET_LANGUAGE_SAME;
+
   async function handleRewrite() {
     if (!canSubmit) return;
 
@@ -85,6 +109,8 @@ export default function Home() {
           text,
           style,
           ...(style === "genz" ? { genzIntensity } : {}),
+          sourceLanguage,
+          targetLanguage,
         }),
       });
 
@@ -225,6 +251,30 @@ export default function Home() {
                   </div>
                 </div>
               ) : null}
+
+              <div
+                className={`mt-4 grid gap-3 ${isCrossLanguage ? "grid-cols-2" : "grid-cols-1"}`}
+              >
+                {isCrossLanguage ? (
+                  <LanguageSelect
+                    id="source-language"
+                    label="Input language"
+                    value={sourceLanguage}
+                    options={sourceLanguageOptions}
+                    onChange={setSourceLanguage}
+                    muted={sourceLanguage === SOURCE_LANGUAGE_AUTO}
+                  />
+                ) : null}
+                <LanguageSelect
+                  id="target-language"
+                  label="Rewrite in"
+                  value={targetLanguage}
+                  options={targetLanguageOptions}
+                  onChange={setTargetLanguage}
+                  muted={targetLanguage === TARGET_LANGUAGE_SAME}
+                />
+              </div>
+
               <button
                 type="button"
                 disabled={!canSubmit}
