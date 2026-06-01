@@ -4,6 +4,17 @@ import { ProviderError, type RewriteResult } from "./types";
 
 export type { RewriteInput, RewriteStyle } from "./prompts";
 export { ALLOWED_STYLES } from "./prompts";
+export {
+  LANGUAGES,
+  SOURCE_LANGUAGE_AUTO,
+  TARGET_LANGUAGE_SAME,
+  isCrossLanguageRewrite,
+  isLanguageCode,
+  isValidRewriteTarget,
+  isValidSourceLanguage,
+  languageLabel,
+  type LanguageCode,
+} from "./languages";
 
 export async function rewriteWithFallback(
   input: RewriteInput,

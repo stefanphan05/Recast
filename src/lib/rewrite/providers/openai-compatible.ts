@@ -1,7 +1,7 @@
 import {
+  buildSystemInstruction,
   buildUserPrompt,
   maxOutputTokens,
-  SYSTEM_INSTRUCTION,
   type RewriteInput,
 } from "../prompts";
 import { sanitizeRewriteOutput } from "../sanitize-output";
@@ -83,7 +83,7 @@ export function createOpenAICompatibleProvider(
           temperature: 0.2,
           max_tokens: maxOutputTokens(input.text.length),
           messages: [
-            { role: "system", content: SYSTEM_INSTRUCTION },
+            { role: "system", content: buildSystemInstruction(input) },
             { role: "user", content: buildUserPrompt(input) },
           ],
           ...config.extraBody,

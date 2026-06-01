@@ -1,8 +1,8 @@
 import { GoogleGenAI } from "@google/genai";
 import {
+  buildSystemInstruction,
   buildUserPrompt,
   maxOutputTokens,
-  SYSTEM_INSTRUCTION,
   type RewriteInput,
 } from "../prompts";
 import { sanitizeRewriteOutput } from "../sanitize-output";
@@ -52,7 +52,7 @@ export const geminiProvider: RewriteProvider = {
         model: getModel(),
         contents: buildUserPrompt(input),
         config: {
-          systemInstruction: SYSTEM_INSTRUCTION,
+          systemInstruction: buildSystemInstruction(input),
           thinkingConfig: { thinkingBudget: 0 },
           temperature: 0.2,
           maxOutputTokens: maxOutputTokens(input.text.length),
