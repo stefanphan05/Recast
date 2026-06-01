@@ -1,8 +1,7 @@
 "use client";
 
+import AppHeader from "@/components/AppHeader";
 import Footer from "@/components/Footer";
-import Logo from "@/components/Logo";
-import ThemeToggle from "@/components/ThemeToggle";
 import { useMemo, useState } from "react";
 
 type RewriteStyle = "grammar" | "shorter" | "formal" | "casual" | "genz";
@@ -103,10 +102,7 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen flex-col bg-white text-neutral-950 dark:bg-neutral-950 dark:text-neutral-50">
-      <header className="fixed left-0 top-0 z-10 flex w-full items-center justify-between px-5 py-6 sm:px-8">
-        <Logo size="sm" />
-        <ThemeToggle />
-      </header>
+      <AppHeader />
       <div className="flex flex-1 items-center justify-center px-5 py-16">
         <main className="flex w-full max-w-lg flex-col gap-10">
           <div className="flex flex-col gap-5">
