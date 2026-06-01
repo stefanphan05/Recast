@@ -44,6 +44,27 @@ UPSTASH_REDIS_REST_TOKEN=...
 
 Optional overrides: `RATE_LIMIT_MAX`, `RATE_LIMIT_WINDOW_MS`.
 
+### Google sign-in (optional)
+
+Sign-in is **Google only** and optional — the rewriter works without an account. To enable it locally:
+
+1. Create an [OAuth client](https://console.cloud.google.com/apis/credentials) (Web application).
+2. Add **Authorized redirect URIs** (must match the URL and port you actually use):
+   - `http://localhost:3000/api/auth/callback/google`
+   - `http://localhost:3001/api/auth/callback/google` (if port 3000 is busy, Next.js uses 3001)
+3. Add to `.env.local`:
+
+```bash
+AUTH_SECRET=   # openssl rand -base64 32
+AUTH_GOOGLE_ID=
+AUTH_GOOGLE_SECRET=
+AUTH_URL=http://localhost:3000   # use 3001 if dev runs on that port
+```
+
+If you see **Error 400: redirect_uri_mismatch**, the redirect URI in Google Console does not match your app URL (wrong port is the usual cause). Check the terminal for `Local: http://localhost:XXXX` and use that port in both `AUTH_URL` and Google Console.
+
+On Vercel, add the production callback URL: `https://your-domain.vercel.app/api/auth/callback/google`.
+
 ## 2) Run locally
 
 ```bash
