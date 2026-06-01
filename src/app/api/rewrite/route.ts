@@ -1,5 +1,10 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { NextResponse } from "next/server";
+import {
+  checkRateLimit,
+  getClientIp,
+  RATE_LIMIT_MESSAGE,
+} from "@/lib/rate-limit";
 
 const ALLOWED_STYLES = [
   "grammar",
@@ -152,7 +157,9 @@ async function generateMultipleVariants(input: {
     model: MODEL,
     contents: `${buildUserPrompt(input)}\n\nReturn exactly ${input.variantCount} different rewrites.`,
     config: {
-      ...fastGenerationConfig(Math.min(4096, input.text.length * input.variantCount * 2 + 256)),
+      ...fastGenerationConfig(
+        Math.min(4096, input.text.length * input.variantCount * 2 + 256),
+      ),
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
@@ -199,8 +206,31 @@ async function generateVariants(input: {
   return generateMultipleVariants(input);
 }
 
+function rateLimitHeaders(result: {
+  limit: number;
+  remaining: number;
+  reset: number;
+}): HeadersInit {
+  return {
+    "X-RateLimit-Limit": String(result.limit),
+    "X-RateLimit-Remaining": String(result.remaining),
+    "X-RateLimit-Reset": String(result.reset),
+  };
+}
+
 export async function POST(request: Request) {
   try {
+    const rateLimit = await checkRateLimit(getClientIp(request));
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { message: RATE_LIMIT_MESSAGE },
+        {
+          status: 429,
+          headers: rateLimitHeaders(rateLimit),
+        },
+      );
+    }
+
     const body = (await request.json()) as RewriteRequest;
     const text = String(body.text ?? "").trim();
     const style = body.style;
@@ -238,7 +268,10 @@ export async function POST(request: Request) {
       variantCount,
     });
 
-    return NextResponse.json(data, { status: 200 });
+    return NextResponse.json(data, {
+      status: 200,
+      headers: rateLimitHeaders(rateLimit),
+    });
   } catch (error) {
     console.error("Rewrite API error:", error);
     return NextResponse.json(

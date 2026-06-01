@@ -9,6 +9,8 @@ type RewriteStyle = "grammar" | "shorter" | "formal" | "casual" | "genz";
 
 const MAX_CHARS = 2000;
 const SERVER_ERROR_MESSAGE = "Server error. Please try again later.";
+const RATE_LIMIT_MESSAGE =
+  "Too many requests. Please wait a moment and try again.";
 
 const STYLES: { value: RewriteStyle; label: string }[] = [
   { value: "grammar", label: "Correct" },
@@ -62,6 +64,13 @@ export default function Home() {
           validationError.name = "ValidationError";
           throw validationError;
         }
+        if (response.status === 429) {
+          const rateLimitError = new Error(
+            data.message ?? RATE_LIMIT_MESSAGE,
+          );
+          rateLimitError.name = "RateLimitError";
+          throw rateLimitError;
+        }
         throw new Error(SERVER_ERROR_MESSAGE);
       }
 
@@ -72,10 +81,11 @@ export default function Home() {
 
       setResult(rewritten);
     } catch (error) {
-      const isValidation =
-        error instanceof Error && error.name === "ValidationError";
+      const isKnownError =
+        error instanceof Error &&
+        (error.name === "ValidationError" || error.name === "RateLimitError");
       setErrorMessage(
-        isValidation && error instanceof Error
+        isKnownError && error instanceof Error
           ? error.message
           : SERVER_ERROR_MESSAGE,
       );

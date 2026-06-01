@@ -22,6 +22,17 @@ Then put your Gemini key in `.env.local`:
 GEMINI_API_KEY=your_api_key_here
 ```
 
+### Rate limiting
+
+The rewrite API is limited to **5 requests per minute per IP** by default. Locally, limits are tracked in memory. On Vercel, add [Upstash Redis](https://upstash.com/) so limits apply across all serverless instances:
+
+```bash
+UPSTASH_REDIS_REST_URL=...
+UPSTASH_REDIS_REST_TOKEN=...
+```
+
+Optional overrides: `RATE_LIMIT_MAX`, `RATE_LIMIT_WINDOW_MS`.
+
 ## 2) Run locally
 
 ```bash
@@ -60,6 +71,7 @@ Response body:
 
 1. Push this `frontend` project to GitHub.
 2. Import it into Vercel.
-3. Add environment variable:
+3. Add environment variables:
    - `GEMINI_API_KEY`
+   - `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` (for rate limiting)
 4. Deploy.
