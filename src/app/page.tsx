@@ -2,11 +2,18 @@
 
 import AppHeader from "@/components/AppHeader";
 import Footer from "@/components/Footer";
-import { useMemo, useState } from "react";
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 type RewriteStyle = "grammar" | "shorter" | "formal" | "casual" | "genz";
 
 const MAX_CHARS = 2000;
+/** ~5 lines at 15px / leading-relaxed */
+const TEXTAREA_MIN_HEIGHT_PX = 132;
+/** ~12 lines before scrolling */
+const TEXTAREA_MAX_HEIGHT_PX = 320;
+/** Compact input when output is visible */
+const TEXTAREA_MIN_COMPACT_PX = 72;
+const TEXTAREA_MAX_COMPACT_PX = 120;
 const SERVER_ERROR_MESSAGE = "Server error. Please try again later.";
 const RATE_LIMIT_MESSAGE =
   "Too many requests. Please wait a moment and try again.";
@@ -27,6 +34,36 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const hasOutput = isLoading || result.length > 0;
+
+  const syncTextareaHeight = useCallback(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+
+    const minHeight = hasOutput
+      ? TEXTAREA_MIN_COMPACT_PX
+      : TEXTAREA_MIN_HEIGHT_PX;
+    const maxHeight = hasOutput
+      ? TEXTAREA_MAX_COMPACT_PX
+      : TEXTAREA_MAX_HEIGHT_PX;
+
+    el.style.height = "auto";
+    const scrollHeight = el.scrollHeight;
+    const height = Math.min(
+      Math.max(scrollHeight, minHeight),
+      maxHeight,
+    );
+    el.style.height = `${height}px`;
+    el.style.overflowY = scrollHeight > maxHeight ? "auto" : "hidden";
+  }, [hasOutput]);
+
+  useLayoutEffect(() => {
+    syncTextareaHeight();
+  }, [text, hasOutput, syncTextareaHeight]);
+
+  const charCount = text.length;
 
   const canSubmit = useMemo(() => {
     const trimmedLength = text.trim().length;
@@ -63,9 +100,7 @@ export default function Home() {
           throw validationError;
         }
         if (response.status === 429) {
-          const rateLimitError = new Error(
-            data.message ?? RATE_LIMIT_MESSAGE,
-          );
+          const rateLimitError = new Error(data.message ?? RATE_LIMIT_MESSAGE);
           rateLimitError.name = "RateLimitError";
           throw rateLimitError;
         }
@@ -101,26 +136,46 @@ export default function Home() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-white text-neutral-950 dark:bg-neutral-950 dark:text-neutral-50">
+    <div className="flex h-dvh flex-col overflow-hidden bg-white text-neutral-950 dark:bg-neutral-950 dark:text-neutral-50">
       <AppHeader />
-      <div className="flex flex-1 items-center justify-center px-5 py-16">
-        <main className="flex w-full max-w-lg flex-col gap-10">
-          <div className="flex flex-col gap-5">
+      <div className="flex min-h-0 flex-1 flex-col px-5 pb-4 pt-24">
+        <main
+          className={`mx-auto flex w-full min-h-0 max-w-lg flex-1 flex-col ${
+            hasOutput ? "gap-4" : "justify-center"
+          }`}
+        >
+          <div
+            className={`flex flex-col gap-5 ${hasOutput ? "shrink-0" : ""}`}
+          >
             <div className="flex flex-col">
-              <label
-                htmlFor="message-input"
-                className="text-[11px] uppercase tracking-[0.08em] text-neutral-400 dark:text-neutral-500"
-              >
-                Your message
-              </label>
+              <div className="flex items-baseline justify-between gap-3">
+                <label
+                  htmlFor="message-input"
+                  className="text-[11px] uppercase tracking-[0.08em] text-neutral-400 dark:text-neutral-500"
+                >
+                  Your message
+                </label>
+                <span
+                  className="tabular-nums text-sm text-neutral-500 dark:text-neutral-400"
+                  aria-live="polite"
+                >
+                  {charCount} / {MAX_CHARS}
+                </span>
+              </div>
               <textarea
+                ref={textareaRef}
                 id="message-input"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Paste or type the text you want to rewrite…"
-                rows={5}
+                rows={1}
                 maxLength={MAX_CHARS}
-                className="mt-2 w-full resize-none rounded-2xl border border-neutral-300 bg-neutral-50 px-4 py-3.5 text-[15px] leading-relaxed text-neutral-950 shadow-sm placeholder:text-neutral-400 outline-none transition-colors focus:border-neutral-950 focus:bg-white dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-50 dark:placeholder:text-neutral-500 dark:focus:border-neutral-400 dark:focus:bg-neutral-950"
+                className="mt-2 w-full resize-none overflow-hidden rounded-2xl border border-neutral-300 bg-neutral-50 px-4 py-3.5 text-[15px] leading-relaxed text-neutral-950 shadow-sm placeholder:text-neutral-400 outline-none transition-[border-color,box-shadow,background-color] focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200/80 focus:ring-inset dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-50 dark:placeholder:text-neutral-500 dark:focus:border-neutral-600 dark:focus:ring-neutral-700/50"
+                style={{
+                  minHeight: hasOutput
+                    ? TEXTAREA_MIN_COMPACT_PX
+                    : TEXTAREA_MIN_HEIGHT_PX,
+                }}
               />
             </div>
 
@@ -185,26 +240,36 @@ export default function Home() {
                     aria-hidden
                   />
                 ) : null}
-                Rewrite
+                {isLoading ? "Rewriting" : "Rewrite"}
               </button>
               {errorMessage ? (
-                <p className="mt-3 text-center text-sm text-neutral-500 dark:text-neutral-400">
-                  {errorMessage}
-                </p>
+                <div className="mt-3 flex flex-col items-center gap-2.5">
+                  <p className="text-center text-sm text-neutral-500 dark:text-neutral-400">
+                    {errorMessage}
+                  </p>
+                  <button
+                    type="button"
+                    disabled={!canSubmit}
+                    onClick={handleRewrite}
+                    className="cursor-pointer rounded-xl border border-neutral-200 bg-white px-4 py-1.5 text-sm text-neutral-700 transition-colors hover:border-neutral-400 hover:text-neutral-950 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:border-neutral-500 dark:hover:text-neutral-50"
+                  >
+                    Retry
+                  </button>
+                </div>
               ) : null}
             </div>
           </div>
 
-          {isLoading || result ? (
+          {hasOutput ? (
             <div
-              className="flex flex-col gap-2 border-t border-neutral-200 pt-8 dark:border-neutral-800"
+              className="flex min-h-0 flex-1 flex-col gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-800"
               aria-live="polite"
               aria-busy={isLoading}
             >
-              <p className="text-[11px] uppercase tracking-[0.08em] text-neutral-400 dark:text-neutral-500">
+              <p className="shrink-0 text-[11px] uppercase tracking-[0.08em] text-neutral-400 dark:text-neutral-500">
                 Output
               </p>
-              <section className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900">
+              <section className="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900">
                 {isLoading ? (
                   <div className="flex flex-col gap-3 py-0.5" aria-hidden>
                     <div className="h-4 animate-pulse rounded-md bg-neutral-200/90 dark:bg-neutral-700/90" />
@@ -218,7 +283,7 @@ export default function Home() {
                 )}
               </section>
               {!isLoading && result ? (
-                <div className="flex h-9 items-center justify-end">
+                <div className="flex h-9 shrink-0 items-center justify-end">
                   <button
                     type="button"
                     onClick={handleCopy}
@@ -264,7 +329,9 @@ export default function Home() {
           ) : null}
         </main>
       </div>
-      <Footer />
+      <div className="shrink-0">
+        <Footer />
+      </div>
     </div>
   );
 }
