@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:provider:gemini": "tsx --env-file=.env.local scripts/test-providers/gemini.ts",
+    "test:provider:groq": "tsx --env-file=.env.local scripts/test-providers/groq.ts",
+    "test:provider:openrouter": "tsx --env-file=.env.local scripts/test-providers/openrouter.ts",
+    "test:provider:cerebras": "tsx --env-file=.env.local scripts/test-providers/cerebras.ts",
+    "test:providers": "npm run test:provider:gemini && npm run test:provider:groq && npm run test:provider:openrouter && npm run test:provider:cerebras"
   },
   "dependencies": {
     "@google/genai": "^2.7.0",
@@ -24,6 +29,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
+    "tsx": "^4.22.4",
     "typescript": "^5"
   }
 }
