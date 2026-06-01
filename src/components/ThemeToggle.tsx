@@ -43,6 +43,7 @@ export default function ThemeToggle() {
       <button
         type="button"
         onClick={toggle}
+        onMouseDown={(e) => e.preventDefault()}
         aria-label={tooltipLabel}
         className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl text-neutral-500 transition-colors hover:bg-neutral-200/70 hover:text-neutral-600 focus-visible:bg-neutral-200/70 focus-visible:text-neutral-600 focus-visible:outline-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200 dark:focus-visible:bg-neutral-800 dark:focus-visible:text-neutral-200"
       >

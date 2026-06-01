@@ -17,6 +17,7 @@ export default function PricingLink() {
         href="/pricing"
         aria-label="Pricing"
         aria-current={isActive ? "page" : undefined}
+        onMouseDown={(e) => e.preventDefault()}
         className={`${iconButtonClass} ${isActive ? "bg-neutral-200/70 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-200" : ""}`}
       >
         <svg

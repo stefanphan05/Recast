@@ -21,7 +21,7 @@ export default function IconTooltip({
       {children}
       <span
         role="tooltip"
-        className={`pointer-events-none absolute top-full z-20 mt-2 whitespace-nowrap rounded-lg bg-neutral-950 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-md transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100 dark:bg-neutral-100 dark:text-neutral-950 ${ALIGN_CLASS[align]}`}
+        className={`pointer-events-none absolute top-full z-20 mt-2 whitespace-nowrap rounded-lg bg-neutral-950 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-md transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 dark:bg-neutral-100 dark:text-neutral-950 ${ALIGN_CLASS[align]}`}
       >
         {label}
       </span>
