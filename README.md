@@ -51,9 +51,8 @@ Request body:
 ```json
 {
   "text": "string",
-  "style": "formal | casual | genz",
-  "genzIntensity": 5,
-  "variantCount": 3
+  "style": "grammar | shorter | formal | casual | genz",
+  "genzIntensity": 5
 }
 ```
 
@@ -61,9 +60,7 @@ Response body:
 
 ```json
 {
-  "variants": [
-    { "text": "rewritten message", "notes": "short explanation" }
-  ]
+  "text": "rewritten message"
 }
 ```
 

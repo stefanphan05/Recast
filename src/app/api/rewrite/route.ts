@@ -1,4 +1,4 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 import {
   checkRateLimit,
@@ -19,19 +19,13 @@ type RewriteRequest = {
   text?: string;
   style?: RewriteStyle;
   genzIntensity?: number;
-  variantCount?: number;
-};
-
-type RewriteVariant = {
-  text: string;
 };
 
 type RewriteResponse = {
-  variants: RewriteVariant[];
+  text: string;
 };
 
 const MAX_TEXT_LENGTH = 2000;
-const MAX_VARIANTS = 5;
 const SERVER_ERROR_MESSAGE = "Server error. Please try again later.";
 const MODEL = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
 
@@ -104,27 +98,7 @@ function fastGenerationConfig(maxOutputTokens: number) {
   };
 }
 
-function parseJsonResponse(rawText: string): RewriteResponse {
-  const parsed = JSON.parse(rawText.trim()) as RewriteResponse;
-
-  if (!parsed || !Array.isArray(parsed.variants)) {
-    throw new Error("Missing variants array in model response.");
-  }
-
-  const cleanedVariants = parsed.variants
-    .map((variant) => ({
-      text: String(variant?.text ?? "").trim(),
-    }))
-    .filter((variant) => variant.text.length > 0);
-
-  if (cleanedVariants.length === 0) {
-    throw new Error("Model returned empty variants.");
-  }
-
-  return { variants: cleanedVariants };
-}
-
-async function generateSingleVariant(input: {
+async function generateRewrite(input: {
   text: string;
   style: RewriteStyle;
   genzIntensity: number;
@@ -142,68 +116,7 @@ async function generateSingleVariant(input: {
     throw new Error("Model returned empty rewrite.");
   }
 
-  return { variants: [{ text: rewritten }] };
-}
-
-async function generateMultipleVariants(input: {
-  text: string;
-  style: RewriteStyle;
-  genzIntensity: number;
-  variantCount: number;
-}): Promise<RewriteResponse> {
-  const ai = getClient();
-
-  const response = await ai.models.generateContent({
-    model: MODEL,
-    contents: `${buildUserPrompt(input)}\n\nReturn exactly ${input.variantCount} different rewrites.`,
-    config: {
-      ...fastGenerationConfig(
-        Math.min(4096, input.text.length * input.variantCount * 2 + 256),
-      ),
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: Type.OBJECT,
-        properties: {
-          variants: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                text: { type: Type.STRING },
-              },
-              required: ["text"],
-            },
-          },
-        },
-        required: ["variants"],
-      },
-    },
-  });
-
-  const text = response.text;
-  if (!text) {
-    throw new Error("Model returned empty response.");
-  }
-
-  const parsed = parseJsonResponse(text);
-  if (parsed.variants.length < input.variantCount) {
-    throw new Error("Model returned too few variants.");
-  }
-
-  return { variants: parsed.variants.slice(0, input.variantCount) };
-}
-
-async function generateVariants(input: {
-  text: string;
-  style: RewriteStyle;
-  genzIntensity: number;
-  variantCount: number;
-}): Promise<RewriteResponse> {
-  if (input.variantCount === 1) {
-    return generateSingleVariant(input);
-  }
-
-  return generateMultipleVariants(input);
+  return { text: rewritten };
 }
 
 function rateLimitHeaders(result: {
@@ -234,7 +147,6 @@ export async function POST(request: Request) {
     const body = (await request.json()) as RewriteRequest;
     const text = String(body.text ?? "").trim();
     const style = body.style;
-    const variantCount = clamp(Number(body.variantCount ?? 3), 1, MAX_VARIANTS);
     const genzIntensity = clamp(Number(body.genzIntensity ?? 5), 0, 10);
 
     if (text.length === 0) {
@@ -261,11 +173,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const data = await generateVariants({
+    const data = await generateRewrite({
       text,
       style,
       genzIntensity,
-      variantCount,
     });
 
     return NextResponse.json(data, {

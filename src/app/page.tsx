@@ -49,12 +49,11 @@ export default function Home() {
           text,
           style,
           ...(style === "genz" ? { genzIntensity } : {}),
-          variantCount: 1,
         }),
       });
 
       const data = (await response.json()) as {
-        variants?: { text: string }[];
+        text?: string;
         message?: string;
       };
 
@@ -74,7 +73,7 @@ export default function Home() {
         throw new Error(SERVER_ERROR_MESSAGE);
       }
 
-      const rewritten = data.variants?.[0]?.text?.trim();
+      const rewritten = data.text?.trim();
       if (!rewritten) {
         throw new Error(SERVER_ERROR_MESSAGE);
       }
