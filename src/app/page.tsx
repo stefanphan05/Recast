@@ -2,6 +2,7 @@
 
 import Footer from "@/components/Footer";
 import Logo from "@/components/Logo";
+import ThemeToggle from "@/components/ThemeToggle";
 import { useMemo, useState } from "react";
 
 type RewriteStyle = "grammar" | "shorter" | "formal" | "casual" | "genz";
@@ -91,9 +92,10 @@ export default function Home() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-white text-neutral-950">
-      <header className="fixed left-0 top-0 z-10 px-5 py-6 sm:px-8">
+    <div className="flex min-h-screen flex-col bg-white text-neutral-950 dark:bg-neutral-950 dark:text-neutral-50">
+      <header className="fixed left-0 top-0 z-10 flex w-full items-center justify-between px-5 py-6 sm:px-8">
         <Logo size="sm" />
+        <ThemeToggle />
       </header>
       <div className="flex flex-1 items-center justify-center px-5 py-16">
         <main className="flex w-full max-w-lg flex-col gap-10">
@@ -101,7 +103,7 @@ export default function Home() {
             <div className="flex flex-col">
               <label
                 htmlFor="message-input"
-                className="text-[11px] uppercase tracking-[0.08em] text-[#aaa]"
+                className="text-[11px] uppercase tracking-[0.08em] text-neutral-400 dark:text-neutral-500"
               >
                 Your message
               </label>
@@ -112,12 +114,12 @@ export default function Home() {
                 placeholder="Paste or type the text you want to rewrite…"
                 rows={5}
                 maxLength={MAX_CHARS}
-                className="mt-2 w-full resize-none rounded-2xl border border-neutral-300 bg-neutral-50 px-4 py-3.5 text-[15px] leading-relaxed text-neutral-950 shadow-sm placeholder:text-neutral-400 outline-none transition-colors focus:border-neutral-950 focus:bg-white"
+                className="mt-2 w-full resize-none rounded-2xl border border-neutral-300 bg-neutral-50 px-4 py-3.5 text-[15px] leading-relaxed text-neutral-950 shadow-sm placeholder:text-neutral-400 outline-none transition-colors focus:border-neutral-950 focus:bg-white dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-50 dark:placeholder:text-neutral-500 dark:focus:border-neutral-400 dark:focus:bg-neutral-950"
               />
             </div>
 
             <div className="flex flex-col">
-              <p className="text-[11px] uppercase tracking-[0.08em] text-[#aaa]">
+              <p className="text-[11px] uppercase tracking-[0.08em] text-neutral-400 dark:text-neutral-500">
                 Rewrite as
               </p>
               <div className="mt-2 flex w-full gap-2">
@@ -128,8 +130,8 @@ export default function Home() {
                     onClick={() => setStyle(value)}
                     className={`min-w-0 flex-1 cursor-pointer rounded-2xl border px-2 py-2.5 text-center text-sm transition-colors ${
                       style === value
-                        ? "border-neutral-950 bg-neutral-950 text-white"
-                        : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400 hover:text-neutral-950"
+                        ? "border-neutral-950 bg-neutral-950 text-white dark:border-neutral-50 dark:bg-neutral-50 dark:text-neutral-950"
+                        : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400 hover:text-neutral-950 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:border-neutral-500 dark:hover:text-neutral-50"
                     }`}
                   >
                     {label}
@@ -139,10 +141,10 @@ export default function Home() {
               {style === "genz" ? (
                 <div className="mt-4">
                   <div className="flex items-baseline justify-between gap-3">
-                    <p className="text-[11px] uppercase tracking-[0.08em] text-[#aaa]">
+                    <p className="text-[11px] uppercase tracking-[0.08em] text-neutral-400 dark:text-neutral-500">
                       How Gen Z
                     </p>
-                    <span className="tabular-nums text-sm text-neutral-600">
+                    <span className="tabular-nums text-sm text-neutral-600 dark:text-neutral-400">
                       {genzIntensity}
                     </span>
                   </div>
@@ -154,9 +156,9 @@ export default function Home() {
                     value={genzIntensity}
                     onChange={(e) => setGenzIntensity(Number(e.target.value))}
                     aria-label="Gen Z intensity"
-                    className="mt-2 h-2 w-full cursor-pointer appearance-none rounded-full bg-neutral-200 accent-neutral-950"
+                    className="mt-2 h-2 w-full cursor-pointer appearance-none rounded-full bg-neutral-200 accent-neutral-950 dark:bg-neutral-700 dark:accent-neutral-50"
                   />
-                  <div className="mt-1 flex justify-between text-xs text-neutral-400">
+                  <div className="mt-1 flex justify-between text-xs text-neutral-400 dark:text-neutral-500">
                     <span>Less</span>
                     <span>Most</span>
                   </div>
@@ -167,20 +169,20 @@ export default function Home() {
                 disabled={!canSubmit}
                 onClick={handleRewrite}
                 aria-busy={isLoading}
-                className={`mt-2.5 flex w-full items-center justify-center gap-2 rounded-2xl bg-neutral-950 py-3 text-sm font-medium text-white transition-opacity enabled:cursor-pointer enabled:hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-100 ${
+                className={`mt-2.5 flex w-full items-center justify-center gap-2 rounded-2xl bg-neutral-950 py-3 text-sm font-medium text-white transition-opacity enabled:cursor-pointer enabled:hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-100 dark:bg-neutral-50 dark:text-neutral-950 ${
                   isLoading ? "cursor-wait opacity-80" : ""
                 }`}
               >
                 {isLoading ? (
                   <span
-                    className="h-4 w-4 animate-spin rounded-full border-2 border-white/25 border-t-white"
+                    className="h-4 w-4 animate-spin rounded-full border-2 border-white/25 border-t-white dark:border-neutral-950/25 dark:border-t-neutral-950"
                     aria-hidden
                   />
                 ) : null}
                 Rewrite
               </button>
               {errorMessage ? (
-                <p className="mt-3 text-center text-sm text-neutral-500">
+                <p className="mt-3 text-center text-sm text-neutral-500 dark:text-neutral-400">
                   {errorMessage}
                 </p>
               ) : null}
@@ -189,22 +191,22 @@ export default function Home() {
 
           {isLoading || result ? (
             <div
-              className="flex flex-col gap-2 border-t border-neutral-200 pt-8"
+              className="flex flex-col gap-2 border-t border-neutral-200 pt-8 dark:border-neutral-800"
               aria-live="polite"
               aria-busy={isLoading}
             >
-              <p className="text-[11px] uppercase tracking-[0.08em] text-[#aaa]">
+              <p className="text-[11px] uppercase tracking-[0.08em] text-neutral-400 dark:text-neutral-500">
                 Output
               </p>
-              <section className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+              <section className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900">
                 {isLoading ? (
                   <div className="flex flex-col gap-3 py-0.5" aria-hidden>
-                    <div className="h-4 animate-pulse rounded-md bg-neutral-200/90" />
-                    <div className="h-4 w-[94%] animate-pulse rounded-md bg-neutral-200/90" />
-                    <div className="h-4 w-[72%] animate-pulse rounded-md bg-neutral-200/90" />
+                    <div className="h-4 animate-pulse rounded-md bg-neutral-200/90 dark:bg-neutral-700/90" />
+                    <div className="h-4 w-[94%] animate-pulse rounded-md bg-neutral-200/90 dark:bg-neutral-700/90" />
+                    <div className="h-4 w-[72%] animate-pulse rounded-md bg-neutral-200/90 dark:bg-neutral-700/90" />
                   </div>
                 ) : (
-                  <p className="output-fade-in whitespace-pre-wrap text-[15px] leading-relaxed text-neutral-950">
+                  <p className="output-fade-in whitespace-pre-wrap text-[15px] leading-relaxed text-neutral-950 dark:text-neutral-50">
                     {result}
                   </p>
                 )}
@@ -215,7 +217,7 @@ export default function Home() {
                     type="button"
                     onClick={handleCopy}
                     aria-label={copied ? "Copied" : "Copy to clipboard"}
-                    className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-transparent text-neutral-500 transition-colors hover:bg-neutral-200/70 hover:text-neutral-600 focus-visible:bg-neutral-200/70 focus-visible:text-neutral-600 focus-visible:outline-none"
+                    className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-transparent text-neutral-500 transition-colors hover:bg-neutral-200/70 hover:text-neutral-600 focus-visible:bg-neutral-200/70 focus-visible:text-neutral-600 focus-visible:outline-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200 dark:focus-visible:bg-neutral-800 dark:focus-visible:text-neutral-200"
                   >
                     {copied ? (
                       <svg
