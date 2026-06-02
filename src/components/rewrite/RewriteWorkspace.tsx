@@ -33,6 +33,7 @@ export default function RewriteWorkspace() {
   const [result, setResult] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isRateLimited, setIsRateLimited] = useState(false);
 
   const hasOutput = isLoading || result.length > 0;
 
@@ -52,6 +53,7 @@ export default function RewriteWorkspace() {
 
     setIsLoading(true);
     setErrorMessage(null);
+    setIsRateLimited(false);
 
     try {
       const rewritten = await requestRewrite({
@@ -65,6 +67,9 @@ export default function RewriteWorkspace() {
       setResult(rewritten);
     } catch (error) {
       setResult("");
+      setIsRateLimited(
+        error instanceof Error && error.name === "RateLimitError",
+      );
       setErrorMessage(rewriteErrorMessage(error));
     } finally {
       setIsLoading(false);
@@ -103,6 +108,7 @@ export default function RewriteWorkspace() {
               canSubmit={canSubmit}
               isLoading={isLoading}
               errorMessage={errorMessage}
+              isRateLimited={isRateLimited}
               onRewrite={handleRewrite}
             />
           </div>

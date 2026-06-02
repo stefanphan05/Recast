@@ -1,9 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 type RewriteActionsProps = {
   canSubmit: boolean;
   isLoading: boolean;
   errorMessage: string | null;
+  isRateLimited: boolean;
   onRewrite: () => void;
 };
 
@@ -11,8 +14,11 @@ export default function RewriteActions({
   canSubmit,
   isLoading,
   errorMessage,
+  isRateLimited,
   onRewrite,
 }: RewriteActionsProps) {
+  const router = useRouter();
+
   return (
     <>
       <button
@@ -34,17 +40,36 @@ export default function RewriteActions({
       </button>
       {errorMessage ? (
         <div className="mt-3 flex flex-col items-center gap-2.5">
-          <p className="text-center text-sm text-neutral-500 dark:text-neutral-400">
-            {errorMessage}
-          </p>
-          <button
-            type="button"
-            disabled={!canSubmit}
-            onClick={onRewrite}
-            className="cursor-pointer rounded-xl border border-neutral-200 bg-white px-4 py-1.5 text-sm text-neutral-700 transition-colors hover:border-neutral-400 hover:text-neutral-950 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:border-neutral-500 dark:hover:text-neutral-50"
-          >
-            Retry
-          </button>
+          {isRateLimited ? (
+            <p className="text-center text-sm text-neutral-500 dark:text-neutral-400">
+              You&apos;ve reached your free plan limit. Wait a moment and try
+              again, or upgrade to Premium Pro for higher limits and priority
+              access.
+            </p>
+          ) : (
+            <p className="text-center text-sm text-neutral-500 dark:text-neutral-400">
+              {errorMessage}
+            </p>
+          )}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={!canSubmit}
+              onClick={onRewrite}
+              className="cursor-pointer rounded-xl border border-neutral-200 bg-white px-4 py-1.5 text-sm text-neutral-700 transition-colors hover:border-neutral-400 hover:text-neutral-950 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:border-neutral-500 dark:hover:text-neutral-50"
+            >
+              Retry
+            </button>
+            {isRateLimited ? (
+              <button
+                type="button"
+                onClick={() => router.push("/pricing")}
+                className="cursor-pointer rounded-xl bg-neutral-950 px-4 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-85 dark:bg-neutral-50 dark:text-neutral-950"
+              >
+                Upgrade
+              </button>
+            ) : null}
+          </div>
         </div>
       ) : null}
     </>
