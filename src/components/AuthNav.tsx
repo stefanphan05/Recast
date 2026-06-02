@@ -1,9 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import SignInTrigger from "@/components/auth/SignInTrigger";
 import { useAuth } from "@/contexts/AuthContext";
 
 const signInClassName =
@@ -85,12 +84,7 @@ function UserAvatarMenu({
 }
 
 export default function AuthNav() {
-  const pathname = usePathname();
   const { user, isLoading, signOut } = useAuth();
-
-  if (pathname === "/login") {
-    return null;
-  }
 
   if (isLoading) {
     return (
@@ -111,9 +105,5 @@ export default function AuthNav() {
     );
   }
 
-  return (
-    <Link href="/login" className={signInClassName}>
-      Sign in
-    </Link>
-  );
+  return <SignInTrigger className={signInClassName}>Sign in</SignInTrigger>;
 }

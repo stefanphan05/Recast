@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
+import SignInTrigger from "@/components/auth/SignInTrigger";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
@@ -96,12 +97,9 @@ export default function PricingPage() {
                   </li>
                 ))}
               </ul>
-              <Link
-                href="/login"
-                className="mt-8 flex w-full items-center justify-center rounded-2xl border border-neutral-300 bg-white py-3 text-sm font-medium text-neutral-950 transition-colors hover:border-neutral-400 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-50 dark:hover:border-neutral-500"
-              >
+              <SignInTrigger className="mt-8 flex w-full cursor-pointer items-center justify-center rounded-2xl border border-neutral-300 bg-white py-3 text-sm font-medium text-neutral-950 transition-colors hover:border-neutral-400 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-50 dark:hover:border-neutral-500">
                 Sign in with Google
-              </Link>
+              </SignInTrigger>
             </section>
           </div>
         </main>
