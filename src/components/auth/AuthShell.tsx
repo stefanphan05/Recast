@@ -11,7 +11,7 @@ export default function AuthShell({ children }: AuthShellProps) {
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-white text-neutral-950 dark:bg-neutral-950 dark:text-neutral-50">
       <AppHeader />
-      <div className="flex min-h-0 flex-1 flex-col px-5 pb-4 pt-24">
+      <div className="flex min-h-0 flex-1 flex-col px-5 pb-2 pt-14 sm:pb-4 sm:pt-24">
         <main className="mx-auto flex w-full min-h-0 max-w-lg flex-1 flex-col justify-center gap-8">
           <div className="flex flex-col gap-2.5 text-center">
             <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-500 dark:text-neutral-400">

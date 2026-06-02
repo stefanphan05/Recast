@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const signInClassName =
-  "ml-1 rounded-xl bg-neutral-950 px-3 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none dark:bg-neutral-50 dark:text-neutral-950";
+  "ml-1 rounded-lg bg-neutral-950 px-2.5 py-1 text-xs font-medium text-white transition-opacity hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none sm:rounded-xl sm:px-3 sm:py-1.5 sm:text-sm dark:bg-neutral-50 dark:text-neutral-950";
 
 function userInitial(email: string): string {
   return email.charAt(0).toUpperCase();
@@ -43,7 +43,7 @@ function UserAvatarMenu({
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label="Account menu"
-        className="flex h-9 w-9 cursor-pointer items-center justify-center overflow-hidden rounded-full ring-1 ring-neutral-200 focus-visible:outline-none dark:ring-neutral-700"
+        className="flex h-8 w-8 cursor-pointer items-center justify-center overflow-hidden rounded-full ring-1 ring-neutral-200 focus-visible:outline-none sm:h-9 sm:w-9 dark:ring-neutral-700"
       >
         {image ? (
           <Image
@@ -95,7 +95,7 @@ export default function AuthNav() {
   if (isLoading) {
     return (
       <span
-        className="mx-1 h-9 w-9 shrink-0 rounded-full bg-neutral-200/70 dark:bg-neutral-800"
+        className="mx-1 h-8 w-8 shrink-0 rounded-full bg-neutral-200/70 sm:h-9 sm:w-9 dark:bg-neutral-800"
         aria-hidden
       />
     );

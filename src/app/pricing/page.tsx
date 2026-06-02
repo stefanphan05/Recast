@@ -24,7 +24,7 @@ export default function PricingPage() {
   return (
     <div className="flex min-h-screen flex-col bg-white text-neutral-950 dark:bg-neutral-950 dark:text-neutral-50">
       <AppHeader />
-      <div className="flex flex-1 items-center justify-center px-5 py-24">
+      <div className="flex flex-1 items-center justify-center px-5 py-16 sm:py-24">
         <main className="flex w-full max-w-2xl flex-col gap-10">
           <div className="flex flex-col gap-2 text-center">
             <p className="text-[11px] uppercase tracking-[0.08em] text-neutral-400 dark:text-neutral-500">

@@ -19,13 +19,13 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer className="w-full px-5 pb-10">
-      <div className="mx-auto max-w-lg border-t border-neutral-200 pt-8 dark:border-neutral-800">
-        <p className="text-center text-sm text-neutral-500 dark:text-neutral-400">
+    <footer className="w-full px-5 pb-4 sm:pb-10">
+      <div className="mx-auto max-w-lg border-t border-neutral-200 pt-3 sm:pt-8 dark:border-neutral-800">
+        <p className="text-center text-xs text-neutral-500 sm:text-sm dark:text-neutral-400">
           &copy; 2026 Stefan Phan
         </p>
         {age ? (
-          <p className="mt-2 text-center font-mono text-xs tabular-nums tracking-wider text-neutral-400/80 dark:text-neutral-500/80">
+          <p className="mt-1.5 hidden text-center font-mono text-xs tabular-nums tracking-wider text-neutral-400/80 sm:mt-2 sm:block dark:text-neutral-500/80">
             {age}
           </p>
         ) : null}
