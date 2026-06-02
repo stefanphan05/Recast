@@ -3,6 +3,7 @@ import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
 import BillingActionButton from "@/components/billing/BillingActionButton";
 import Footer from "@/components/Footer";
+import FreeCardAction from "@/components/pricing/FreeCardAction";
 import PlanStatusBadge from "@/components/pricing/PlanStatusBadge";
 
 const FREE_REWRITES_PER_MINUTE = Number(process.env.RATE_LIMIT_MAX ?? 5);
@@ -69,12 +70,7 @@ export default function PricingPage() {
                   </li>
                 ))}
               </ul>
-              <Link
-                href="/"
-                className="mt-8 flex w-full items-center justify-center rounded-2xl bg-white py-3 text-sm font-medium text-neutral-950 transition-opacity hover:opacity-90 dark:bg-neutral-950 dark:text-neutral-50"
-              >
-                Start rewriting
-              </Link>
+              <FreeCardAction />
             </section>
 
             <section className="relative flex flex-col rounded-2xl border border-neutral-300 bg-neutral-50 p-6 dark:border-neutral-700 dark:bg-neutral-900">
@@ -106,6 +102,15 @@ export default function PricingPage() {
               </ul>
               <BillingActionButton />
             </section>
+          </div>
+
+          <div className="flex justify-center pt-2">
+            <Link
+              href="/"
+              className="text-sm font-medium text-neutral-600 underline-offset-4 hover:underline dark:text-neutral-300"
+            >
+              Back to rewriting
+            </Link>
           </div>
         </main>
       </div>

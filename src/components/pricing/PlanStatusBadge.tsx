@@ -45,18 +45,25 @@ export default function PlanStatusBadge({ tier }: { tier: PlanTier }) {
   const isCurrent = useMemo(() => currentPlan === tier, [currentPlan, tier]);
 
   if (tier === "free") {
+    const label =
+      currentPlan === "premium" ? "Included" : isCurrent ? "Current" : "Free";
+
     return (
       <span
         className={
-          isCurrent
+          currentPlan === "premium"
+            ? "rounded-full bg-white/10 px-2.5 py-0.5 text-[11px] uppercase tracking-[0.06em] text-white/80 dark:bg-neutral-950/10 dark:text-neutral-950/70"
+            : isCurrent
             ? "rounded-full bg-white/15 px-2.5 py-0.5 text-[11px] uppercase tracking-[0.06em] dark:bg-neutral-950/10"
             : "rounded-full bg-white/5 px-2.5 py-0.5 text-[11px] uppercase tracking-[0.06em] text-white/70 dark:bg-neutral-950/10"
         }
       >
-        {isCurrent ? "Current" : "Upgrade"}
+        {label}
       </span>
     );
   }
+
+  const premiumLabel = isCurrent ? "Current" : "Upgrade";
 
   return (
     <span
@@ -66,7 +73,7 @@ export default function PlanStatusBadge({ tier }: { tier: PlanTier }) {
           : "rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-0.5 text-[11px] uppercase tracking-[0.06em] text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300"
       }
     >
-      {isCurrent ? "Current" : "Available now"}
+      {premiumLabel}
     </span>
   );
 }
