@@ -1,3 +1,4 @@
+import { detectMessageLanguage } from "./detect-message-language";
 import {
   languageLabel,
   SOURCE_LANGUAGE_AUTO,
@@ -21,7 +22,7 @@ export const REWRITE_SYSTEM_INSTRUCTION =
   "You rewrite short messages. Output ONLY the rewritten message text. No explanations, no reasoning, no labels, no quotes, no markdown, no 'Fixed:' or 'Original:' lines.";
 
 const PRESERVE_INPUT_LANGUAGE_RULE =
-  "Preserve the input message language. Never translate unless a target language is specified in the user prompt.";
+  "Preserve the input message language exactly. Change tone and wording only—never translate or switch languages unless the user prompt specifies a target language.";
 
 /** @deprecated Use buildSystemInstruction */
 export const SYSTEM_INSTRUCTION = REWRITE_SYSTEM_INSTRUCTION;
@@ -55,7 +56,7 @@ function buildGenzInstruction(
 }
 
 const SAME_LANGUAGE_SUFFIX =
-  " Keep the output in the same language as the input message; do not translate.";
+  " Keep the output in the same language as the input message. Change tone only—do not translate.";
 
 function buildStyleInstruction(
   style: RewriteStyle,
@@ -86,17 +87,42 @@ function buildStyleInstruction(
   return instructions[style];
 }
 
-function buildPreserveLanguageInstruction(): string {
+function buildPreserveLanguageInstruction(text: string): string {
+  const detected = detectMessageLanguage(text);
+  if (detected) {
+    const label = languageLabel(detected);
+    return [
+      `Language: The input message is ${label}.`,
+      `Write the rewritten output in ${label} only.`,
+      `Do not translate into any other language (including Spanish, French, etc.).`,
+      `Style names like "polite" or "persuasive" refer to tone in ${label}, not a different language.`,
+    ].join(" ");
+  }
+
   return [
     "Language: Detect the language of the input message.",
     "Write the rewritten output in that exact same language only.",
-    "Do not translate to English or any other language.",
+    "Never translate or switch languages.",
+    "Style names refer to tone only, not language.",
   ].join(" ");
+}
+
+function buildLanguageReminder(text: string, targetLanguage?: LanguageCode): string {
+  if (targetLanguage) {
+    return `Remember: write the rewrite in ${languageLabel(targetLanguage)} only.`;
+  }
+
+  const detected = detectMessageLanguage(text);
+  if (detected) {
+    return `Remember: output must stay in ${languageLabel(detected)}—same as the message. No translation.`;
+  }
+
+  return "Remember: output must stay in the same language as the message. No translation.";
 }
 
 function buildLanguageInstruction(input: RewriteInput): string | null {
   if (!input.targetLanguage) {
-    return buildPreserveLanguageInstruction();
+    return buildPreserveLanguageInstruction(input.text);
   }
 
   const source =
@@ -138,7 +164,9 @@ export function buildUserPrompt(input: RewriteInput): string {
     (block): block is string => block !== null,
   );
 
-  return `${blocks.join("\n\n")}\n\nMessage:\n${input.text}`;
+  const reminder = buildLanguageReminder(input.text, input.targetLanguage);
+
+  return `${blocks.join("\n\n")}\n\nMessage:\n${input.text}\n\n${reminder}`;
 }
 
 export function maxOutputTokens(textLength: number): number {
