@@ -34,6 +34,7 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
       email: session.user.email,
       name: session.user.name,
       image: session.user.image,
+      plan: session.user.plan === "premium" ? "premium" : "free",
     };
   }, [session]);
 

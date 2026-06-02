@@ -3,4 +3,5 @@ export type AuthUser = {
   email: string;
   name?: string | null;
   image?: string | null;
+  plan: "free" | "premium";
 };
