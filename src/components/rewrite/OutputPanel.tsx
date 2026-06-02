@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  OUTPUT_MAX_HEIGHT_PX,
+  OUTPUT_MIN_HEIGHT_PX,
+} from "@/components/rewrite/constants";
 import { useEffect, useState } from "react";
 
 type OutputPanelProps = {
@@ -24,14 +28,20 @@ export default function OutputPanel({ result, isLoading }: OutputPanelProps) {
 
   return (
     <div
-      className="flex min-h-0 flex-1 flex-col gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+      className="flex shrink-0 flex-col gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-800"
       aria-live="polite"
       aria-busy={isLoading}
     >
       <p className="shrink-0 text-[11px] uppercase tracking-[0.08em] text-neutral-400 dark:text-neutral-500">
         Output
       </p>
-      <section className="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900">
+      <section
+        className="overflow-y-auto rounded-2xl border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900"
+        style={{
+          minHeight: `max(${OUTPUT_MIN_HEIGHT_PX}px, 28dvh)`,
+          maxHeight: `min(${OUTPUT_MAX_HEIGHT_PX}px, 45dvh)`,
+        }}
+      >
         {isLoading ? (
           <div className="flex flex-col gap-3 py-0.5" aria-hidden>
             <div className="h-4 animate-pulse rounded-md bg-neutral-200/90 dark:bg-neutral-700/90" />

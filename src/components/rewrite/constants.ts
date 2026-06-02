@@ -14,6 +14,11 @@ export const TEXTAREA_MAX_HEIGHT_PX = 400;
 export const TEXTAREA_MIN_COMPACT_PX = 72;
 export const TEXTAREA_MAX_COMPACT_PX = 120;
 
+/** Readable output area when input is compact (esp. mobile). */
+export const OUTPUT_MIN_HEIGHT_PX = 144;
+/** Cap in-viewport height; longer output scrolls inside the panel. */
+export const OUTPUT_MAX_HEIGHT_PX = 280;
+
 export const SERVER_ERROR_MESSAGE = "Server error. Please try again later.";
 export const RATE_LIMIT_MESSAGE =
   "Too many requests. Please wait a moment and try again.";

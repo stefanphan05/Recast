@@ -75,7 +75,9 @@ export default function RewriteWorkspace() {
     <>
       <main
         className={`mx-auto flex w-full min-h-0 max-w-lg flex-1 flex-col ${
-          hasOutput ? "gap-4" : "justify-center"
+          hasOutput
+            ? "gap-4 overflow-y-auto overscroll-y-contain"
+            : "justify-center"
         }`}
       >
         <div
