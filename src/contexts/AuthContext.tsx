@@ -5,6 +5,8 @@ import {
   useCallback,
   useContext,
   useMemo,
+  useEffect,
+  useState,
   type ReactNode,
 } from "react";
 import {
@@ -27,6 +29,42 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 function AuthContextProvider({ children }: { children: ReactNode }) {
   const { data: session, status } = useSession();
 
+  const [resolvedPlan, setResolvedPlan] = useState<
+    "free" | "premium" | null
+  >(() => {
+    if (status !== "authenticated") return null;
+    return session?.user?.plan === "premium" ? "premium" : "free";
+  });
+
+  useEffect(() => {
+    const email = session?.user?.email;
+    if (!email) {
+      setResolvedPlan(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    fetch("/api/billing/plan")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to resolve plan.");
+        return res.json() as Promise<{ plan?: "free" | "premium" }>;
+      })
+      .then((data) => {
+        if (cancelled) return;
+        if (data.plan === "premium" || data.plan === "free") {
+          setResolvedPlan(data.plan);
+        }
+      })
+      .catch(() => {
+        // Keep the session-derived plan if the plan endpoint fails.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session?.user?.email]);
+
   const user = useMemo<AuthUser | null>(() => {
     if (!session?.user?.email) return null;
     return {
@@ -34,9 +72,9 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
       email: session.user.email,
       name: session.user.name,
       image: session.user.image,
-      plan: session.user.plan === "premium" ? "premium" : "free",
+      plan: resolvedPlan ?? (session.user.plan === "premium" ? "premium" : "free"),
     };
-  }, [session]);
+  }, [session, resolvedPlan]);
 
   const signInWithGoogle = useCallback(async () => {
     await nextAuthSignIn("google", { callbackUrl: "/" });
