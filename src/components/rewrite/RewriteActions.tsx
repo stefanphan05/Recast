@@ -43,7 +43,7 @@ export default function RewriteActions({
           {isRateLimited ? (
             <p className="text-center text-sm text-neutral-500 dark:text-neutral-400">
               You&apos;ve reached your free plan limit. Wait a moment and try
-              again, or upgrade to Premium Pro for higher limits and priority
+              again, or upgrade to Premium for higher limits and priority
               access.
             </p>
           ) : (

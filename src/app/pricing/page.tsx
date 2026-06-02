@@ -3,6 +3,13 @@ import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
 import BillingActionButton from "@/components/billing/BillingActionButton";
 import Footer from "@/components/Footer";
+import PlanStatusBadge from "@/components/pricing/PlanStatusBadge";
+
+const FREE_REWRITES_PER_MINUTE = Number(process.env.RATE_LIMIT_MAX ?? 5);
+const PREMIUM_REWRITES_PER_MINUTE = Number(
+  process.env.RATE_LIMIT_MAX_PREMIUM ??
+    FREE_REWRITES_PER_MINUTE * 4,
+);
 
 export const metadata: Metadata = {
   title: "Pricing — Message Rewriter",
@@ -10,13 +17,13 @@ export const metadata: Metadata = {
 };
 
 const FREE_FEATURES = [
-  "5 rewrites per minute",
+  `${FREE_REWRITES_PER_MINUTE} rewrites per minute`,
   "All rewrite styles",
   "No account required",
 ] as const;
 
 const PREMIUM_FEATURES = [
-  "Higher rate limits",
+  `Up to ${PREMIUM_REWRITES_PER_MINUTE} rewrites per minute`,
   "Priority provider routing",
   "Manage subscription anytime",
 ] as const;
@@ -43,9 +50,7 @@ export default function PricingPage() {
             <section className="flex flex-col rounded-2xl border border-neutral-950 bg-neutral-950 p-6 text-white dark:border-neutral-50 dark:bg-neutral-50 dark:text-neutral-950">
               <div className="flex items-baseline justify-between gap-3">
                 <h2 className="text-lg font-medium">Free</h2>
-                <span className="rounded-full bg-white/15 px-2.5 py-0.5 text-[11px] uppercase tracking-[0.06em] dark:bg-neutral-950/10">
-                  Current
-                </span>
+                <PlanStatusBadge tier="free" />
               </div>
               <p className="mt-3 text-3xl font-medium tracking-tight">
                 $0
@@ -77,9 +82,7 @@ export default function PricingPage() {
                 <h2 className="text-lg font-medium text-neutral-950 dark:text-neutral-50">
                   Premium
                 </h2>
-                <span className="rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-0.5 text-[11px] uppercase tracking-[0.06em] text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
-                  Available now
-                </span>
+                <PlanStatusBadge tier="premium" />
               </div>
               <p className="mt-3 text-3xl font-medium tracking-tight text-neutral-950 dark:text-neutral-50">
                 A$10
