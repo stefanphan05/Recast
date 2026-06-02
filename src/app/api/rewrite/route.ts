@@ -23,9 +23,11 @@ type RewriteRequest = {
   genzIntensity?: number;
   sourceLanguage?: string;
   targetLanguage?: string;
+  instructions?: string;
 };
 
 const MAX_TEXT_LENGTH = 2000;
+const MAX_INSTRUCTIONS_LENGTH = 500;
 const SERVER_ERROR_MESSAGE = "Server error. Please try again later.";
 
 function clamp(value: number, min: number, max: number): number {
@@ -67,6 +69,7 @@ export async function POST(request: Request) {
     const targetLanguage = String(
       body.targetLanguage ?? TARGET_LANGUAGE_SAME,
     ).trim();
+    const instructions = String(body.instructions ?? "").trim();
 
     if (text.length === 0) {
       return NextResponse.json(
@@ -82,11 +85,19 @@ export async function POST(request: Request) {
       );
     }
 
+    if (instructions.length > MAX_INSTRUCTIONS_LENGTH) {
+      return NextResponse.json(
+        {
+          message: `Instructions must be ${MAX_INSTRUCTIONS_LENGTH} characters or less.`,
+        },
+        { status: 400 },
+      );
+    }
+
     if (!style || !ALLOWED_STYLES.includes(style)) {
       return NextResponse.json(
         {
-          message:
-            "Style must be one of: grammar, shorter, formal, casual, genz.",
+          message: `Style must be one of: ${ALLOWED_STYLES.join(", ")}.`,
         },
         { status: 400 },
       );
@@ -122,6 +133,7 @@ export async function POST(request: Request) {
       text,
       style,
       genzIntensity,
+      ...(instructions ? { instructions } : {}),
       ...(isCrossLanguageRewrite(targetLanguage)
         ? {
             sourceLanguage: sourceLanguage as
