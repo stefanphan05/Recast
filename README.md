@@ -65,6 +65,19 @@ If you see **Error 400: redirect_uri_mismatch**, the redirect URI in Google Cons
 
 On Vercel, add the production callback URL: `https://your-domain.vercel.app/api/auth/callback/google`.
 
+### Stripe billing (Premium: A$10/month)
+
+Add to `.env.local`:
+
+```bash
+STRIPE_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+`NEXT_PUBLIC_APP_URL` should match your actual local dev URL/port.
+
+The app creates a Stripe Checkout subscription session at runtime for **A$10 per month** and uses Stripe Customer Portal for subscription management.
+
 ## 2) Run locally
 
 ```bash
