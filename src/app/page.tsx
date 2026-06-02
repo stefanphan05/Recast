@@ -21,10 +21,10 @@ import {
 } from "react";
 
 const MAX_CHARS = 2000;
-/** ~5 lines at 15px / leading-relaxed */
-const TEXTAREA_MIN_HEIGHT_PX = 132;
-/** ~12 lines before scrolling */
-const TEXTAREA_MAX_HEIGHT_PX = 320;
+/** ~8 lines at 15px / leading-relaxed */
+const TEXTAREA_MIN_HEIGHT_PX = 200;
+/** ~16 lines before scrolling */
+const TEXTAREA_MAX_HEIGHT_PX = 400;
 /** Compact input when output is visible */
 const TEXTAREA_MIN_COMPACT_PX = 72;
 const TEXTAREA_MAX_COMPACT_PX = 120;
