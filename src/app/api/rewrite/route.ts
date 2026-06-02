@@ -21,6 +21,7 @@ type RewriteRequest = {
   text?: string;
   style?: RewriteStyle;
   genzIntensity?: number;
+  flirtIntensity?: number;
   sourceLanguage?: string;
   targetLanguage?: string;
   instructions?: string;
@@ -63,6 +64,7 @@ export async function POST(request: Request) {
     const text = String(body.text ?? "").trim();
     const style = body.style;
     const genzIntensity = clamp(Number(body.genzIntensity ?? 5), 0, 10);
+    const flirtIntensity = clamp(Number(body.flirtIntensity ?? 5), 0, 10);
     const sourceLanguage = String(
       body.sourceLanguage ?? SOURCE_LANGUAGE_AUTO,
     ).trim();
@@ -133,6 +135,7 @@ export async function POST(request: Request) {
       text,
       style,
       genzIntensity,
+      flirtIntensity,
       ...(instructions ? { instructions } : {}),
       ...(isCrossLanguageRewrite(targetLanguage)
         ? {

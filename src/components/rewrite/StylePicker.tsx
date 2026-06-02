@@ -2,6 +2,7 @@
 
 import IconTooltip from "@/components/IconTooltip";
 import GenzIntensitySlider from "@/components/rewrite/GenzIntensitySlider";
+import FlirtIntensitySlider from "@/components/rewrite/FlirtIntensitySlider";
 import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
 import { STYLE_OPTIONS, type RewriteStyle } from "@/lib/rewrite";
 import { useRef } from "react";
@@ -11,6 +12,8 @@ type StylePickerProps = {
   onStyleChange: (style: RewriteStyle) => void;
   genzIntensity: number;
   onGenzIntensityChange: (value: number) => void;
+  flirtIntensity: number;
+  onFlirtIntensityChange: (value: number) => void;
   settingsOpen: boolean;
   onOpenSettings: () => void;
   hasCustomSettings: boolean;
@@ -21,6 +24,8 @@ export default function StylePicker({
   onStyleChange,
   genzIntensity,
   onGenzIntensityChange,
+  flirtIntensity,
+  onFlirtIntensityChange,
   settingsOpen,
   onOpenSettings,
   hasCustomSettings,
@@ -107,6 +112,12 @@ export default function StylePicker({
         <GenzIntensitySlider
           value={genzIntensity}
           onChange={onGenzIntensityChange}
+        />
+      ) : null}
+      {style === "flirt" ? (
+        <FlirtIntensitySlider
+          value={flirtIntensity}
+          onChange={onFlirtIntensityChange}
         />
       ) : null}
     </div>

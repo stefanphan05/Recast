@@ -8,6 +8,7 @@ export type RewriteRequest = {
   text: string;
   style: RewriteStyle;
   genzIntensity?: number;
+  flirtIntensity?: number;
   sourceLanguage: string;
   targetLanguage: string;
   instructions?: string;
@@ -24,6 +25,9 @@ export async function requestRewrite(
       style: params.style,
       ...(params.style === "genz" && params.genzIntensity != null
         ? { genzIntensity: params.genzIntensity }
+        : {}),
+      ...(params.style === "flirt" && params.flirtIntensity != null
+        ? { flirtIntensity: params.flirtIntensity }
         : {}),
       sourceLanguage: params.sourceLanguage,
       targetLanguage: params.targetLanguage,

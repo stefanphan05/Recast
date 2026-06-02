@@ -22,6 +22,7 @@ export default function RewriteWorkspace() {
   const [text, setText] = useState("");
   const [style, setStyle] = useState<RewriteStyle>("grammar");
   const [genzIntensity, setGenzIntensity] = useState(5);
+  const [flirtIntensity, setFlirtIntensity] = useState(5);
   const [sourceLanguage, setSourceLanguage] = useState<string>(
     SOURCE_LANGUAGE_AUTO,
   );
@@ -60,6 +61,7 @@ export default function RewriteWorkspace() {
         text,
         style,
         genzIntensity: style === "genz" ? genzIntensity : undefined,
+        flirtIntensity: style === "flirt" ? flirtIntensity : undefined,
         sourceLanguage,
         targetLanguage,
         instructions: instructions.trim() || undefined,
@@ -100,6 +102,8 @@ export default function RewriteWorkspace() {
               onStyleChange={setStyle}
               genzIntensity={genzIntensity}
               onGenzIntensityChange={setGenzIntensity}
+              flirtIntensity={flirtIntensity}
+              onFlirtIntensityChange={setFlirtIntensity}
               settingsOpen={settingsOpen}
               onOpenSettings={() => setSettingsOpen(true)}
               hasCustomSettings={hasCustomSettings}

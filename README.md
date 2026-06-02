@@ -5,6 +5,7 @@ This app rewrites messages with better grammar and style presets:
 - `Formal`
 - `Casual`
 - `GenZ` (with 0-10 intensity slider)
+- `Flirt` (with 1-10 cringe intensity slider)
 
 It uses a Next.js API route (`/api/rewrite`) with **automatic AI provider fallback**. Configure one or more free-tier APIs; if Gemini runs out of quota, the app tries Groq, OpenRouter, and others in order.
 
@@ -96,8 +97,9 @@ Request body:
 ```json
 {
   "text": "string",
-  "style": "grammar | shorter | formal | casual | genz",
-  "genzIntensity": 5
+  "style": "grammar | shorter | formal | casual | genz | flirt",
+  "genzIntensity": 5,
+  "flirtIntensity": 5
 }
 ```
 

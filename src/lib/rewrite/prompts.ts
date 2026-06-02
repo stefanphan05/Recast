@@ -12,6 +12,7 @@ export type RewriteInput = {
   text: string;
   style: RewriteStyle;
   genzIntensity: number;
+  flirtIntensity: number;
   sourceLanguage?: typeof SOURCE_LANGUAGE_AUTO | LanguageCode;
   targetLanguage?: LanguageCode;
   /** Optional user guidance (e.g. email tone, audience). Omitted when empty. */
@@ -63,12 +64,45 @@ function buildGenzInstruction(
   return `Use strong Gen Z slang and internet-style vibe in ${lang}, but keep the sentence understandable.`;
 }
 
+function buildFlirtInstruction(
+  flirtIntensity: number,
+  targetLanguage?: LanguageCode,
+): string {
+  const intensity = clamp(flirtIntensity, 0, 10);
+  const lang = targetLanguage
+    ? languageLabel(targetLanguage)
+    : "the message language";
+
+  // Safety guard: keep flirtatious but non-explicit and respectful.
+  const safety =
+    "Keep it respectful and non-explicit; avoid sexual content. Make it appropriate for a short message.";
+
+  if (intensity <= 1) {
+    return `Use low-key, genuinely sweet flirt energy in ${lang} with minimal slang and no cringe theatrics. ${safety}`;
+  }
+
+  if (intensity <= 3) {
+    return `Add light compliments and gentle teasing in ${lang} (small cringe, mostly natural charm). ${safety}`;
+  }
+
+  if (intensity <= 6) {
+    return `Make it clearly flirty in ${lang}: playful phrases, a bit more confidence, and some internet-flirt vibes—still readable. ${safety}`;
+  }
+
+  if (intensity <= 8) {
+    return `Turn up the flirt in ${lang} with bolder wording, more slang, and intentionally noticeable (but still friendly) cringe. ${safety}`;
+  }
+
+  return `Go for maximum cringey-but-funny flirting in ${lang}: exaggerated compliments, playful metaphors, and heavy internet-flirt slang—while staying understandable and non-explicit. ${safety}`;
+}
+
 const SAME_LANGUAGE_SUFFIX =
   " Keep the output in the same language as the input message. Change tone only—do not translate.";
 
 function buildStyleInstruction(
   style: RewriteStyle,
   genzIntensity: number,
+  flirtIntensity: number,
   targetLanguage?: LanguageCode,
 ): string {
   const inLanguage = targetLanguage
@@ -80,7 +114,13 @@ function buildStyleInstruction(
     return targetLanguage ? genz : `${genz}${SAME_LANGUAGE_SUFFIX}`;
   }
 
-  const instructions: Record<Exclude<RewriteStyle, "genz">, string> = {
+  if (style === "flirt") {
+    const flirt = buildFlirtInstruction(flirtIntensity, targetLanguage);
+    return targetLanguage ? flirt : `${flirt}${SAME_LANGUAGE_SUFFIX}`;
+  }
+
+  const instructions: Record<Exclude<RewriteStyle, "genz" | "flirt">, string> =
+    {
     grammar: `Fix grammar, spelling, and punctuation only. Keep the same tone, length, and wording as much as possible.${inLanguage}`,
     shorter: `Make the message shorter and more concise while preserving the full meaning and intent.${inLanguage}`,
     longer: `Expand the message with a bit more detail and clarity while keeping the same intent.${inLanguage}`,
@@ -88,9 +128,8 @@ function buildStyleInstruction(
     formal: `Use formal, professional wording that is clear and polite.${inLanguage}`,
     friendly: `Use warm, approachable wording that sounds genuinely friendly.${inLanguage}`,
     direct: `Be direct and to the point. Remove filler while staying respectful.${inLanguage}`,
-    persuasive: `Make the message more compelling and convincing while staying honest.${inLanguage}`,
     polite: `Maximize politeness and courtesy while keeping the request clear.${inLanguage}`,
-  };
+    };
 
   return instructions[style];
 }
@@ -103,7 +142,7 @@ function buildPreserveLanguageInstruction(text: string): string {
       `Language: The input message is ${label}.`,
       `Write the rewritten output in ${label} only.`,
       `Do not translate into any other language (including Spanish, French, etc.).`,
-      `Style names like "polite" or "persuasive" refer to tone in ${label}, not a different language.`,
+      `Style names like "polite" or "flirt" refer to tone in ${label}, not a different language.`,
     ].join(" ");
   }
 
@@ -165,6 +204,7 @@ export function buildUserPrompt(input: RewriteInput): string {
   const styleBlock = `Style: ${input.style}\n${buildStyleInstruction(
     input.style,
     input.genzIntensity,
+    input.flirtIntensity,
     input.targetLanguage,
   )}`;
 

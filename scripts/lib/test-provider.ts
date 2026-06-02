@@ -5,6 +5,7 @@ const testInput: RewriteInput = {
   text: "i doesn't think this is gonna work lol",
   style: "grammar",
   genzIntensity: 5,
+  flirtIntensity: 5,
 };
 
 export async function testProvider(provider: RewriteProvider): Promise<void> {
