@@ -3,16 +3,9 @@ import {
   SOURCE_LANGUAGE_AUTO,
   type LanguageCode,
 } from "./languages";
+import { type RewriteStyle } from "./styles";
 
-export const ALLOWED_STYLES = [
-  "grammar",
-  "shorter",
-  "formal",
-  "casual",
-  "genz",
-] as const;
-
-export type RewriteStyle = (typeof ALLOWED_STYLES)[number];
+export { ALLOWED_STYLES, type RewriteStyle } from "./styles";
 
 export type RewriteInput = {
   text: string;
@@ -20,6 +13,8 @@ export type RewriteInput = {
   genzIntensity: number;
   sourceLanguage?: typeof SOURCE_LANGUAGE_AUTO | LanguageCode;
   targetLanguage?: LanguageCode;
+  /** Optional user guidance (e.g. email tone, audience). Omitted when empty. */
+  instructions?: string;
 };
 
 export const REWRITE_SYSTEM_INSTRUCTION =
@@ -32,31 +27,10 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-function buildStyleInstruction(
-  style: RewriteStyle,
+function buildGenzInstruction(
   genzIntensity: number,
   targetLanguage?: LanguageCode,
 ): string {
-  const inLanguage = targetLanguage
-    ? ` Write the result in ${languageLabel(targetLanguage)}.`
-    : "";
-
-  if (style === "grammar") {
-    return `Fix grammar, spelling, and punctuation only. Keep the same tone, length, and wording as much as possible.${inLanguage}`;
-  }
-
-  if (style === "shorter") {
-    return `Make the message shorter and more concise while preserving the full meaning and intent.${inLanguage}`;
-  }
-
-  if (style === "formal") {
-    return `Use formal, professional wording that is clear and polite.${inLanguage}`;
-  }
-
-  if (style === "casual") {
-    return `Use friendly, natural casual wording while staying respectful.${inLanguage}`;
-  }
-
   const intensity = clamp(genzIntensity, 0, 10);
   const lang = targetLanguage
     ? languageLabel(targetLanguage)
@@ -77,6 +51,34 @@ function buildStyleInstruction(
   return `Use strong Gen Z slang and internet-style vibe in ${lang}, but keep the sentence understandable.`;
 }
 
+function buildStyleInstruction(
+  style: RewriteStyle,
+  genzIntensity: number,
+  targetLanguage?: LanguageCode,
+): string {
+  const inLanguage = targetLanguage
+    ? ` Write the result in ${languageLabel(targetLanguage)}.`
+    : "";
+
+  if (style === "genz") {
+    return buildGenzInstruction(genzIntensity, targetLanguage);
+  }
+
+  const instructions: Record<Exclude<RewriteStyle, "genz">, string> = {
+    grammar: `Fix grammar, spelling, and punctuation only. Keep the same tone, length, and wording as much as possible.${inLanguage}`,
+    shorter: `Make the message shorter and more concise while preserving the full meaning and intent.${inLanguage}`,
+    longer: `Expand the message with a bit more detail and clarity while keeping the same intent.${inLanguage}`,
+    casual: `Use friendly, natural casual wording while staying respectful.${inLanguage}`,
+    formal: `Use formal, professional wording that is clear and polite.${inLanguage}`,
+    friendly: `Use warm, approachable wording that sounds genuinely friendly.${inLanguage}`,
+    direct: `Be direct and to the point. Remove filler while staying respectful.${inLanguage}`,
+    persuasive: `Make the message more compelling and convincing while staying honest.${inLanguage}`,
+    polite: `Maximize politeness and courtesy while keeping the request clear.${inLanguage}`,
+  };
+
+  return instructions[style];
+}
+
 function buildLanguageInstruction(input: RewriteInput): string | null {
   if (!input.targetLanguage) return null;
 
@@ -95,19 +97,26 @@ export function buildSystemInstruction(_input: RewriteInput): string {
   return REWRITE_SYSTEM_INSTRUCTION;
 }
 
+function buildInstructionsBlock(instructions: string | undefined): string | null {
+  const trimmed = instructions?.trim();
+  if (!trimmed) return null;
+  return `Additional instructions (follow these while rewriting):\n${trimmed}`;
+}
+
 export function buildUserPrompt(input: RewriteInput): string {
   const languageBlock = buildLanguageInstruction(input);
+  const instructionsBlock = buildInstructionsBlock(input.instructions);
   const styleBlock = `Style: ${input.style}\n${buildStyleInstruction(
     input.style,
     input.genzIntensity,
     input.targetLanguage,
   )}`;
 
-  if (languageBlock) {
-    return `${languageBlock}\n\n${styleBlock}\n\nMessage:\n${input.text}`;
-  }
+  const blocks = [languageBlock, instructionsBlock, styleBlock].filter(
+    (block): block is string => block !== null,
+  );
 
-  return `${styleBlock}\n\nMessage:\n${input.text}`;
+  return `${blocks.join("\n\n")}\n\nMessage:\n${input.text}`;
 }
 
 export function maxOutputTokens(textLength: number): number {

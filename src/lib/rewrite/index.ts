@@ -2,8 +2,9 @@ import { resolveProviderOrder } from "./providers";
 import type { RewriteInput } from "./prompts";
 import { ProviderError, type RewriteResult } from "./types";
 
-export type { RewriteInput, RewriteStyle } from "./prompts";
-export { ALLOWED_STYLES } from "./prompts";
+export type { RewriteInput } from "./prompts";
+export type { RewriteStyle } from "./styles";
+export { ALLOWED_STYLES, STYLE_OPTIONS } from "./styles";
 export {
   LANGUAGES,
   SOURCE_LANGUAGE_AUTO,
