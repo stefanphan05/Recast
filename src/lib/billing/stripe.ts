@@ -1,6 +1,6 @@
 import Stripe from "stripe";
 
-const STRIPE_API_VERSION: Stripe.LatestApiVersion = "2025-05-28.basil";
+const STRIPE_API_VERSION = "2026-05-27.dahlia" as const;
 
 let stripeClient: Stripe | null = null;
 

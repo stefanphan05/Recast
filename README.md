@@ -24,12 +24,12 @@ GROQ_API_KEY=your_groq_key
 OPENROUTER_API_KEY=your_openrouter_key
 ```
 
-| Provider | Free tier signup |
-|----------|------------------|
-| [Google Gemini](https://aistudio.google.com/apikey) | `GEMINI_API_KEY` |
-| [Groq](https://console.groq.com/) | `GROQ_API_KEY` |
+| Provider                                                  | Free tier signup     |
+| --------------------------------------------------------- | -------------------- |
+| [Google Gemini](https://aistudio.google.com/apikey)       | `GEMINI_API_KEY`     |
+| [Groq](https://console.groq.com/)                         | `GROQ_API_KEY`       |
 | [OpenRouter](https://openrouter.ai/) (use `:free` models) | `OPENROUTER_API_KEY` |
-| [Cerebras](https://cloud.cerebras.ai/) (optional) | `CEREBRAS_API_KEY` |
+| [Cerebras](https://cloud.cerebras.ai/) (optional)         | `CEREBRAS_API_KEY`   |
 
 Optional: `REWRITE_PROVIDER_ORDER=gemini,groq,openrouter` to control fallback order.
 
