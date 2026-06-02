@@ -2,15 +2,23 @@
 
 import AppHeader from "@/components/AppHeader";
 import Footer from "@/components/Footer";
-import LanguageSelect from "@/components/LanguageSelect";
+import IconTooltip from "@/components/IconTooltip";
+import RewriteSettingsModal from "@/components/RewriteSettingsModal";
 import {
   LANGUAGES,
   SOURCE_LANGUAGE_AUTO,
+  STYLE_OPTIONS,
   TARGET_LANGUAGE_SAME,
+  type RewriteStyle,
 } from "@/lib/rewrite";
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-
-type RewriteStyle = "grammar" | "shorter" | "formal" | "casual" | "genz";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 const MAX_CHARS = 2000;
 /** ~5 lines at 15px / leading-relaxed */
@@ -23,14 +31,6 @@ const TEXTAREA_MAX_COMPACT_PX = 120;
 const SERVER_ERROR_MESSAGE = "Server error. Please try again later.";
 const RATE_LIMIT_MESSAGE =
   "Too many requests. Please wait a moment and try again.";
-
-const STYLES: { value: RewriteStyle; label: string }[] = [
-  { value: "grammar", label: "Correct" },
-  { value: "shorter", label: "Shorter" },
-  { value: "formal", label: "Formal" },
-  { value: "casual", label: "Casual" },
-  { value: "genz", label: "Gen Z" },
-];
 
 const targetLanguageOptions = [
   { value: TARGET_LANGUAGE_SAME, label: "Same as message" },
@@ -52,13 +52,47 @@ export default function Home() {
   const [targetLanguage, setTargetLanguage] = useState<string>(
     TARGET_LANGUAGE_SAME,
   );
+  const [instructions, setInstructions] = useState("");
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [result, setResult] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const styleStripRef = useRef<HTMLDivElement>(null);
+  const [canScrollStylesLeft, setCanScrollStylesLeft] = useState(false);
+  const [canScrollStylesRight, setCanScrollStylesRight] = useState(false);
 
   const hasOutput = isLoading || result.length > 0;
+
+  const updateStyleStripScroll = useCallback(() => {
+    const el = styleStripRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollStylesLeft(scrollLeft > 2);
+    setCanScrollStylesRight(scrollLeft < scrollWidth - clientWidth - 2);
+  }, []);
+
+  useLayoutEffect(() => {
+    updateStyleStripScroll();
+  }, [updateStyleStripScroll]);
+
+  useEffect(() => {
+    const el = styleStripRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(updateStyleStripScroll);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [updateStyleStripScroll]);
+
+  function scrollStyleStrip(direction: -1 | 1) {
+    const el = styleStripRef.current;
+    if (!el) return;
+    el.scrollBy({
+      left: direction * el.clientWidth * 0.55,
+      behavior: "smooth",
+    });
+  }
 
   const syncTextareaHeight = useCallback(() => {
     const el = textareaRef.current;
@@ -93,6 +127,10 @@ export default function Home() {
   }, [text, isLoading]);
 
   const isCrossLanguage = targetLanguage !== TARGET_LANGUAGE_SAME;
+  const hasCustomSettings =
+    isCrossLanguage ||
+    instructions.trim().length > 0 ||
+    sourceLanguage !== SOURCE_LANGUAGE_AUTO;
 
   async function handleRewrite() {
     if (!canSubmit) return;
@@ -111,6 +149,7 @@ export default function Home() {
           ...(style === "genz" ? { genzIntensity } : {}),
           sourceLanguage,
           targetLanguage,
+          ...(instructions.trim() ? { instructions: instructions.trim() } : {}),
         }),
       });
 
@@ -206,24 +245,114 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col">
-              <p className="text-[11px] uppercase tracking-[0.08em] text-neutral-400 dark:text-neutral-500">
-                Rewrite as
-              </p>
-              <div className="mt-2 flex w-full gap-2">
-                {STYLES.map(({ value, label }) => (
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[11px] uppercase tracking-[0.08em] text-neutral-400 dark:text-neutral-500">
+                  Rewrite as
+                </p>
+                <IconTooltip
+                  label="Advanced settings"
+                  align="end"
+                >
                   <button
-                    key={value}
                     type="button"
-                    onClick={() => setStyle(value)}
-                    className={`min-w-0 flex-1 cursor-pointer rounded-2xl border px-2 py-2.5 text-center text-sm transition-colors ${
-                      style === value
-                        ? "border-neutral-950 bg-neutral-950 text-white dark:border-neutral-50 dark:bg-neutral-50 dark:text-neutral-950"
-                        : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400 hover:text-neutral-950 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:border-neutral-500 dark:hover:text-neutral-50"
-                    }`}
+                    onClick={() => setSettingsOpen(true)}
+                    aria-expanded={settingsOpen}
+                    aria-haspopup="dialog"
+                    className="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-xl text-neutral-500 transition-colors hover:bg-neutral-200/70 hover:text-neutral-600 focus-visible:bg-neutral-200/70 focus-visible:text-neutral-600 focus-visible:outline-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200 dark:focus-visible:bg-neutral-800 dark:focus-visible:text-neutral-200"
                   >
-                    {label}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden
+                    >
+                      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    {hasCustomSettings && !settingsOpen ? (
+                      <span
+                        className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-neutral-950 dark:bg-neutral-50"
+                        aria-hidden
+                      />
+                    ) : null}
                   </button>
-                ))}
+                </IconTooltip>
+              </div>
+              <div className="relative mt-2">
+                <div
+                  ref={styleStripRef}
+                  onScroll={updateStyleStripScroll}
+                  className="scrollbar-hide grid w-full grid-flow-col auto-cols-[calc((100%-2rem)/5)] gap-2 overflow-x-auto"
+                  role="tablist"
+                  aria-label="Rewrite style"
+                >
+                  {STYLE_OPTIONS.map(({ value, label }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      role="tab"
+                      aria-selected={style === value}
+                      onClick={() => setStyle(value)}
+                      className={`cursor-pointer rounded-2xl border px-2 py-2.5 text-center text-sm whitespace-nowrap transition-colors ${
+                        style === value
+                          ? "border-neutral-950 bg-neutral-950 text-white dark:border-neutral-50 dark:bg-neutral-50 dark:text-neutral-950"
+                          : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400 hover:text-neutral-950 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:border-neutral-500 dark:hover:text-neutral-50"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  aria-label="Show earlier styles"
+                  disabled={!canScrollStylesLeft}
+                  onClick={() => scrollStyleStrip(-1)}
+                  className="absolute top-1/2 left-0 z-10 flex h-full w-7 -translate-y-1/2 cursor-pointer items-center justify-start bg-gradient-to-r from-white from-40% to-transparent pl-0.5 text-neutral-500 transition-opacity hover:text-neutral-800 disabled:pointer-events-none disabled:opacity-0 dark:from-neutral-950 dark:hover:text-neutral-200"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <path d="m15 18-6-6 6-6" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  aria-label="Show more styles"
+                  disabled={!canScrollStylesRight}
+                  onClick={() => scrollStyleStrip(1)}
+                  className="absolute top-1/2 right-0 z-10 flex h-full w-7 -translate-y-1/2 cursor-pointer items-center justify-end bg-gradient-to-l from-white from-40% to-transparent pr-0.5 text-neutral-500 transition-opacity hover:text-neutral-800 disabled:pointer-events-none disabled:opacity-0 dark:from-neutral-950 dark:hover:text-neutral-200"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <path d="m9 18 6-6-6-6" />
+                  </svg>
+                </button>
               </div>
               {style === "genz" ? (
                 <div className="mt-4">
@@ -251,29 +380,6 @@ export default function Home() {
                   </div>
                 </div>
               ) : null}
-
-              <div
-                className={`mt-4 grid gap-3 ${isCrossLanguage ? "grid-cols-2" : "grid-cols-1"}`}
-              >
-                {isCrossLanguage ? (
-                  <LanguageSelect
-                    id="source-language"
-                    label="Input language"
-                    value={sourceLanguage}
-                    options={sourceLanguageOptions}
-                    onChange={setSourceLanguage}
-                    muted={sourceLanguage === SOURCE_LANGUAGE_AUTO}
-                  />
-                ) : null}
-                <LanguageSelect
-                  id="target-language"
-                  label="Rewrite in"
-                  value={targetLanguage}
-                  options={targetLanguageOptions}
-                  onChange={setTargetLanguage}
-                  muted={targetLanguage === TARGET_LANGUAGE_SAME}
-                />
-              </div>
 
               <button
                 type="button"
@@ -382,6 +488,22 @@ export default function Home() {
       <div className="shrink-0">
         <Footer />
       </div>
+
+      <RewriteSettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        instructions={instructions}
+        onInstructionsChange={setInstructions}
+        sourceLanguage={sourceLanguage}
+        onSourceLanguageChange={setSourceLanguage}
+        targetLanguage={targetLanguage}
+        onTargetLanguageChange={setTargetLanguage}
+        isCrossLanguage={isCrossLanguage}
+        sourceLanguageOptions={sourceLanguageOptions}
+        targetLanguageOptions={targetLanguageOptions}
+        sourceLanguageAuto={SOURCE_LANGUAGE_AUTO}
+        targetLanguageSame={TARGET_LANGUAGE_SAME}
+      />
     </div>
   );
 }
