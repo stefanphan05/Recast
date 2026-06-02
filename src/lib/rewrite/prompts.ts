@@ -20,6 +20,9 @@ export type RewriteInput = {
 export const REWRITE_SYSTEM_INSTRUCTION =
   "You rewrite short messages. Output ONLY the rewritten message text. No explanations, no reasoning, no labels, no quotes, no markdown, no 'Fixed:' or 'Original:' lines.";
 
+const PRESERVE_INPUT_LANGUAGE_RULE =
+  "Preserve the input message language. Never translate unless a target language is specified in the user prompt.";
+
 /** @deprecated Use buildSystemInstruction */
 export const SYSTEM_INSTRUCTION = REWRITE_SYSTEM_INSTRUCTION;
 
@@ -51,6 +54,9 @@ function buildGenzInstruction(
   return `Use strong Gen Z slang and internet-style vibe in ${lang}, but keep the sentence understandable.`;
 }
 
+const SAME_LANGUAGE_SUFFIX =
+  " Keep the output in the same language as the input message; do not translate.";
+
 function buildStyleInstruction(
   style: RewriteStyle,
   genzIntensity: number,
@@ -58,10 +64,11 @@ function buildStyleInstruction(
 ): string {
   const inLanguage = targetLanguage
     ? ` Write the result in ${languageLabel(targetLanguage)}.`
-    : "";
+    : SAME_LANGUAGE_SUFFIX;
 
   if (style === "genz") {
-    return buildGenzInstruction(genzIntensity, targetLanguage);
+    const genz = buildGenzInstruction(genzIntensity, targetLanguage);
+    return targetLanguage ? genz : `${genz}${SAME_LANGUAGE_SUFFIX}`;
   }
 
   const instructions: Record<Exclude<RewriteStyle, "genz">, string> = {
@@ -79,8 +86,18 @@ function buildStyleInstruction(
   return instructions[style];
 }
 
+function buildPreserveLanguageInstruction(): string {
+  return [
+    "Language: Detect the language of the input message.",
+    "Write the rewritten output in that exact same language only.",
+    "Do not translate to English or any other language.",
+  ].join(" ");
+}
+
 function buildLanguageInstruction(input: RewriteInput): string | null {
-  if (!input.targetLanguage) return null;
+  if (!input.targetLanguage) {
+    return buildPreserveLanguageInstruction();
+  }
 
   const source =
     input.sourceLanguage === SOURCE_LANGUAGE_AUTO || !input.sourceLanguage
@@ -93,11 +110,16 @@ function buildLanguageInstruction(input: RewriteInput): string | null {
   return `${source}\n${target}\n${note}`;
 }
 
-export function buildSystemInstruction(_input: RewriteInput): string {
-  return REWRITE_SYSTEM_INSTRUCTION;
+export function buildSystemInstruction(input: RewriteInput): string {
+  if (input.targetLanguage) {
+    return REWRITE_SYSTEM_INSTRUCTION;
+  }
+  return `${REWRITE_SYSTEM_INSTRUCTION} ${PRESERVE_INPUT_LANGUAGE_RULE}`;
 }
 
-function buildInstructionsBlock(instructions: string | undefined): string | null {
+function buildInstructionsBlock(
+  instructions: string | undefined,
+): string | null {
   const trimmed = instructions?.trim();
   if (!trimmed) return null;
   return `Additional instructions (follow these while rewriting):\n${trimmed}`;
