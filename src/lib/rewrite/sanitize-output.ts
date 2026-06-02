@@ -21,6 +21,30 @@ const META_LINE_MARKERS = [
   /^i should /i,
 ];
 
+function normalizeForDedupe(line: string): string {
+  return line
+    .trim()
+    .toLowerCase()
+    .replace(/[¿?¡!.,…:;'"()]/g, "")
+    .replace(/\s+/g, " ");
+}
+
+/** Drop consecutive duplicate lines models sometimes emit when "trying" variants. */
+function collapseDuplicateLines(text: string): string {
+  const lines = text.split("\n");
+  const result: string[] = [];
+  let previousKey = "";
+
+  for (const line of lines) {
+    const key = normalizeForDedupe(line);
+    if (key && key === previousKey) continue;
+    result.push(line);
+    previousKey = key;
+  }
+
+  return result.join("\n").trim();
+}
+
 function stripWrappingQuotes(text: string): string {
   const trimmed = text.trim();
   if (
@@ -105,5 +129,5 @@ export function sanitizeRewriteOutput(
     }
   }
 
-  return stripWrappingQuotes(text);
+  return collapseDuplicateLines(stripWrappingQuotes(text));
 }
