@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
-import SignInTrigger from "@/components/auth/SignInTrigger";
+import BillingActionButton from "@/components/billing/BillingActionButton";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
@@ -18,7 +18,7 @@ const FREE_FEATURES = [
 const PREMIUM_FEATURES = [
   "Higher rate limits",
   "Priority provider routing",
-  "More coming soon…",
+  "Manage subscription anytime",
 ] as const;
 
 export default function PricingPage() {
@@ -35,7 +35,7 @@ export default function PricingPage() {
               Simple plans
             </h1>
             <p className="mx-auto max-w-md text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
-              Start free. Premium is on the way — we&apos;re still building it.
+              Start free, then upgrade to Premium for A$10 per month.
             </p>
           </div>
 
@@ -72,20 +72,24 @@ export default function PricingPage() {
               </Link>
             </section>
 
-            <section className="relative flex flex-col rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 p-6 dark:border-neutral-700 dark:bg-neutral-900">
+            <section className="relative flex flex-col rounded-2xl border border-neutral-300 bg-neutral-50 p-6 dark:border-neutral-700 dark:bg-neutral-900">
               <div className="flex items-baseline justify-between gap-3">
                 <h2 className="text-lg font-medium text-neutral-950 dark:text-neutral-50">
                   Premium
                 </h2>
-                <span className="rounded-full border border-neutral-300 bg-white px-2.5 py-0.5 text-[11px] uppercase tracking-[0.06em] text-neutral-500 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
-                  In development
+                <span className="rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-0.5 text-[11px] uppercase tracking-[0.06em] text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
+                  Available now
                 </span>
               </div>
-              <p className="mt-3 text-3xl font-medium tracking-tight text-neutral-400 dark:text-neutral-500">
-                TBD
+              <p className="mt-3 text-3xl font-medium tracking-tight text-neutral-950 dark:text-neutral-50">
+                A$10
+                <span className="text-sm font-normal text-neutral-500 dark:text-neutral-400">
+                  {" "}
+                  / month
+                </span>
               </p>
               <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-                Still cooking — check back soon hehe
+                Cancel anytime from your Stripe billing portal.
               </p>
               <ul className="mt-6 flex flex-1 flex-col gap-2.5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
                 {PREMIUM_FEATURES.map((feature) => (
@@ -97,9 +101,7 @@ export default function PricingPage() {
                   </li>
                 ))}
               </ul>
-              <SignInTrigger className="mt-8 flex w-full cursor-pointer items-center justify-center rounded-2xl border border-neutral-300 bg-white py-3 text-sm font-medium text-neutral-950 transition-colors hover:border-neutral-400 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-50 dark:hover:border-neutral-500">
-                Sign in with Google
-              </SignInTrigger>
+              <BillingActionButton />
             </section>
           </div>
         </main>
