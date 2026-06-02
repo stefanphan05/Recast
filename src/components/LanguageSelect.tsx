@@ -224,7 +224,7 @@ export default function LanguageSelect({
           role="listbox"
           tabIndex={-1}
           aria-labelledby={`${id}-label`}
-          className="absolute left-0 right-0 top-full z-20 mt-1.5 max-h-56 overflow-y-auto rounded-2xl border border-neutral-200 bg-white py-1 shadow-lg outline-none dark:border-neutral-700 dark:bg-neutral-900"
+          className="absolute left-0 right-0 top-full z-[60] mt-1.5 max-h-56 overflow-y-auto rounded-2xl border border-neutral-200 bg-white py-1 shadow-lg outline-none dark:border-neutral-700 dark:bg-neutral-900"
         >
           {visibleOptions.length === 0 ? (
             <li
