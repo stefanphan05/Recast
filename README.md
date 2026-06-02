@@ -43,7 +43,12 @@ UPSTASH_REDIS_REST_URL=...
 UPSTASH_REDIS_REST_TOKEN=...
 ```
 
-Optional overrides: `RATE_LIMIT_MAX`, `RATE_LIMIT_WINDOW_MS`.
+Optional overrides:
+`RATE_LIMIT_MAX`, `RATE_LIMIT_WINDOW_MS`,
+`RATE_LIMIT_MAX_PREMIUM`, `RATE_LIMIT_WINDOW_MS_PREMIUM`,
+and `PREMIUM_STATUS_CACHE_TTL_MS`.
+
+Premium tier defaults to a higher limit than Free (by default `RATE_LIMIT_MAX_PREMIUM = RATE_LIMIT_MAX * 4`).
 
 ### Google sign-in (optional)
 
