@@ -1,9 +1,19 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
-const RATE_LIMIT_MAX = Number(process.env.RATE_LIMIT_MAX ?? 5);
-const RATE_LIMIT_WINDOW_MS = Number(
+export type RateLimitTier = "free" | "premium";
+
+const RATE_LIMIT_MAX_FREE = Number(process.env.RATE_LIMIT_MAX ?? 5);
+const RATE_LIMIT_WINDOW_MS_FREE = Number(
   process.env.RATE_LIMIT_WINDOW_MS ?? 60_000,
+);
+
+const RATE_LIMIT_MAX_PREMIUM = Number(
+  process.env.RATE_LIMIT_MAX_PREMIUM ??
+    Math.max(1, Math.ceil(RATE_LIMIT_MAX_FREE * 4)),
+);
+const RATE_LIMIT_WINDOW_MS_PREMIUM = Number(
+  process.env.RATE_LIMIT_WINDOW_MS_PREMIUM ?? RATE_LIMIT_WINDOW_MS_FREE,
 );
 
 export type RateLimitResult = {
@@ -20,7 +30,8 @@ type MemoryEntry = {
 
 const memoryStore = new Map<string, MemoryEntry>();
 
-let upstashRatelimit: Ratelimit | null | undefined;
+let upstashRatelimitFree: Ratelimit | null | undefined;
+let upstashRatelimitPremium: Ratelimit | null | undefined;
 
 function hasUpstashRedis(): boolean {
   return Boolean(
@@ -28,50 +39,81 @@ function hasUpstashRedis(): boolean {
   );
 }
 
-function getUpstashRatelimit(): Ratelimit | null {
-  if (upstashRatelimit !== undefined) {
-    return upstashRatelimit;
+function getUpstashRatelimit(tier: RateLimitTier): Ratelimit | null {
+  const cache =
+    tier === "premium" ? upstashRatelimitPremium : upstashRatelimitFree;
+
+  if (cache !== undefined) {
+    return cache;
   }
 
   if (!hasUpstashRedis()) {
-    upstashRatelimit = null;
+    if (tier === "premium") {
+      upstashRatelimitPremium = null;
+    } else {
+      upstashRatelimitFree = null;
+    }
     return null;
   }
 
-  upstashRatelimit = new Ratelimit({
+  const max =
+    tier === "premium" ? RATE_LIMIT_MAX_PREMIUM : RATE_LIMIT_MAX_FREE;
+  const windowMs =
+    tier === "premium"
+      ? RATE_LIMIT_WINDOW_MS_PREMIUM
+      : RATE_LIMIT_WINDOW_MS_FREE;
+  const prefix =
+    tier === "premium" ? "messagerewriter:premium" : "messagerewriter:free";
+
+  const ratelimit = new Ratelimit({
     redis: Redis.fromEnv(),
-    limiter: Ratelimit.slidingWindow(
-      RATE_LIMIT_MAX,
-      `${RATE_LIMIT_WINDOW_MS} ms`,
-    ),
-    prefix: "messagerewriter",
+    limiter: Ratelimit.slidingWindow(max, `${windowMs} ms`),
+    prefix,
   });
 
-  return upstashRatelimit;
+  if (tier === "premium") {
+    upstashRatelimitPremium = ratelimit;
+  } else {
+    upstashRatelimitFree = ratelimit;
+  }
+
+  return ratelimit;
 }
 
-function checkMemoryLimit(identifier: string): RateLimitResult {
-  const now = Date.now();
-  const reset = now + RATE_LIMIT_WINDOW_MS;
+function checkMemoryLimit(
+  identifier: string,
+  tier: RateLimitTier,
+): RateLimitResult {
+  const max =
+    tier === "premium" ? RATE_LIMIT_MAX_PREMIUM : RATE_LIMIT_MAX_FREE;
+  const windowMs =
+    tier === "premium"
+      ? RATE_LIMIT_WINDOW_MS_PREMIUM
+      : RATE_LIMIT_WINDOW_MS_FREE;
 
-  const entry = memoryStore.get(identifier);
+  const now = Date.now();
+  const reset = now + windowMs;
+
+  const key = `${tier}:${identifier}`;
+
+  const entry = memoryStore.get(key);
   if (!entry || now >= entry.resetAt) {
-    memoryStore.set(identifier, { count: 1, resetAt: reset });
+    memoryStore.set(key, { count: 1, resetAt: reset });
     return {
       success: true,
-      limit: RATE_LIMIT_MAX,
-      remaining: RATE_LIMIT_MAX - 1,
+      limit: max,
+      remaining: max - 1,
       reset,
     };
   }
 
   entry.count += 1;
-  const success = entry.count <= RATE_LIMIT_MAX;
+  const success = entry.count <= max;
 
   return {
     success,
-    limit: RATE_LIMIT_MAX,
-    remaining: Math.max(0, RATE_LIMIT_MAX - entry.count),
+    limit: max,
+    remaining: Math.max(0, max - entry.count),
     reset: entry.resetAt,
   };
 }
@@ -91,8 +133,9 @@ export function getClientIp(request: Request): string {
 
 export async function checkRateLimit(
   identifier: string,
+  tier: RateLimitTier = "free",
 ): Promise<RateLimitResult> {
-  const upstash = getUpstashRatelimit();
+  const upstash = getUpstashRatelimit(tier);
 
   if (upstash) {
     const result = await upstash.limit(identifier);
@@ -104,7 +147,7 @@ export async function checkRateLimit(
     };
   }
 
-  return checkMemoryLimit(identifier);
+  return checkMemoryLimit(identifier, tier);
 }
 
 export const RATE_LIMIT_MESSAGE =

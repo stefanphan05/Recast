@@ -4,6 +4,8 @@ import {
   getClientIp,
   RATE_LIMIT_MESSAGE,
 } from "@/lib/rate-limit";
+import { auth } from "@/auth";
+import { hasActivePremiumSubscription } from "@/lib/billing/stripe";
 import {
   ALLOWED_STYLES,
   isCrossLanguageRewrite,
@@ -49,7 +51,14 @@ function rateLimitHeaders(result: {
 
 export async function POST(request: Request) {
   try {
-    const rateLimit = await checkRateLimit(getClientIp(request));
+    const session = await auth();
+
+    const email = session?.user?.email;
+    const isPremium = email ? await hasActivePremiumSubscription(email) : false;
+    const rateLimit = await checkRateLimit(
+      getClientIp(request),
+      isPremium ? "premium" : "free",
+    );
     if (!rateLimit.success) {
       return NextResponse.json(
         { message: RATE_LIMIT_MESSAGE },
