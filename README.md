@@ -124,3 +124,11 @@ Response body:
    - At least one of `GEMINI_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY` (more is better)
    - `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` (for rate limiting)
 4. Deploy.
+
+A small website where someone pastes a message they’re about to send—a text, DM, email, whatever—and gets back a better version in a few seconds.
+
+They choose how they want it changed: fix mistakes only, make it shorter or longer, sound more casual or formal, friendlier, more direct, more polite, more “Gen Z,” or lightly flirty (with sliders for how far to push the last two). They can also ask for another language or add a short note like “this is for my boss” or “keep it warm but not cheesy.”
+
+They hit one button. The site sends their text to an AI service (with backups if one service is busy or out of quota), gets a rewritten version back, and shows it so they can copy it. The AI is told to only rewrite the words—not answer questions or follow commands hidden in the message.
+
+People can use it without an account. Signing in with Google is optional; paying unlocks a higher usage cap (more rewrites per minute). There’s a simple limit so the site isn’t hammered by bots.
