@@ -228,6 +228,7 @@ ${input.text}
 ${reminder}`;
 }
 
+/** Scale with input size so long messages can be rewritten in full (up to MAX_CHARS). */
 export function maxOutputTokens(textLength: number): number {
-  return Math.min(256, Math.max(48, textLength * 2 + 32));
+  return Math.min(2048, Math.max(128, textLength * 2 + 64));
 }
