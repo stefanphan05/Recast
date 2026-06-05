@@ -1,6 +1,7 @@
 "use client";
 
 import IconTooltip from "@/components/IconTooltip";
+import { PAYMENTS_ENABLED } from "@/lib/features";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -12,7 +13,10 @@ export default function PricingLink() {
   const isActive = pathname === "/pricing";
 
   return (
-    <IconTooltip label="View pricing plans" align="end">
+    <IconTooltip
+      label={PAYMENTS_ENABLED ? "View pricing plans" : "Premium — coming soon"}
+      align="end"
+    >
       <Link
         href="/pricing"
         aria-label="Pricing"

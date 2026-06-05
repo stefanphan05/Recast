@@ -5,6 +5,7 @@ import BillingActionButton from "@/components/billing/BillingActionButton";
 import Footer from "@/components/Footer";
 import FreeCardAction from "@/components/pricing/FreeCardAction";
 import PlanStatusBadge from "@/components/pricing/PlanStatusBadge";
+import { PAYMENTS_ENABLED } from "@/lib/features";
 
 const FREE_REWRITES_PER_MINUTE = Number(process.env.RATE_LIMIT_MAX ?? 5);
 const PREMIUM_REWRITES_PER_MINUTE = Number(
@@ -43,7 +44,9 @@ export default function PricingPage() {
               Simple plans
             </h1>
             <p className="mx-auto max-w-md text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
-              Start free, then upgrade to Premium for A$10 per month.
+              {PAYMENTS_ENABLED
+                ? "Start free, then upgrade to Premium for A$10 per month."
+                : "Message Rewriter is free to use. Premium plans are still in development."}
             </p>
           </div>
 
@@ -88,7 +91,9 @@ export default function PricingPage() {
                 </span>
               </p>
               <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-                Cancel anytime from your Stripe billing portal.
+                {PAYMENTS_ENABLED
+                  ? "Cancel anytime from your Stripe billing portal."
+                  : "Still in development — check back soon."}
               </p>
               <ul className="mt-6 flex flex-1 flex-col gap-2.5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
                 {PREMIUM_FEATURES.map((feature) => (

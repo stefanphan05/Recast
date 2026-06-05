@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { PAYMENTS_ENABLED } from "@/lib/features";
 
 type PlanTier = "free" | "premium";
 
@@ -63,7 +64,11 @@ export default function PlanStatusBadge({ tier }: { tier: PlanTier }) {
     );
   }
 
-  const premiumLabel = isCurrent ? "Current" : "Upgrade";
+  const premiumLabel = isCurrent
+    ? "Current"
+    : PAYMENTS_ENABLED
+      ? "Upgrade"
+      : "Coming soon";
 
   return (
     <span

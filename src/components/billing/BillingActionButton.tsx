@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import SignInTrigger from "@/components/auth/SignInTrigger";
+import { PAYMENTS_ENABLED } from "@/lib/features";
 
 type BillingMode = "checkout" | "portal";
 
@@ -37,6 +38,17 @@ export default function BillingActionButton() {
     if (isSubmitting) return "Redirecting...";
     return isPremium ? "Manage billing" : "Upgrade to Premium";
   }, [isPremium, isSubmitting]);
+
+  if (!PAYMENTS_ENABLED) {
+    return (
+      <div
+        className="mt-8 flex w-full cursor-not-allowed items-center justify-center rounded-2xl border border-dashed border-neutral-300 bg-neutral-100/80 py-3 text-sm font-medium text-neutral-500 dark:border-neutral-600 dark:bg-neutral-800/50 dark:text-neutral-400"
+        aria-disabled="true"
+      >
+        Coming soon
+      </div>
+    );
+  }
 
   if (!user) {
     return (

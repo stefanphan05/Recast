@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useState } from "react";
 import SignInTrigger from "@/components/auth/SignInTrigger";
 import { useAuth } from "@/contexts/AuthContext";
+import { PAYMENTS_ENABLED } from "@/lib/features";
 
 const signInClassName =
   "ml-1 rounded-lg bg-neutral-950 px-2.5 py-1 text-xs font-medium text-white transition-opacity hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none sm:rounded-xl sm:px-3 sm:py-1.5 sm:text-sm dark:bg-neutral-50 dark:text-neutral-950";
@@ -120,7 +121,7 @@ function UserAvatarMenu({
                 >
                   {plan}
                 </span>
-                {plan === "free" ? (
+                {plan === "free" && PAYMENTS_ENABLED ? (
                   <Link
                     href="/pricing"
                     onClick={() => setOpen(false)}
@@ -133,14 +134,20 @@ function UserAvatarMenu({
             </div>
             {plan === "free" ? (
               <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
-                Unlock higher limits with Premium.{" "}
-                <Link
-                  href="/pricing"
-                  onClick={() => setOpen(false)}
-                  className="font-medium text-neutral-800 underline underline-offset-2 transition-opacity hover:opacity-80 dark:text-neutral-200"
-                >
-                  See plans
-                </Link>
+                {PAYMENTS_ENABLED ? (
+                  <>
+                    Unlock higher limits with Premium.{" "}
+                    <Link
+                      href="/pricing"
+                      onClick={() => setOpen(false)}
+                      className="font-medium text-neutral-800 underline underline-offset-2 transition-opacity hover:opacity-80 dark:text-neutral-200"
+                    >
+                      See plans
+                    </Link>
+                  </>
+                ) : (
+                  "Premium is still in development — coming soon."
+                )}
               </p>
             ) : null}
           </div>

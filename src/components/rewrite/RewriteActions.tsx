@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { PAYMENTS_ENABLED } from "@/lib/features";
 
 type RewriteActionsProps = {
   canSubmit: boolean;
@@ -42,9 +43,9 @@ export default function RewriteActions({
         <div className="mt-3 flex flex-col items-center gap-2.5">
           {isRateLimited ? (
             <p className="text-center text-sm text-neutral-500 dark:text-neutral-400">
-              You&apos;ve reached your free plan limit. Wait a moment and try
-              again, or upgrade to Premium for higher limits and priority
-              access.
+              {PAYMENTS_ENABLED
+                ? "You've reached your free plan limit. Wait a moment and try again, or upgrade to Premium for higher limits and priority access."
+                : "You've reached the rate limit. Wait a moment and try again."}
             </p>
           ) : (
             <p className="text-center text-sm text-neutral-500 dark:text-neutral-400">
@@ -60,7 +61,7 @@ export default function RewriteActions({
             >
               Retry
             </button>
-            {isRateLimited ? (
+            {isRateLimited && PAYMENTS_ENABLED ? (
               <button
                 type="button"
                 onClick={() => router.push("/pricing")}
