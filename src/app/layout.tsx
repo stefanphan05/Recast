@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
-import { AuthProvider } from "@/contexts/AuthContext";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Message Rewriter",
+  title: "Recast",
   description: "Rewrite your message in a different style.",
 };
 
@@ -37,10 +35,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full">
-        <AuthProvider>{children}</AuthProvider>
-        <Analytics />
-      </body>
+      <body className="h-full overflow-hidden">{children}</body>
     </html>
   );
 }

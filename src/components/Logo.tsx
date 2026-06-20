@@ -20,13 +20,13 @@ export default function Logo({ size = "md" }: { size?: LogoSize }) {
       <span
         className={`${textSize} font-medium tracking-tight text-neutral-950 dark:text-neutral-100`}
       >
-        Message
+        Re
       </span>
       <span className={DOT_SIZES[size]} />
       <span
         className={`${textSize} font-light tracking-tight text-neutral-500 dark:text-neutral-400`}
       >
-        Rewriter
+        cast
       </span>
     </div>
   );

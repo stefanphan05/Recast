@@ -3,26 +3,69 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #ffffff;
+  --background: transparent;
   --foreground: #0a0a0a;
   --muted: #737373;
-  --border: #e5e5e5;
-  --surface: #fafafa;
+  --border: rgba(0, 0, 0, 0.1);
+  --surface: rgba(255, 255, 255, 0.95);
+  --surface-elevated: rgba(255, 255, 255, 0.98);
+  --surface-fade: rgba(255, 255, 255, 1);
+  --window-border: rgba(0, 0, 0, 0.1);
 }
 
 .dark {
-  --background: #0a0a0a;
+  --background: transparent;
   --foreground: #fafafa;
   --muted: #a3a3a3;
-  --border: #262626;
-  --surface: #171717;
+  --border: rgba(255, 255, 255, 0.12);
+  --surface: rgba(30, 30, 30, 0.95);
+  --surface-elevated: rgba(38, 38, 38, 0.98);
+  --surface-fade: rgba(23, 23, 23, 1);
+  --window-border: rgba(255, 255, 255, 0.14);
 }
 
+html,
 body {
-  background: var(--background);
+  background: transparent;
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+.glass-surface {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.glass-elevated {
+  background: var(--surface-elevated);
+  border-color: var(--border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+html[data-platform="darwin"] body {
+  background: transparent;
+}
+
+html:not([data-platform="darwin"]) {
+  --background: #ffffff;
+  --surface: #fafafa;
+  --surface-elevated: #f5f5f5;
+  --surface-fade: #ffffff;
+  --border: #e5e5e5;
+}
+
+html:not([data-platform="darwin"]).dark {
+  --background: #0a0a0a;
+  --surface: #171717;
+  --surface-elevated: #262626;
+  --surface-fade: #0a0a0a;
+  --border: #262626;
+}
+
+html:not([data-platform="darwin"]) body {
+  background: var(--background);
 }
 
 @keyframes output-fade-in {
@@ -112,4 +155,9 @@ body {
   .modal-panel-out {
     animation: none;
   }
+}
+
+[data-nextjs-dev-tools-button],
+nextjs-portal {
+  display: none !important;
 }
