@@ -1,6 +1,7 @@
 "use client";
 
 import { DEFAULT_OLLAMA_MODEL } from "@/lib/rewrite";
+import { DEFAULT_GLOBAL_HOTKEY } from "@/lib/hotkey";
 import type { AppSettings } from "@/types/electron";
 import {
   createContext,
@@ -15,7 +16,9 @@ import {
 const WEB_DEFAULT_SETTINGS: AppSettings = {
   onboardingComplete: true,
   selectedModel: DEFAULT_OLLAMA_MODEL,
-  globalHotkey: "Alt+Tab",
+  globalHotkey: DEFAULT_GLOBAL_HOTKEY,
+  showMenuBarIcon: true,
+  hideDockIcon: false,
 };
 
 type AppSettingsContextValue = {
