@@ -2,19 +2,24 @@
 
 import ModelPicker from "@/components/onboarding/ModelPicker";
 import {
+  checkLocalAIRunning,
   checkModelAvailable,
-  checkOllamaRunning,
-  OllamaError,
-  pullOllamaModel,
+  downloadModel,
+  LocalAIError,
   type PullProgress,
 } from "@/lib/rewrite";
-import { DEFAULT_MODEL_ID } from "@/lib/rewrite/models";
+import { DEFAULT_MODEL_ID, getModelDisplayName } from "@/lib/rewrite/models";
 import { getEffectiveHotkey } from "@/lib/hotkey";
 import HotkeyRecorder from "@/components/settings/HotkeyRecorder";
+import { CloseWindowButton, DRAG_STYLE } from "@/components/WindowChrome";
 import { useAppSettings } from "@/hooks/useAppSettings";
-import { useCallback, useEffect, useState } from "react";
+import {
+  formatPullProgressLine,
+  usePullProgressTracking,
+} from "@/hooks/usePullProgress";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-type OnboardingStep = "welcome" | "ollama" | "model" | "download" | "done";
+type OnboardingStep = "welcome" | "model" | "download" | "preparing" | "done";
 
 export default function OnboardingWizard() {
   const { settings, updateSettings } = useAppSettings();
@@ -22,13 +27,17 @@ export default function OnboardingWizard() {
   const [selectedModel, setSelectedModel] = useState(
     settings.selectedModel || DEFAULT_MODEL_ID,
   );
-  const [ollamaRunning, setOllamaRunning] = useState<boolean | null>(null);
-  const [checkingOllama, setCheckingOllama] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState<PullProgress | null>(
     null,
   );
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
+  const [preparingMessage, setPreparingMessage] = useState(
+    "Loading your AI model…",
+  );
+  const downloadStartedRef = useRef(false);
+  const skipCheckedRef = useRef(false);
+  const wizardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     window.electronAPI?.setLayout("onboarding");
@@ -37,71 +46,112 @@ export default function OnboardingWizard() {
     };
   }, []);
 
-  const refreshOllama = useCallback(async () => {
-    setCheckingOllama(true);
-    const running = await checkOllamaRunning();
-    setOllamaRunning(running);
-    setCheckingOllama(false);
-    return running;
-  }, []);
+  useEffect(() => {
+    const el = wizardRef.current;
+    if (!el) return;
+
+    const syncHeight = () => {
+      const height = Math.ceil(el.getBoundingClientRect().height);
+      window.electronAPI?.setLayout("onboarding", height);
+    };
+
+    syncHeight();
+    const observer = new ResizeObserver(syncHeight);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [step]);
 
   useEffect(() => {
-    if (step !== "ollama") return;
+    if (skipCheckedRef.current) return;
+    skipCheckedRef.current = true;
 
-    void refreshOllama();
-    const interval = window.setInterval(() => {
-      void refreshOllama();
-    }, 2000);
+    async function detectExistingSetup() {
+      let running = await checkLocalAIRunning();
+      if (!running) {
+        await window.electronAPI?.ensureLocalAIReady(selectedModel);
+        running = await checkLocalAIRunning();
+      }
 
-    return () => window.clearInterval(interval);
-  }, [step, refreshOllama]);
+      if (!running) return;
 
-  async function handleOpenOllama() {
-    await window.electronAPI?.openExternal("https://ollama.com");
-  }
+      const installed = await checkModelAvailable(selectedModel);
+      if (installed) {
+        setStep("done");
+      }
+    }
 
-  async function handleDownload() {
+    void detectExistingSetup();
+  }, [selectedModel]);
+
+  const runDownload = useCallback(async () => {
     setDownloading(true);
     setDownloadError(null);
     setDownloadProgress(null);
 
     try {
+      let running = await checkLocalAIRunning();
+      if (!running) {
+        await window.electronAPI?.ensureLocalAIReady(selectedModel);
+        running = await checkLocalAIRunning();
+      }
+
+      if (!running) {
+        throw new LocalAIError(
+          "Could not start the local AI engine. Restart Recast and try again.",
+        );
+      }
+
       const alreadyInstalled = await checkModelAvailable(selectedModel);
       if (!alreadyInstalled) {
-        await pullOllamaModel(selectedModel, setDownloadProgress);
+        await downloadModel(selectedModel, setDownloadProgress);
       }
 
       await updateSettings({ selectedModel });
+      setStep("preparing");
+      setPreparingMessage("Loading your AI model…");
+      await window.electronAPI?.warmUpModel(selectedModel);
       setStep("done");
     } catch (error) {
       setDownloadError(
-        error instanceof OllamaError
+        error instanceof LocalAIError
           ? error.message
           : "Download failed. Please try again.",
       );
+      setStep("download");
     } finally {
       setDownloading(false);
     }
-  }
+  }, [selectedModel, updateSettings]);
+
+  useEffect(() => {
+    if (step !== "download" || downloadStartedRef.current) return;
+    downloadStartedRef.current = true;
+    void runDownload();
+  }, [step, runDownload]);
 
   async function handleFinish() {
+    await window.electronAPI?.warmUpModel(selectedModel);
     await updateSettings({ onboardingComplete: true });
     window.electronAPI?.setLayout("prompt");
   }
 
-  const progressPercent =
-    downloadProgress && downloadProgress.total > 0
-      ? Math.min(
-          100,
-          Math.round(
-            (downloadProgress.completed / downloadProgress.total) * 100,
-          ),
-        )
-      : null;
+  const { progressPercent, etaSeconds } =
+    usePullProgressTracking(downloadProgress);
 
   return (
-    <div className="absolute inset-0 z-40 flex flex-col overflow-hidden bg-[var(--surface-fade)]">
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain px-4 py-5">
+    <div
+      ref={wizardRef}
+      className="group relative z-40 flex max-h-[640px] flex-col overflow-hidden bg-[var(--surface-fade)]"
+    >
+      <div className="relative h-9 shrink-0">
+        <div
+          className="absolute inset-x-2 top-2 bottom-0"
+          style={DRAG_STYLE}
+          aria-hidden
+        />
+        <CloseWindowButton className="absolute top-2 right-2 z-10 pointer-events-none opacity-0 transition-opacity duration-150 group-hover:pointer-events-auto group-hover:opacity-100 focus-visible:pointer-events-auto focus-visible:opacity-100" />
+      </div>
+      <div className="flex min-h-0 flex-col overflow-y-auto overscroll-y-contain px-4 pb-5">
         {step === "welcome" ? (
           <div className="mx-auto flex w-full max-w-md flex-col gap-4">
             <div>
@@ -114,61 +164,12 @@ export default function OnboardingWizard() {
               </p>
             </div>
             <p className="text-sm text-neutral-500 dark:text-neutral-400">
-              This quick setup will help you install Ollama and download an AI
-              model.
+              This one-time setup lets you pick and download an AI model —
+              Gemma, Qwen, and more. After that, just open Recast and start
+              rewriting.
             </p>
-            <PrimaryButton onClick={() => setStep("ollama")}>
+            <PrimaryButton onClick={() => setStep("model")}>
               Get started
-            </PrimaryButton>
-          </div>
-        ) : null}
-
-        {step === "ollama" ? (
-          <div className="mx-auto flex w-full max-w-md flex-col gap-4">
-            <div>
-              <h2 className="text-lg font-semibold text-neutral-950 dark:text-neutral-50">
-                Install Ollama
-              </h2>
-              <p className="mt-2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                Recast uses Ollama to run AI models locally. Install it once,
-                then come back here.
-              </p>
-            </div>
-
-            <ol className="list-decimal space-y-1 pl-5 text-sm text-neutral-600 dark:text-neutral-400">
-              <li>Download and install Ollama from ollama.com</li>
-              <li>Ollama starts automatically after install</li>
-              <li>Return here and click Continue</li>
-            </ol>
-
-            <div className="flex flex-wrap gap-2">
-              <SecondaryButton onClick={() => void handleOpenOllama()}>
-                Open ollama.com
-              </SecondaryButton>
-              <SecondaryButton
-                onClick={() => void refreshOllama()}
-                disabled={checkingOllama}
-              >
-                {checkingOllama ? "Checking…" : "Check again"}
-              </SecondaryButton>
-            </div>
-
-            {ollamaRunning === true ? (
-              <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                Ollama is running
-              </p>
-            ) : ollamaRunning === false ? (
-              <p className="text-sm text-amber-800 dark:text-amber-300">
-                Ollama is not running yet. If you just installed it, wait a
-                moment and check again.
-              </p>
-            ) : null}
-
-            <PrimaryButton
-              onClick={() => setStep("model")}
-              disabled={!ollamaRunning}
-            >
-              Continue
             </PrimaryButton>
           </div>
         ) : null}
@@ -180,7 +181,8 @@ export default function OnboardingWizard() {
                 Choose a model
               </h2>
               <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-                Pick one to download. You can change this later in settings.
+                Pick one to download to your Mac. Everything runs locally — no
+                cloud. You can change this later in Settings.
               </p>
             </div>
 
@@ -190,49 +192,67 @@ export default function OnboardingWizard() {
             />
 
             <div className="flex gap-2">
-              <SecondaryButton onClick={() => setStep("ollama")}>
+              <SecondaryButton onClick={() => setStep("welcome")}>
                 Back
               </SecondaryButton>
-              <PrimaryButton onClick={() => setStep("download")}>
-                Continue
+              <PrimaryButton
+                onClick={() => {
+                  downloadStartedRef.current = false;
+                  setDownloadError(null);
+                  setStep("download");
+                }}
+              >
+                Download model
               </PrimaryButton>
             </div>
           </div>
         ) : null}
 
-        {step === "download" ? (
+        {step === "download" || step === "preparing" ? (
           <div className="mx-auto flex w-full max-w-md flex-col gap-4">
             <div>
               <h2 className="text-lg font-semibold text-neutral-950 dark:text-neutral-50">
-                Download model
+                {step === "preparing" ? "Almost ready" : "Downloading model"}
               </h2>
               <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-                Downloading{" "}
-                <code className="rounded bg-neutral-100 px-1 py-0.5 font-mono text-xs dark:bg-neutral-800">
-                  {selectedModel}
-                </code>
-                . This may take a few minutes depending on your connection.
+                {step === "preparing" ? (
+                  preparingMessage
+                ) : (
+                  <>
+                    Downloading{" "}
+                    <span className="font-medium">
+                      {getModelDisplayName(selectedModel)}
+                    </span>{" "}
+                    to your Mac. This may take a few minutes depending on your
+                    connection.
+                  </>
+                )}
               </p>
             </div>
 
-            {downloading ? (
+            {step === "download" ? (
               <div className="space-y-2">
                 <div className="h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
                   <div
                     className="h-full rounded-full bg-neutral-950 transition-all duration-300 dark:bg-neutral-50"
                     style={{
-                      width: `${progressPercent ?? (downloadProgress ? 8 : 0)}%`,
+                      width: `${progressPercent ?? (downloading ? 8 : 0)}%`,
                     }}
                   />
                 </div>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                  {downloadProgress?.status
-                    ? downloadProgress.status
-                    : "Starting download…"}
-                  {progressPercent !== null ? ` · ${progressPercent}%` : null}
+                  {formatPullProgressLine(downloadProgress, {
+                    percent: progressPercent,
+                    etaSeconds,
+                  })}
                 </p>
               </div>
-            ) : null}
+            ) : (
+              <div className="flex items-center gap-3 text-sm text-neutral-600 dark:text-neutral-400">
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-neutral-300 border-t-neutral-950 dark:border-neutral-700 dark:border-t-neutral-50" />
+                {preparingMessage}
+              </div>
+            )}
 
             {downloadError ? (
               <p className="text-sm text-red-600 dark:text-red-400">
@@ -240,20 +260,22 @@ export default function OnboardingWizard() {
               </p>
             ) : null}
 
-            <div className="flex gap-2">
-              <SecondaryButton
-                onClick={() => setStep("model")}
-                disabled={downloading}
-              >
-                Back
-              </SecondaryButton>
-              <PrimaryButton
-                onClick={() => void handleDownload()}
-                disabled={downloading}
-              >
-                {downloading ? "Downloading…" : "Download and finish"}
-              </PrimaryButton>
-            </div>
+            {downloadError ? (
+              <div className="flex flex-wrap gap-2">
+                <SecondaryButton onClick={() => setStep("model")}>
+                  Choose another model
+                </SecondaryButton>
+                <PrimaryButton
+                  onClick={() => {
+                    downloadStartedRef.current = false;
+                    void runDownload();
+                  }}
+                  disabled={downloading}
+                >
+                  Retry download
+                </PrimaryButton>
+              </div>
+            ) : null}
           </div>
         ) : null}
 
@@ -264,9 +286,8 @@ export default function OnboardingWizard() {
                 You&apos;re all set
               </h2>
               <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-                Recast is ready. Choose a keyboard shortcut to show or hide the
-                app from anywhere. You can change this later in Settings →
-                Shortcuts.
+                Your model is downloaded and ready. Choose a keyboard shortcut
+                to show or hide Recast from anywhere.
               </p>
             </div>
 

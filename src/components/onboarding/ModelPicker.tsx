@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  DEFAULT_MODEL_ID,
   RECOMMENDED_MODELS,
   type RecommendedModel,
 } from "@/lib/rewrite/models";
@@ -21,6 +22,7 @@ export default function ModelPicker({
           key={model.id}
           model={model}
           selected={selectedModel === model.id}
+          recommended={model.id === DEFAULT_MODEL_ID}
           onSelect={() => onSelect(model.id)}
         />
       ))}
@@ -31,10 +33,12 @@ export default function ModelPicker({
 function ModelCard({
   model,
   selected,
+  recommended,
   onSelect,
 }: {
   model: RecommendedModel;
   selected: boolean;
+  recommended: boolean;
   onSelect: () => void;
 }) {
   return (
@@ -48,9 +52,22 @@ function ModelCard({
       }`}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="text-sm font-medium">{model.label}</span>
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="text-sm font-medium">{model.label}</span>
+          {recommended ? (
+            <span
+              className={`shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
+                selected
+                  ? "bg-white/15 text-white/90 dark:bg-neutral-950/10 dark:text-neutral-950/80"
+                  : "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300"
+              }`}
+            >
+              Recommended
+            </span>
+          ) : null}
+        </div>
         <span
-          className={`text-xs tabular-nums ${
+          className={`shrink-0 text-xs tabular-nums ${
             selected
               ? "text-white/70 dark:text-neutral-950/70"
               : "text-neutral-500 dark:text-neutral-400"
@@ -67,15 +84,6 @@ function ModelCard({
         }`}
       >
         {model.description}
-      </p>
-      <p
-        className={`mt-1 font-mono text-[11px] ${
-          selected
-            ? "text-white/60 dark:text-neutral-950/60"
-            : "text-neutral-400 dark:text-neutral-500"
-        }`}
-      >
-        {model.id}
       </p>
     </button>
   );
