@@ -2,12 +2,16 @@
 
 import ModelPicker from "@/components/onboarding/ModelPicker";
 import {
+  downloadModel,
+  LocalAIError,
   checkModelAvailable,
-  OllamaError,
-  pullOllamaModel,
   type PullProgress,
 } from "@/lib/rewrite";
 import { useAppSettings } from "@/hooks/useAppSettings";
+import {
+  formatPullProgressLine,
+  usePullProgressTracking,
+} from "@/hooks/usePullProgress";
 import { useCallback, useEffect, useState } from "react";
 
 export default function AISection() {
@@ -43,14 +47,15 @@ export default function AISection() {
     try {
       const installed = await checkModelAvailable(selectedModel);
       if (!installed) {
-        await pullOllamaModel(selectedModel, setDownloadProgress);
+        await downloadModel(selectedModel, setDownloadProgress);
       }
 
       await updateSettings({ selectedModel });
+      await window.electronAPI?.warmUpModel(selectedModel);
       setSaved(true);
     } catch (error) {
       setErrorMessage(
-        error instanceof OllamaError
+        error instanceof LocalAIError
           ? error.message
           : "Could not save model settings. Please try again.",
       );
@@ -59,15 +64,8 @@ export default function AISection() {
     }
   }
 
-  const progressPercent =
-    downloadProgress && downloadProgress.total > 0
-      ? Math.min(
-          100,
-          Math.round(
-            (downloadProgress.completed / downloadProgress.total) * 100,
-          ),
-        )
-      : null;
+  const { progressPercent, etaSeconds } =
+    usePullProgressTracking(downloadProgress);
 
   const hasChanges = selectedModel !== settings.selectedModel;
 
@@ -126,8 +124,10 @@ export default function AISection() {
               />
             </div>
             <p className="text-xs text-neutral-500 dark:text-neutral-400">
-              {downloadProgress?.status ?? "Downloading…"}
-              {progressPercent !== null ? ` · ${progressPercent}%` : null}
+              {formatPullProgressLine(downloadProgress, {
+                percent: progressPercent,
+                etaSeconds,
+              })}
             </p>
           </div>
         ) : null}

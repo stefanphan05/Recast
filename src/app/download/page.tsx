@@ -44,16 +44,7 @@ export default function DownloadPage() {
                 <strong>Open</strong> (required for unsigned builds)
               </li>
               <li>
-                Follow the in-app wizard to install{" "}
-                <a
-                  href="https://ollama.com"
-                  className="underline underline-offset-2"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Ollama
-                </a>{" "}
-                and download an AI model
+                Follow the in-app wizard to choose and download an AI model
               </li>
             </ol>
           </section>
@@ -64,7 +55,7 @@ export default function DownloadPage() {
             </h2>
             <ul className="mt-2 list-disc space-y-1 pl-5">
               <li>macOS on Apple Silicon (M1 or newer)</li>
-              <li>Ollama installed and running</li>
+              <li>Local AI engine (set up automatically by Recast)</li>
               <li>~2–3 GB free disk space for the AI model</li>
             </ul>
           </section>

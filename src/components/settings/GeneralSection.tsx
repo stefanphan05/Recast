@@ -55,7 +55,7 @@ export default function GeneralSection() {
           Model files
         </h3>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Open the folder containing downloaded Ollama models.
+          Open the folder containing downloaded AI models.
         </p>
 
         <button
