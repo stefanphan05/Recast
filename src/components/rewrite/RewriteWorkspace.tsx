@@ -101,7 +101,12 @@ export default function RewriteWorkspace({
       }`}
     >
       {hasOutput ? (
-        <OutputPanel result={result} isLoading={isLoading} className="min-h-0 flex-1" />
+        <OutputPanel
+          result={result}
+          isLoading={isLoading}
+          onStartOver={resetWorkspace}
+          className="min-h-0 flex-1"
+        />
       ) : null}
 
       <div className={hasOutput ? "shrink-0" : ""}>
