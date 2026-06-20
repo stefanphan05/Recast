@@ -13,17 +13,18 @@ const {
   net,
 } = require("electron");
 const fs = require("fs");
-const os = require("os");
 const path = require("path");
 const { pathToFileURL } = require("url");
 const { inputEventToAccelerator } = require("./hotkey");
+const { ensureLocalAIReady, stopLocalAIIfStartedByUs, warmUpModel } = require("./local-ai");
+const { ensureEngineHome, getLocalModelsPath } = require("./engine-path");
 
 const DEFAULT_SETTINGS = {
   onboardingComplete: false,
-  selectedModel: "llama3.2",
+  selectedModel: "gemma4:e2b",
   globalHotkey: "Alt+Tab",
   showMenuBarIcon: true,
-  hideDockIcon: false,
+  hideDockIcon: true,
 };
 
 const useStaticExport =
@@ -322,15 +323,10 @@ function applyGeneralSettings(settings = readSettings()) {
   applyDockIconSetting(Boolean(settings.hideDockIcon));
 }
 
-function getOllamaModelsPath() {
-  return path.join(os.homedir(), ".ollama", "models");
-}
-
 const PROMPT_WINDOW_MIN_HEIGHT = 140;
 const PROMPT_WINDOW_ABSOLUTE_MIN_HEIGHT = 120;
 const PROMPT_WINDOW_MAX_HEIGHT = 640;
 const EXPANDED_WINDOW_HEIGHT = 640;
-const ONBOARDING_WINDOW_HEIGHT = 640;
 const WINDOW_WIDTH = 480;
 const TOP_MARGIN = 24;
 
@@ -361,13 +357,15 @@ function positionWindowTopCenter(win, display = getActiveDisplay()) {
 }
 
 function getLayoutHeight(mode, contentHeight) {
-  if (mode === "onboarding") return ONBOARDING_WINDOW_HEIGHT;
   if (mode === "expanded") return EXPANDED_WINDOW_HEIGHT;
-  if (typeof contentHeight === "number" && contentHeight > 0) {
-    return Math.min(
-      Math.max(Math.round(contentHeight), PROMPT_WINDOW_ABSOLUTE_MIN_HEIGHT),
-      PROMPT_WINDOW_MAX_HEIGHT,
-    );
+  if (mode === "prompt" || mode === "onboarding") {
+    if (typeof contentHeight === "number" && contentHeight > 0) {
+      return Math.min(
+        Math.max(Math.round(contentHeight), PROMPT_WINDOW_ABSOLUTE_MIN_HEIGHT),
+        PROMPT_WINDOW_MAX_HEIGHT,
+      );
+    }
+    return PROMPT_WINDOW_MIN_HEIGHT;
   }
   return PROMPT_WINDOW_MIN_HEIGHT;
 }
@@ -563,7 +561,7 @@ function buildMenu() {
               type: "info",
               title: "About Recast",
               message: "Recast",
-              detail: `Version ${app.getVersion()}\n\nRewrite your messages in different styles using local AI via Ollama.`,
+              detail: `Version ${app.getVersion()}\n\nRewrite your messages in different styles using local AI on your Mac.`,
             });
           },
         },
@@ -646,13 +644,14 @@ app.whenReady().then(async () => {
 
   ipcMain.on("window-set-content-height", (_event, contentHeight) => {
     if (
-      currentLayoutMode !== "prompt" ||
+      (currentLayoutMode !== "prompt" &&
+        currentLayoutMode !== "onboarding") ||
       typeof contentHeight !== "number" ||
       !Number.isFinite(contentHeight)
     ) {
       return;
     }
-    setWindowLayout("prompt", contentHeight);
+    setWindowLayout(currentLayoutMode, contentHeight);
   });
 
   ipcMain.handle("settings:get", () => readSettings());
@@ -660,9 +659,18 @@ app.whenReady().then(async () => {
     if (!partial || typeof partial !== "object") {
       return readSettings();
     }
+    const previous = readSettings();
     const next = writeSettings(partial);
     applyGeneralSettings(next);
     broadcastSettingsChanged(next);
+
+    if (
+      partial.selectedModel &&
+      partial.selectedModel !== previous.selectedModel
+    ) {
+      void ensureLocalAIReady(next.selectedModel);
+    }
+
     return next;
   });
   ipcMain.handle("settings:open", () => {
@@ -687,11 +695,17 @@ app.whenReady().then(async () => {
     return false;
   });
   ipcMain.handle("shell:revealModelsFolder", async () => {
-    const modelsPath = getOllamaModelsPath();
-    fs.mkdirSync(modelsPath, { recursive: true });
+    ensureEngineHome();
+    const modelsPath = getLocalModelsPath();
     const error = await shell.openPath(modelsPath);
     return !error;
   });
+  ipcMain.handle("local-ai:ensureReady", (_event, model) =>
+    ensureLocalAIReady(typeof model === "string" ? model : readSettings().selectedModel),
+  );
+  ipcMain.handle("local-ai:warmUp", (_event, model) =>
+    warmUpModel(typeof model === "string" ? model : readSettings().selectedModel),
+  );
 
   if (!isDev) {
     Menu.setApplicationMenu(buildMenu());
@@ -699,6 +713,7 @@ app.whenReady().then(async () => {
 
   registerGlobalHotkey(getGlobalHotkey());
   applyGeneralSettings();
+  void ensureLocalAIReady(readSettings().selectedModel);
   createWindow();
   positionWindowTopCenter(mainWindow);
 
@@ -713,6 +728,7 @@ app.on("before-quit", () => {
 
 app.on("will-quit", () => {
   globalShortcut.unregisterAll();
+  stopLocalAIIfStartedByUs();
 });
 
 app.on("window-all-closed", () => {

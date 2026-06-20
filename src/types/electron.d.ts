@@ -31,6 +31,10 @@ declare global {
       ) => Promise<{ ok: boolean; accelerator?: string; error?: string }>;
       openExternal: (url: string) => Promise<boolean>;
       revealModelsFolder: () => Promise<boolean>;
+      ensureLocalAIReady: (
+        model?: string,
+      ) => Promise<{ running: boolean; warmed: boolean; installed: boolean }>;
+      warmUpModel: (model?: string) => Promise<boolean>;
       platform: string;
     };
   }

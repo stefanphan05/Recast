@@ -35,5 +35,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   setHotkey: (accelerator) => ipcRenderer.invoke("hotkey:set", accelerator),
   openExternal: (url) => ipcRenderer.invoke("shell:openExternal", url),
   revealModelsFolder: () => ipcRenderer.invoke("shell:revealModelsFolder"),
+  ensureLocalAIReady: (model) => ipcRenderer.invoke("local-ai:ensureReady", model),
+  warmUpModel: (model) => ipcRenderer.invoke("local-ai:warmUp", model),
   platform: process.platform,
 });
