@@ -1,8 +1,11 @@
 import type { RewriteStyle } from "./styles";
+import { DEFAULT_OLLAMA_MODEL, OllamaError, rewriteWithOllama } from "./ollama";
+import {
+  validateRewriteParams,
+  ValidationError,
+} from "./validate-input";
 
 const SERVER_ERROR_MESSAGE = "Server error. Please try again later.";
-const RATE_LIMIT_MESSAGE =
-  "Too many requests. Please wait a moment and try again.";
 
 export type RewriteRequest = {
   text: string;
@@ -16,57 +19,16 @@ export type RewriteRequest = {
 
 export async function requestRewrite(
   params: RewriteRequest,
+  model: string = DEFAULT_OLLAMA_MODEL,
 ): Promise<string> {
-  const response = await fetch("/api/rewrite", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      text: params.text,
-      style: params.style,
-      ...(params.style === "genz" && params.genzIntensity != null
-        ? { genzIntensity: params.genzIntensity }
-        : {}),
-      ...(params.style === "flirt" && params.flirtIntensity != null
-        ? { flirtIntensity: params.flirtIntensity }
-        : {}),
-      sourceLanguage: params.sourceLanguage,
-      targetLanguage: params.targetLanguage,
-      ...(params.instructions ? { instructions: params.instructions } : {}),
-    }),
-  });
-
-  const data = (await response.json()) as {
-    text?: string;
-    message?: string;
-  };
-
-  if (!response.ok) {
-    if (response.status === 400 && data.message) {
-      const validationError = new Error(data.message);
-      validationError.name = "ValidationError";
-      throw validationError;
-    }
-    if (response.status === 429) {
-      const rateLimitError = new Error(data.message ?? RATE_LIMIT_MESSAGE);
-      rateLimitError.name = "RateLimitError";
-      throw rateLimitError;
-    }
-    throw new Error(SERVER_ERROR_MESSAGE);
-  }
-
-  const rewritten = data.text?.trim();
-  if (!rewritten) {
-    throw new Error(SERVER_ERROR_MESSAGE);
-  }
-
-  return rewritten;
+  const input = validateRewriteParams(params);
+  return rewriteWithOllama(input, model);
 }
 
 export function rewriteErrorMessage(error: unknown): string {
-  const isKnownError =
-    error instanceof Error &&
-    (error.name === "ValidationError" || error.name === "RateLimitError");
-  return isKnownError && error instanceof Error
-    ? error.message
-    : SERVER_ERROR_MESSAGE;
+  if (error instanceof ValidationError || error instanceof OllamaError) {
+    return error.message;
+  }
+
+  return SERVER_ERROR_MESSAGE;
 }
