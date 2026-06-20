@@ -1,33 +1,21 @@
-import {
-  LANGUAGES,
-  SOURCE_LANGUAGE_AUTO,
-  TARGET_LANGUAGE_SAME,
-} from "@/lib/rewrite";
-
 export const MAX_CHARS = 2000;
 
-/** Landing prompt before any output */
-export const TEXTAREA_MIN_LANDING_PX = 56;
-export const TEXTAREA_MAX_LANDING_PX = 240;
-/** Compact input when output is visible */
-export const TEXTAREA_MIN_COMPACT_PX = 72;
+export const TEXTAREA_MIN_LANDING_PX = 28;
+export const TEXTAREA_MAX_LANDING_PX = 360;
+export const TEXTAREA_MIN_COMPACT_PX = 36;
 export const TEXTAREA_MAX_COMPACT_PX = 120;
 
-/** Readable output area when input is compact. */
 export const OUTPUT_MIN_HEIGHT_PX = 100;
-/** Cap in-viewport height; longer output scrolls inside the panel. */
-export const OUTPUT_MAX_HEIGHT_PX = 220;
 
-export const SERVER_ERROR_MESSAGE = "Server error. Please try again later.";
-export const RATE_LIMIT_MESSAGE =
-  "Too many requests. Please wait a moment and try again.";
+/** Shared surface styling for composer + output panels */
+export const PANEL_SURFACE_CLASS =
+  "glass-elevated rounded-[26px] border shadow-sm";
 
-export const targetLanguageOptions = [
-  { value: TARGET_LANGUAGE_SAME, label: "Same as message" },
-  ...LANGUAGES.map(({ code, label }) => ({ value: code, label })),
-];
+/** Vertical rhythm between toolbar rows and panels in expanded mode */
+export const EXPANDED_BLOCK_GAP_CLASS = "gap-2";
 
-export const sourceLanguageOptions = [
-  { value: SOURCE_LANGUAGE_AUTO, label: "Auto-detect" },
-  ...LANGUAGES.map(({ code, label }) => ({ value: code, label })),
-];
+/** Square icon action buttons (close, copy) */
+export const ICON_ACTION_BTN_CLASS =
+  "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors focus-visible:outline-none";
+
+export const ICON_ACTION_BTN_SECONDARY_CLASS = `${ICON_ACTION_BTN_CLASS} border border-[var(--border)] bg-[var(--surface-elevated)] text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-400/40 dark:text-neutral-300 dark:hover:bg-neutral-400 dark:hover:text-neutral-900`;

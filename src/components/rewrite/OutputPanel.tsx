@@ -1,17 +1,25 @@
 "use client";
 
 import {
-  OUTPUT_MAX_HEIGHT_PX,
+  EXPANDED_BLOCK_GAP_CLASS,
+  ICON_ACTION_BTN_SECONDARY_CLASS,
   OUTPUT_MIN_HEIGHT_PX,
+  PANEL_SURFACE_CLASS,
 } from "@/components/rewrite/constants";
+import { CloseWindowButton } from "@/components/WindowChrome";
 import { useEffect, useState } from "react";
 
 type OutputPanelProps = {
   result: string;
   isLoading: boolean;
+  className?: string;
 };
 
-export default function OutputPanel({ result, isLoading }: OutputPanelProps) {
+export default function OutputPanel({
+  result,
+  isLoading,
+  className = "",
+}: OutputPanelProps) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -28,28 +36,31 @@ export default function OutputPanel({ result, isLoading }: OutputPanelProps) {
 
   return (
     <div
-      className="flex shrink-0 flex-col gap-1.5"
+      className={`flex min-h-0 flex-col ${EXPANDED_BLOCK_GAP_CLASS} ${className}`}
       aria-live="polite"
       aria-busy={isLoading}
     >
+      <div className="flex justify-end">
+        <CloseWindowButton />
+      </div>
+
       <section
-        className="glass-elevated overflow-y-auto rounded-2xl border p-3"
-        style={{
-          minHeight: `max(${OUTPUT_MIN_HEIGHT_PX}px, 18dvh)`,
-          maxHeight: `min(${OUTPUT_MAX_HEIGHT_PX}px, 38dvh)`,
-        }}
+        className={`${PANEL_SURFACE_CLASS} flex min-h-0 flex-1 flex-col p-2.5`}
+        style={{ minHeight: `${OUTPUT_MIN_HEIGHT_PX}px` }}
       >
-        {isLoading ? (
-          <div className="flex flex-col gap-3 py-0.5" aria-hidden>
-            <div className="h-4 animate-pulse rounded-md bg-neutral-200/90 dark:bg-neutral-700/90" />
-            <div className="h-4 w-[94%] animate-pulse rounded-md bg-neutral-200/90 dark:bg-neutral-700/90" />
-            <div className="h-4 w-[72%] animate-pulse rounded-md bg-neutral-200/90 dark:bg-neutral-700/90" />
-          </div>
-        ) : (
-          <p className="output-fade-in whitespace-pre-wrap text-[15px] leading-relaxed text-neutral-950 dark:text-neutral-50">
-            {result}
-          </p>
-        )}
+        <div className="scrollbar-subtle min-h-0 flex-1 overflow-y-auto py-0.5 pr-1">
+          {isLoading ? (
+            <div className="flex flex-col gap-3" aria-hidden>
+              <div className="h-4 animate-pulse rounded-md bg-neutral-200/90 dark:bg-neutral-700/90" />
+              <div className="h-4 w-[94%] animate-pulse rounded-md bg-neutral-200/90 dark:bg-neutral-700/90" />
+              <div className="h-4 w-[72%] animate-pulse rounded-md bg-neutral-200/90 dark:bg-neutral-700/90" />
+            </div>
+          ) : (
+            <p className="output-fade-in whitespace-pre-wrap text-[15px] leading-snug text-neutral-950 dark:text-neutral-50">
+              {result}
+            </p>
+          )}
+        </div>
       </section>
       {!isLoading && result ? (
         <div className="flex h-9 shrink-0 items-center justify-end">
@@ -57,7 +68,7 @@ export default function OutputPanel({ result, isLoading }: OutputPanelProps) {
             type="button"
             onClick={handleCopy}
             aria-label={copied ? "Copied" : "Copy to clipboard"}
-            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-neutral-950 text-white transition-colors hover:bg-neutral-800 focus-visible:bg-neutral-800 focus-visible:outline-none dark:bg-neutral-50 dark:text-neutral-950 dark:hover:bg-neutral-200 dark:focus-visible:bg-neutral-200"
+            className={`${ICON_ACTION_BTN_SECONDARY_CLASS} cursor-pointer`}
           >
             {copied ? (
               <svg

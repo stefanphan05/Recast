@@ -9,7 +9,8 @@ import {
   type PullProgress,
 } from "@/lib/rewrite";
 import { DEFAULT_MODEL_ID } from "@/lib/rewrite/models";
-import { formatHotkeyDisplay } from "@/lib/hotkey";
+import { getEffectiveHotkey } from "@/lib/hotkey";
+import HotkeyRecorder from "@/components/settings/HotkeyRecorder";
 import { useAppSettings } from "@/hooks/useAppSettings";
 import { useCallback, useEffect, useState } from "react";
 
@@ -263,14 +264,17 @@ export default function OnboardingWizard() {
                 You&apos;re all set
               </h2>
               <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-                Recast is ready. Press{" "}
-                <kbd className="rounded border border-[var(--border)] bg-[var(--surface-elevated)] px-1.5 py-0.5 font-mono text-xs">
-                  {formatHotkeyDisplay(settings.globalHotkey || "Alt+Tab")}
-                </kbd>{" "}
-                anytime to show or hide the app. Change this in Settings →
+                Recast is ready. Choose a keyboard shortcut to show or hide the
+                app from anywhere. You can change this later in Settings →
                 Shortcuts.
               </p>
             </div>
+
+            <HotkeyRecorder
+              hotkey={getEffectiveHotkey(settings.globalHotkey)}
+              variant="embedded"
+            />
+
             <PrimaryButton onClick={() => void handleFinish()}>
               Start rewriting
             </PrimaryButton>

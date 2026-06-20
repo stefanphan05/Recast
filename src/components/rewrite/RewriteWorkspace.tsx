@@ -18,11 +18,9 @@ const INITIAL_FLIRT_INTENSITY = 5;
 export default function RewriteWorkspace({
   selectedModel,
   onExpandedChange,
-  onOpenSettings,
 }: {
   selectedModel: string;
   onExpandedChange?: (expanded: boolean) => void;
-  onOpenSettings?: () => void;
 }) {
   const [text, setText] = useState("");
   const [style, setStyle] = useState<RewriteStyle>(INITIAL_STYLE);
@@ -98,13 +96,13 @@ export default function RewriteWorkspace({
 
   return (
     <main
-      className={`flex w-full min-h-0 max-w-[480px] flex-1 flex-col ${
-        hasOutput
-          ? "max-h-full gap-3 overflow-y-auto overscroll-y-contain"
-          : "justify-center"
+      className={`flex w-full max-w-[480px] flex-col ${
+        hasOutput ? "min-h-0 flex-1 gap-3 overflow-hidden" : ""
       }`}
     >
-      {hasOutput ? <OutputPanel result={result} isLoading={isLoading} /> : null}
+      {hasOutput ? (
+        <OutputPanel result={result} isLoading={isLoading} className="min-h-0 flex-1" />
+      ) : null}
 
       <div className={hasOutput ? "shrink-0" : ""}>
         <PromptComposer
@@ -120,7 +118,6 @@ export default function RewriteWorkspace({
           isLoading={isLoading}
           compact={hasOutput}
           onSubmit={handleRewrite}
-          onOpenSettings={onOpenSettings}
         />
 
         {errorMessage ? (

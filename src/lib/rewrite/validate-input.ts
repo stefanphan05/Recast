@@ -1,13 +1,12 @@
 import {
-  ALLOWED_STYLES,
   isCrossLanguageRewrite,
   isValidRewriteTarget,
   isValidSourceLanguage,
   SOURCE_LANGUAGE_AUTO,
   TARGET_LANGUAGE_SAME,
   type LanguageCode,
-  type RewriteStyle,
-} from "@/lib/rewrite";
+} from "./languages";
+import { ALLOWED_STYLES, type RewriteStyle } from "./styles";
 import type { RewriteInput } from "./prompts";
 
 export class ValidationError extends Error {

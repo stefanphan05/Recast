@@ -83,62 +83,6 @@ html:not([data-platform="darwin"]) body {
   animation: output-fade-in 0.35s ease-out both;
 }
 
-@keyframes modal-backdrop-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes modal-backdrop-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-@keyframes modal-panel-in {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes modal-panel-out {
-  from {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(12px) scale(0.98);
-  }
-}
-
-.modal-backdrop-in {
-  animation: modal-backdrop-in 0.22s ease-out both;
-}
-
-.modal-backdrop-out {
-  animation: modal-backdrop-out 0.18s ease-in both;
-}
-
-.modal-panel-in {
-  animation: modal-panel-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.modal-panel-out {
-  animation: modal-panel-out 0.18s ease-in both;
-}
-
 .scrollbar-hide {
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -148,13 +92,30 @@ html:not([data-platform="darwin"]) body {
   display: none;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .modal-backdrop-in,
-  .modal-backdrop-out,
-  .modal-panel-in,
-  .modal-panel-out {
-    animation: none;
-  }
+.scrollbar-subtle {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.scrollbar-subtle::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-subtle::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-subtle::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 9999px;
+}
+
+.dark .scrollbar-subtle {
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+.dark .scrollbar-subtle::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
 }
 
 html[data-window="settings"] {
