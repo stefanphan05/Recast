@@ -6,22 +6,22 @@
   --background: transparent;
   --foreground: #0a0a0a;
   --muted: #737373;
-  --border: rgba(0, 0, 0, 0.1);
-  --surface: rgba(255, 255, 255, 0.95);
-  --surface-elevated: rgba(255, 255, 255, 0.98);
-  --surface-fade: rgba(255, 255, 255, 1);
-  --window-border: rgba(0, 0, 0, 0.1);
+  --border: #e5e5e5;
+  --surface: #f9f9f9;
+  --surface-elevated: #ffffff;
+  --surface-fade: #ffffff;
+  --window-border: #e5e5e5;
 }
 
 .dark {
   --background: transparent;
   --foreground: #fafafa;
   --muted: #a3a3a3;
-  --border: rgba(255, 255, 255, 0.12);
-  --surface: rgba(30, 30, 30, 0.95);
-  --surface-elevated: rgba(38, 38, 38, 0.98);
-  --surface-fade: rgba(23, 23, 23, 1);
-  --window-border: rgba(255, 255, 255, 0.14);
+  --border: #404040;
+  --surface: #1f1f1f;
+  --surface-elevated: #262626;
+  --surface-fade: #171717;
+  --window-border: #404040;
 }
 
 html,
@@ -40,8 +40,11 @@ body {
 .glass-elevated {
   background: var(--surface-elevated);
   border-color: var(--border);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+}
+
+.panel-surface {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
 }
 
 html[data-platform="darwin"] body {

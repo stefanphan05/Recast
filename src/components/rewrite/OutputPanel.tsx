@@ -5,7 +5,11 @@ import {
   ICON_ACTION_BTN_SECONDARY_CLASS,
   PANEL_SURFACE_CLASS,
 } from "@/components/rewrite/constants";
-import { CloseWindowButton, DRAG_STYLE, NO_DRAG_STYLE } from "@/components/WindowChrome";
+import {
+  CloseWindowButton,
+  DRAG_STYLE,
+  NO_DRAG_STYLE,
+} from "@/components/WindowChrome";
 import { useEffect, useState } from "react";
 
 type OutputPanelProps = {
@@ -42,11 +46,7 @@ export default function OutputPanel({
       aria-busy={isLoading}
     >
       <div className="flex h-9 shrink-0 items-center">
-        <div
-          className="h-full min-w-0 flex-1"
-          style={DRAG_STYLE}
-          aria-hidden
-        />
+        <div className="h-full min-w-0 flex-1" style={DRAG_STYLE} aria-hidden />
         <div className="flex shrink-0 items-center gap-1">
           <button
             type="button"
@@ -55,21 +55,21 @@ export default function OutputPanel({
             className={`${ICON_ACTION_BTN_SECONDARY_CLASS} cursor-pointer`}
             style={NO_DRAG_STYLE}
           >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden
-          >
-            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-            <path d="M3 3v5h5" />
-          </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+              <path d="M3 3v5h5" />
+            </svg>
           </button>
           {!isLoading && result ? (
             <button
@@ -79,45 +79,47 @@ export default function OutputPanel({
               className={`${ICON_ACTION_BTN_SECONDARY_CLASS} cursor-pointer`}
               style={NO_DRAG_STYLE}
             >
-            {copied ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden
-              >
-                <path d="M20 6 9 17l-5-5" />
-              </svg>
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden
-              >
-                <rect width="13" height="13" x="9" y="9" rx="2" />
-                <path d="M5 15V5a2 2 0 0 1 2-2h10" />
-              </svg>
-            )}
-          </button>
+              {copied ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                >
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                >
+                  <rect width="13" height="13" x="9" y="9" rx="2" />
+                  <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                </svg>
+              )}
+            </button>
           ) : null}
           <CloseWindowButton />
         </div>
       </div>
 
-      <section className={`${PANEL_SURFACE_CLASS} flex min-h-0 flex-1 flex-col p-2.5`}>
+      <section
+        className={`${PANEL_SURFACE_CLASS} flex min-h-0 flex-1 flex-col p-2.5`}
+      >
         <div className="scrollbar-subtle min-h-0 flex-1 overflow-y-auto py-0.5 pr-1">
           {isLoading ? (
             <div className="flex flex-col gap-3" aria-hidden>
