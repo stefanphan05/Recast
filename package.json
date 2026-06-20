@@ -1,38 +1,59 @@
 {
-  "name": "frontend",
+  "name": "recast",
   "version": "0.1.0",
   "private": true,
+  "main": "electron/main.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:provider:gemini": "tsx --env-file=.env.local scripts/test-providers/gemini.ts",
-    "test:provider:groq": "tsx --env-file=.env.local scripts/test-providers/groq.ts",
-    "test:provider:openrouter": "tsx --env-file=.env.local scripts/test-providers/openrouter.ts",
-    "test:provider:cerebras": "tsx --env-file=.env.local scripts/test-providers/cerebras.ts",
-    "test:providers": "npm run test:provider:gemini && npm run test:provider:groq && npm run test:provider:openrouter && npm run test:provider:cerebras"
+    "electron:dev": "concurrently -k \"next dev\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron:build": "next build && electron-builder --mac",
+    "electron:start": "electron ."
   },
   "dependencies": {
-    "@google/genai": "^2.7.0",
-    "@upstash/ratelimit": "^2.0.8",
-    "@upstash/redis": "^1.38.0",
-    "@vercel/analytics": "^2.0.1",
     "next": "16.2.6",
-    "next-auth": "^5.0.0-beta.31",
     "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "stripe": "^22.2.0"
+    "react-dom": "19.2.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^9.2.1",
+    "electron": "^35.7.5",
+    "electron-builder": "^26.0.12",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
-    "tsx": "^4.22.4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wait-on": "^8.0.5"
+  },
+  "build": {
+    "appId": "com.recast.app",
+    "productName": "Recast",
+    "files": [
+      "electron/**/*",
+      "out/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "icon": "src/app/icon.png"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "stefanphan05",
+      "repo": "MessageRewriter"
+    }
   }
 }
