@@ -1,7 +1,7 @@
 "use client";
 
 import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
-import OllamaSetupBanner from "@/components/OllamaSetupBanner";
+import LocalAISetupBanner from "@/components/LocalAISetupBanner";
 import RewriteWorkspace from "@/components/rewrite/RewriteWorkspace";
 import WindowChrome from "@/components/WindowChrome";
 import { AppSettingsProvider, useAppSettings } from "@/hooks/useAppSettings";
@@ -32,7 +32,7 @@ function AppShell() {
     return () => observer.disconnect();
   }, [expanded, isElectron, showOnboarding]);
 
-  const fillWindow = expanded || showOnboarding;
+  const fillWindow = expanded;
 
   return (
     <div
@@ -45,7 +45,7 @@ function AppShell() {
       {showOnboarding ? <OnboardingWizard /> : null}
       {!showOnboarding ? (
         <>
-          <OllamaSetupBanner selectedModel={settings.selectedModel} />
+          <LocalAISetupBanner selectedModel={settings.selectedModel} />
           <div
             className={`flex w-full flex-col items-center p-2 ${
               expanded ? "min-h-0 flex-1" : ""
