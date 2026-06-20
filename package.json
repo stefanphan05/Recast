@@ -10,6 +10,7 @@
     "lint": "eslint",
     "electron:dev": "concurrently -k \"next dev\" \"wait-on http://localhost:3000 && electron .\"",
     "electron:build": "next build && electron-builder --mac",
+    "electron:preview": "next build && ELECTRON_USE_STATIC=1 electron .",
     "electron:start": "electron ."
   },
   "dependencies": {

@@ -157,6 +157,25 @@ html:not([data-platform="darwin"]) body {
   }
 }
 
+html[data-window="settings"] {
+  --settings-bg: #f5f5f5;
+  --settings-sidebar: #ebebeb;
+  --settings-panel: #ffffff;
+  --settings-border: rgba(0, 0, 0, 0.08);
+}
+
+html[data-window="settings"].dark {
+  --settings-bg: #171717;
+  --settings-sidebar: #1f1f1f;
+  --settings-panel: #262626;
+  --settings-border: rgba(255, 255, 255, 0.1);
+}
+
+html[data-window="settings"],
+html[data-window="settings"] body {
+  background: var(--settings-bg);
+}
+
 [data-nextjs-dev-tools-button],
 nextjs-portal {
   display: none !important;

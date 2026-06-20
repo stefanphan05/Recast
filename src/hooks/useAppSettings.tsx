@@ -15,6 +15,7 @@ import {
 const WEB_DEFAULT_SETTINGS: AppSettings = {
   onboardingComplete: true,
   selectedModel: DEFAULT_OLLAMA_MODEL,
+  globalHotkey: "Alt+Tab",
 };
 
 type AppSettingsContextValue = {
@@ -44,6 +45,12 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
       setSettings(next);
       setLoading(false);
     });
+
+    const unsubscribe = api.onSettingsChanged?.((next) => {
+      setSettings(next);
+    });
+
+    return unsubscribe;
   }, []);
 
   const updateSettings = useCallback(async (partial: Partial<AppSettings>) => {

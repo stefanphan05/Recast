@@ -1,6 +1,5 @@
 "use client";
 
-import ModelSettingsModal from "@/components/onboarding/ModelSettingsModal";
 import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
 import OllamaSetupBanner from "@/components/OllamaSetupBanner";
 import RewriteWorkspace from "@/components/rewrite/RewriteWorkspace";
@@ -11,10 +10,13 @@ import { useState } from "react";
 function AppShell() {
   const { settings, loading, isElectron } = useAppSettings();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const showOnboarding =
     isElectron && !loading && !settings.onboardingComplete;
+
+  function handleOpenSettings() {
+    void window.electronAPI?.openSettings();
+  }
 
   return (
     <div className="group relative flex h-dvh flex-col overflow-hidden bg-transparent text-neutral-950 dark:text-neutral-50">
@@ -27,17 +29,9 @@ function AppShell() {
             <RewriteWorkspace
               selectedModel={settings.selectedModel}
               onExpandedChange={setIsExpanded}
-              onOpenSettings={
-                isElectron ? () => setSettingsOpen(true) : undefined
-              }
+              onOpenSettings={isElectron ? handleOpenSettings : undefined}
             />
           </div>
-          {isElectron ? (
-            <ModelSettingsModal
-              open={settingsOpen}
-              onClose={() => setSettingsOpen(false)}
-            />
-          ) : null}
         </>
       ) : null}
     </div>

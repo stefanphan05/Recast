@@ -7,23 +7,43 @@ const {
   ipcMain,
   globalShortcut,
   screen,
+  protocol,
+  net,
 } = require("electron");
 const fs = require("fs");
 const path = require("path");
+const { pathToFileURL } = require("url");
 
 const DEFAULT_SETTINGS = {
   onboardingComplete: false,
   selectedModel: "llama3.2",
+  globalHotkey: "Alt+Tab",
 };
 
-const isDev = !app.isPackaged;
+const useStaticExport =
+  app.isPackaged || process.env.ELECTRON_USE_STATIC === "1";
+const isDev = !useStaticExport;
 const isMac = process.platform === "darwin";
 
-/** Global shortcut to show/hide the window (Option+Tab). */
-const HOTKEY = "Alt+Tab";
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: "app",
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true,
+    },
+  },
+]);
+
+/** Default global shortcut to show/hide the window (Option+Tab). */
+const DEFAULT_HOTKEY = DEFAULT_SETTINGS.globalHotkey;
 
 /** @type {BrowserWindow | null} */
 let mainWindow = null;
+
+/** @type {BrowserWindow | null} */
+let settingsWindow = null;
 
 /** @type {boolean} */
 let isQuitting = false;
@@ -64,11 +84,23 @@ function toggleMainWindow() {
   mainWindow.focus();
 }
 
-function registerGlobalHotkey() {
-  const registered = globalShortcut.register(HOTKEY, toggleMainWindow);
+function getGlobalHotkey() {
+  const settings = readSettings();
+  return settings.globalHotkey || DEFAULT_HOTKEY;
+}
+
+function broadcastSettingsChanged(next) {
+  mainWindow?.webContents.send("settings-changed", next);
+  settingsWindow?.webContents.send("settings-changed", next);
+}
+
+function registerGlobalHotkey(accelerator = getGlobalHotkey()) {
+  globalShortcut.unregisterAll();
+  const registered = globalShortcut.register(accelerator, toggleMainWindow);
   if (!registered) {
-    console.warn(`Failed to register global shortcut: ${HOTKEY}`);
+    console.warn(`Failed to register global shortcut: ${accelerator}`);
   }
+  return registered;
 }
 
 const PROMPT_WINDOW_HEIGHT = 200;
@@ -148,6 +180,96 @@ function writeSettings(partial) {
   return next;
 }
 
+const SETTINGS_WINDOW_WIDTH = 720;
+const SETTINGS_WINDOW_HEIGHT = 560;
+
+function getOutDir() {
+  return path.resolve(path.join(__dirname, "../out"));
+}
+
+function resolveAppPath(urlPathname) {
+  const outDir = getOutDir();
+  let pathname = decodeURIComponent(urlPathname).replace(/^\/+/, "");
+
+  if (!pathname) {
+    return path.join(outDir, "index.html");
+  }
+
+  pathname = pathname.replace(/\/+$/, "");
+  const candidate = path.join(outDir, pathname);
+
+  if (fs.existsSync(candidate)) {
+    const stat = fs.statSync(candidate);
+    if (stat.isFile()) {
+      return candidate;
+    }
+    if (stat.isDirectory()) {
+      const indexInDir = path.join(candidate, "index.html");
+      if (fs.existsSync(indexInDir)) {
+        return indexInDir;
+      }
+    }
+  }
+
+  const routeIndex = path.join(outDir, pathname, "index.html");
+  if (fs.existsSync(routeIndex)) {
+    return routeIndex;
+  }
+
+  return path.join(outDir, "index.html");
+}
+
+function loadWindowRoute(win, route) {
+  if (isDev) {
+    win.loadURL(`http://localhost:3000${route}`);
+    return;
+  }
+
+  const normalizedRoute = route.startsWith("/") ? route : `/${route}`;
+  win.loadURL(`app://localhost${normalizedRoute}`);
+}
+
+function createSettingsWindow() {
+  if (settingsWindow && !settingsWindow.isDestroyed()) {
+    settingsWindow.show();
+    settingsWindow.focus();
+    return;
+  }
+
+  settingsWindow = new BrowserWindow({
+    width: SETTINGS_WINDOW_WIDTH,
+    height: SETTINGS_WINDOW_HEIGHT,
+    minWidth: 600,
+    minHeight: 480,
+    title: "Recast Settings",
+    show: false,
+    titleBarStyle: isMac ? "hiddenInset" : "default",
+    trafficLightPosition: isMac ? { x: 14, y: 14 } : undefined,
+    backgroundColor: isMac ? "#f5f5f5" : "#ffffff",
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, "preload.js"),
+    },
+  });
+
+  loadWindowRoute(settingsWindow, "/settings/");
+
+  settingsWindow.webContents.on("did-finish-load", () => {
+    settingsWindow?.webContents.executeJavaScript(
+      `document.documentElement.dataset.platform="${process.platform}";document.documentElement.dataset.window="settings";`,
+    );
+  });
+
+  settingsWindow.once("ready-to-show", () => {
+    settingsWindow?.show();
+  });
+
+  settingsWindow.on("closed", () => {
+    settingsWindow = null;
+  });
+}
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: WINDOW_WIDTH,
@@ -169,11 +291,10 @@ function createWindow() {
 
   configureMacOverlayWindow(mainWindow);
 
+  loadWindowRoute(mainWindow, "/");
+
   if (isDev) {
-    mainWindow.loadURL("http://localhost:3000");
     mainWindow.webContents.openDevTools({ mode: "detach" });
-  } else {
-    mainWindow.loadFile(path.join(__dirname, "../out/index.html"));
   }
 
   mainWindow.webContents.on("did-finish-load", () => {
@@ -220,8 +341,13 @@ function buildMenu() {
         { type: "separator" },
         {
           label: "Show Recast",
-          accelerator: HOTKEY,
+          accelerator: getGlobalHotkey(),
           click: () => showMainWindow(),
+        },
+        {
+          label: "Settings…",
+          accelerator: "CommandOrControl+,",
+          click: () => createSettingsWindow(),
         },
         { type: "separator" },
         { role: "hide" },
@@ -257,6 +383,23 @@ function buildMenu() {
 }
 
 app.whenReady().then(async () => {
+  if (!isDev) {
+    protocol.handle("app", (request) => {
+      const url = new URL(request.url);
+      const filePath = resolveAppPath(url.pathname);
+      const resolvedOutDir = getOutDir();
+
+      if (
+        !filePath.startsWith(resolvedOutDir + path.sep) &&
+        filePath !== resolvedOutDir
+      ) {
+        return net.fetch(pathToFileURL(path.join(resolvedOutDir, "index.html")).toString());
+      }
+
+      return net.fetch(pathToFileURL(filePath).toString());
+    });
+  }
+
   app.setName("Recast");
   ipcMain.on("window-close", () => {
     hideMainWindow();
@@ -273,7 +416,33 @@ app.whenReady().then(async () => {
     if (!partial || typeof partial !== "object") {
       return readSettings();
     }
-    return writeSettings(partial);
+    const next = writeSettings(partial);
+    broadcastSettingsChanged(next);
+    return next;
+  });
+  ipcMain.handle("settings:open", () => {
+    createSettingsWindow();
+    return true;
+  });
+  ipcMain.handle("hotkey:get", () => getGlobalHotkey());
+  ipcMain.handle("hotkey:set", (_event, accelerator) => {
+    if (typeof accelerator !== "string" || !accelerator.trim()) {
+      return { ok: false, error: "Invalid shortcut." };
+    }
+
+    const nextAccelerator = accelerator.trim();
+    const registered = registerGlobalHotkey(nextAccelerator);
+    if (!registered) {
+      registerGlobalHotkey(getGlobalHotkey());
+      return {
+        ok: false,
+        error: "That shortcut is unavailable. Try a different combination.",
+      };
+    }
+
+    const next = writeSettings({ globalHotkey: nextAccelerator });
+    broadcastSettingsChanged(next);
+    return { ok: true, accelerator: nextAccelerator };
   });
   ipcMain.handle("shell:openExternal", (_event, url) => {
     if (typeof url === "string" && /^https?:\/\//.test(url)) {
@@ -286,7 +455,7 @@ app.whenReady().then(async () => {
     Menu.setApplicationMenu(buildMenu());
   }
 
-  registerGlobalHotkey();
+  registerGlobalHotkey(getGlobalHotkey());
   createWindow();
   positionWindowTopCenter(mainWindow);
 
