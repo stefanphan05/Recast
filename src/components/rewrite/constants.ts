@@ -6,18 +6,17 @@ import {
 
 export const MAX_CHARS = 2000;
 
-/** ~8 lines at 15px / leading-relaxed */
-export const TEXTAREA_MIN_HEIGHT_PX = 200;
-/** ~16 lines before scrolling */
-export const TEXTAREA_MAX_HEIGHT_PX = 400;
+/** Landing prompt before any output */
+export const TEXTAREA_MIN_LANDING_PX = 56;
+export const TEXTAREA_MAX_LANDING_PX = 240;
 /** Compact input when output is visible */
 export const TEXTAREA_MIN_COMPACT_PX = 72;
 export const TEXTAREA_MAX_COMPACT_PX = 120;
 
-/** Readable output area when input is compact (esp. mobile). */
-export const OUTPUT_MIN_HEIGHT_PX = 144;
+/** Readable output area when input is compact. */
+export const OUTPUT_MIN_HEIGHT_PX = 100;
 /** Cap in-viewport height; longer output scrolls inside the panel. */
-export const OUTPUT_MAX_HEIGHT_PX = 280;
+export const OUTPUT_MAX_HEIGHT_PX = 220;
 
 export const SERVER_ERROR_MESSAGE = "Server error. Please try again later.";
 export const RATE_LIMIT_MESSAGE =

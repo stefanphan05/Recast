@@ -1,143 +1,144 @@
 "use client";
 
-import MessageInput from "@/components/rewrite/MessageInput";
+import PromptComposer from "@/components/rewrite/PromptComposer";
 import OutputPanel from "@/components/rewrite/OutputPanel";
-import RewriteActions from "@/components/rewrite/RewriteActions";
-import RewriteSettingsModal from "@/components/rewrite/RewriteSettingsModal";
-import StylePicker from "@/components/rewrite/StylePicker";
-import {
-  MAX_CHARS,
-  sourceLanguageOptions,
-  targetLanguageOptions,
-} from "@/components/rewrite/constants";
+import { MAX_CHARS } from "@/components/rewrite/constants";
 import {
   SOURCE_LANGUAGE_AUTO,
   TARGET_LANGUAGE_SAME,
   type RewriteStyle,
 } from "@/lib/rewrite";
 import { requestRewrite, rewriteErrorMessage } from "@/lib/rewrite/client";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-export default function RewriteWorkspace() {
+const INITIAL_STYLE: RewriteStyle = "grammar";
+const INITIAL_GENZ_INTENSITY = 5;
+const INITIAL_FLIRT_INTENSITY = 5;
+
+export default function RewriteWorkspace({
+  selectedModel,
+  onExpandedChange,
+  onOpenSettings,
+}: {
+  selectedModel: string;
+  onExpandedChange?: (expanded: boolean) => void;
+  onOpenSettings?: () => void;
+}) {
   const [text, setText] = useState("");
-  const [style, setStyle] = useState<RewriteStyle>("grammar");
-  const [genzIntensity, setGenzIntensity] = useState(5);
-  const [flirtIntensity, setFlirtIntensity] = useState(5);
-  const [sourceLanguage, setSourceLanguage] = useState<string>(
-    SOURCE_LANGUAGE_AUTO,
-  );
-  const [targetLanguage, setTargetLanguage] = useState<string>(
-    TARGET_LANGUAGE_SAME,
-  );
-  const [instructions, setInstructions] = useState("");
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [style, setStyle] = useState<RewriteStyle>(INITIAL_STYLE);
+  const [genzIntensity, setGenzIntensity] = useState(INITIAL_GENZ_INTENSITY);
+  const [flirtIntensity, setFlirtIntensity] = useState(INITIAL_FLIRT_INTENSITY);
   const [result, setResult] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isRateLimited, setIsRateLimited] = useState(false);
+  const requestIdRef = useRef(0);
 
   const hasOutput = isLoading || result.length > 0;
+
+  const resetWorkspace = useCallback(() => {
+    requestIdRef.current += 1;
+    setText("");
+    setStyle(INITIAL_STYLE);
+    setGenzIntensity(INITIAL_GENZ_INTENSITY);
+    setFlirtIntensity(INITIAL_FLIRT_INTENSITY);
+    setResult("");
+    setIsLoading(false);
+    setErrorMessage(null);
+    window.electronAPI?.setLayout("prompt");
+    onExpandedChange?.(false);
+  }, [onExpandedChange]);
+
+  useEffect(() => {
+    const unsubscribe = window.electronAPI?.onWindowHidden(resetWorkspace);
+    return unsubscribe;
+  }, [resetWorkspace]);
+
+  useEffect(() => {
+    window.electronAPI?.setLayout(hasOutput ? "expanded" : "prompt");
+    onExpandedChange?.(hasOutput);
+  }, [hasOutput, onExpandedChange]);
 
   const canSubmit = useMemo(() => {
     const trimmedLength = text.trim().length;
     return trimmedLength > 0 && trimmedLength <= MAX_CHARS && !isLoading;
   }, [text, isLoading]);
 
-  const isCrossLanguage = targetLanguage !== TARGET_LANGUAGE_SAME;
-  const hasCustomSettings =
-    isCrossLanguage ||
-    instructions.trim().length > 0 ||
-    sourceLanguage !== SOURCE_LANGUAGE_AUTO;
-
   async function handleRewrite() {
     if (!canSubmit) return;
 
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
+
     setIsLoading(true);
     setErrorMessage(null);
-    setIsRateLimited(false);
 
     try {
-      const rewritten = await requestRewrite({
-        text,
-        style,
-        genzIntensity: style === "genz" ? genzIntensity : undefined,
-        flirtIntensity: style === "flirt" ? flirtIntensity : undefined,
-        sourceLanguage,
-        targetLanguage,
-        instructions: instructions.trim() || undefined,
-      });
+      const rewritten = await requestRewrite(
+        {
+          text,
+          style,
+          genzIntensity: style === "genz" ? genzIntensity : undefined,
+          flirtIntensity: style === "flirt" ? flirtIntensity : undefined,
+          sourceLanguage: SOURCE_LANGUAGE_AUTO,
+          targetLanguage: TARGET_LANGUAGE_SAME,
+        },
+        selectedModel,
+      );
+      if (requestId !== requestIdRef.current) return;
       setResult(rewritten);
     } catch (error) {
+      if (requestId !== requestIdRef.current) return;
       setResult("");
-      setIsRateLimited(
-        error instanceof Error && error.name === "RateLimitError",
-      );
       setErrorMessage(rewriteErrorMessage(error));
     } finally {
+      if (requestId !== requestIdRef.current) return;
       setIsLoading(false);
     }
   }
 
   return (
-    <>
-      <main
-        className={`mx-auto flex w-full min-h-0 max-w-lg flex-1 flex-col ${
-          hasOutput
-            ? "gap-4 overflow-y-auto overscroll-y-contain"
-            : "justify-center"
-        }`}
-      >
-        <div
-          className={`flex flex-col gap-5 ${hasOutput ? "shrink-0" : ""}`}
-        >
-          <MessageInput
-            value={text}
-            onChange={setText}
-            compact={hasOutput}
-          />
+    <main
+      className={`flex w-full min-h-0 max-w-[480px] flex-1 flex-col ${
+        hasOutput
+          ? "max-h-full gap-3 overflow-y-auto overscroll-y-contain"
+          : "justify-center"
+      }`}
+    >
+      {hasOutput ? <OutputPanel result={result} isLoading={isLoading} /> : null}
 
-          <div className="flex flex-col">
-            <StylePicker
-              style={style}
-              onStyleChange={setStyle}
-              genzIntensity={genzIntensity}
-              onGenzIntensityChange={setGenzIntensity}
-              flirtIntensity={flirtIntensity}
-              onFlirtIntensityChange={setFlirtIntensity}
-              settingsOpen={settingsOpen}
-              onOpenSettings={() => setSettingsOpen(true)}
-              hasCustomSettings={hasCustomSettings}
-            />
-            <RewriteActions
-              canSubmit={canSubmit}
-              isLoading={isLoading}
-              errorMessage={errorMessage}
-              isRateLimited={isRateLimited}
-              onRewrite={handleRewrite}
-            />
+      <div className={hasOutput ? "shrink-0" : ""}>
+        <PromptComposer
+          value={text}
+          onChange={setText}
+          style={style}
+          onStyleChange={setStyle}
+          genzIntensity={genzIntensity}
+          onGenzIntensityChange={setGenzIntensity}
+          flirtIntensity={flirtIntensity}
+          onFlirtIntensityChange={setFlirtIntensity}
+          canSubmit={canSubmit}
+          isLoading={isLoading}
+          compact={hasOutput}
+          onSubmit={handleRewrite}
+          onOpenSettings={onOpenSettings}
+        />
+
+        {errorMessage ? (
+          <div className="mt-3 flex flex-col items-center gap-2.5">
+            <p className="text-center text-sm text-neutral-500 dark:text-neutral-400">
+              {errorMessage}
+            </p>
+            <button
+              type="button"
+              disabled={!canSubmit}
+              onClick={handleRewrite}
+              className="cursor-pointer rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-1.5 text-sm text-neutral-700 transition-colors hover:border-neutral-400/70 hover:text-neutral-950 disabled:cursor-not-allowed disabled:opacity-50 dark:text-neutral-300 dark:hover:border-neutral-500/70 dark:hover:text-neutral-50"
+            >
+              Retry
+            </button>
           </div>
-        </div>
-
-        {hasOutput ? (
-          <OutputPanel result={result} isLoading={isLoading} />
         ) : null}
-      </main>
-
-      <RewriteSettingsModal
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        instructions={instructions}
-        onInstructionsChange={setInstructions}
-        sourceLanguage={sourceLanguage}
-        onSourceLanguageChange={setSourceLanguage}
-        targetLanguage={targetLanguage}
-        onTargetLanguageChange={setTargetLanguage}
-        isCrossLanguage={isCrossLanguage}
-        sourceLanguageOptions={sourceLanguageOptions}
-        targetLanguageOptions={targetLanguageOptions}
-        sourceLanguageAuto={SOURCE_LANGUAGE_AUTO}
-        targetLanguageSame={TARGET_LANGUAGE_SAME}
-      />
-    </>
+      </div>
+    </main>
   );
 }

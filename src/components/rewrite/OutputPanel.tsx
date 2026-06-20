@@ -28,18 +28,15 @@ export default function OutputPanel({ result, isLoading }: OutputPanelProps) {
 
   return (
     <div
-      className="flex shrink-0 flex-col gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+      className="flex shrink-0 flex-col gap-1.5"
       aria-live="polite"
       aria-busy={isLoading}
     >
-      <p className="shrink-0 text-[11px] uppercase tracking-[0.08em] text-neutral-400 dark:text-neutral-500">
-        Output
-      </p>
       <section
-        className="overflow-y-auto rounded-2xl border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900"
+        className="glass-elevated overflow-y-auto rounded-2xl border p-3"
         style={{
-          minHeight: `max(${OUTPUT_MIN_HEIGHT_PX}px, 28dvh)`,
-          maxHeight: `min(${OUTPUT_MAX_HEIGHT_PX}px, 45dvh)`,
+          minHeight: `max(${OUTPUT_MIN_HEIGHT_PX}px, 18dvh)`,
+          maxHeight: `min(${OUTPUT_MAX_HEIGHT_PX}px, 38dvh)`,
         }}
       >
         {isLoading ? (
@@ -60,7 +57,7 @@ export default function OutputPanel({ result, isLoading }: OutputPanelProps) {
             type="button"
             onClick={handleCopy}
             aria-label={copied ? "Copied" : "Copy to clipboard"}
-            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-transparent text-neutral-500 transition-colors hover:bg-neutral-200/70 hover:text-neutral-600 focus-visible:bg-neutral-200/70 focus-visible:text-neutral-600 focus-visible:outline-none dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200 dark:focus-visible:bg-neutral-800 dark:focus-visible:text-neutral-200"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-neutral-950 text-white transition-colors hover:bg-neutral-800 focus-visible:bg-neutral-800 focus-visible:outline-none dark:bg-neutral-50 dark:text-neutral-950 dark:hover:bg-neutral-200 dark:focus-visible:bg-neutral-200"
           >
             {copied ? (
               <svg

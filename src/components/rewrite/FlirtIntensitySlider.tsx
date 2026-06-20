@@ -3,14 +3,16 @@
 type FlirtIntensitySliderProps = {
   value: number;
   onChange: (value: number) => void;
+  compact?: boolean;
 };
 
 export default function FlirtIntensitySlider({
   value,
   onChange,
+  compact = false,
 }: FlirtIntensitySliderProps) {
   return (
-    <div className="mt-4">
+    <div className={compact ? "mt-2.5" : "mt-4"}>
       <div className="flex items-baseline justify-between gap-3">
         <p className="text-[11px] uppercase tracking-[0.08em] text-neutral-400 dark:text-neutral-500">
           How flirt
