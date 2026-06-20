@@ -3,6 +3,15 @@
 import { ICON_ACTION_BTN_SECONDARY_CLASS } from "@/components/rewrite/constants";
 import { useEffect, useState, type CSSProperties } from "react";
 
+/** Electron frameless windows use a top drag region; interactive controls must opt out. */
+export const NO_DRAG_STYLE = {
+  WebkitAppRegion: "no-drag",
+} as CSSProperties;
+
+export const DRAG_STYLE = {
+  WebkitAppRegion: "drag",
+} as CSSProperties;
+
 type CloseWindowButtonProps = {
   className?: string;
 };
@@ -22,7 +31,7 @@ export function CloseWindowButton({ className = "" }: CloseWindowButtonProps) {
       aria-label="Close app"
       onClick={() => window.electronAPI?.close()}
       className={`${ICON_ACTION_BTN_SECONDARY_CLASS} cursor-default ${className}`}
-      style={{ WebkitAppRegion: "no-drag" } as CSSProperties}
+      style={NO_DRAG_STYLE}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
