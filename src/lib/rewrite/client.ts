@@ -1,9 +1,6 @@
 import type { RewriteStyle } from "./styles";
-import { DEFAULT_OLLAMA_MODEL, OllamaError, rewriteWithOllama } from "./ollama";
-import {
-  validateRewriteParams,
-  ValidationError,
-} from "./validate-input";
+import { DEFAULT_MODEL, LocalAIError, rewriteWithLocalAI } from "./local-ai";
+import { validateRewriteParams, ValidationError } from "./validate-input";
 
 const SERVER_ERROR_MESSAGE = "Server error. Please try again later.";
 
@@ -19,14 +16,14 @@ export type RewriteRequest = {
 
 export async function requestRewrite(
   params: RewriteRequest,
-  model: string = DEFAULT_OLLAMA_MODEL,
+  model: string = DEFAULT_MODEL,
 ): Promise<string> {
   const input = validateRewriteParams(params);
-  return rewriteWithOllama(input, model);
+  return rewriteWithLocalAI(input, model);
 }
 
 export function rewriteErrorMessage(error: unknown): string {
-  if (error instanceof ValidationError || error instanceof OllamaError) {
+  if (error instanceof ValidationError || error instanceof LocalAIError) {
     return error.message;
   }
 

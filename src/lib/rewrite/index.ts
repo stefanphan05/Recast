@@ -6,19 +6,21 @@ export {
   TARGET_LANGUAGE_SAME,
 } from "./languages";
 export {
-  DEFAULT_OLLAMA_MODEL,
-  OllamaError,
+  DEFAULT_MODEL,
+  LocalAIError,
+  checkLocalAIRunning,
   checkModelAvailable,
-  checkOllamaRunning,
-  getOllamaHealthStatus,
+  downloadModel,
+  formatPullProgressStatus,
+  getLocalAIHealthStatus,
   listInstalledModels,
-  pullOllamaModel,
-  rewriteWithOllama,
-  type OllamaHealthStatus,
+  rewriteWithLocalAI,
+  type LocalAIHealthStatus,
   type PullProgress,
-} from "./ollama";
+} from "./local-ai";
 export {
   DEFAULT_MODEL_ID,
+  getModelDisplayName,
   RECOMMENDED_MODELS,
   type RecommendedModel,
 } from "./models";

@@ -7,18 +7,19 @@ import {
 import { DEFAULT_MODEL_ID } from "./models";
 import { sanitizeRewriteOutput } from "./sanitize-output";
 
-export const OLLAMA_BASE = "http://localhost:11434";
-export const DEFAULT_OLLAMA_MODEL =
-  process.env.NEXT_PUBLIC_OLLAMA_MODEL?.trim() || DEFAULT_MODEL_ID;
+export const LOCAL_AI_BASE =
+  process.env.NEXT_PUBLIC_LOCAL_AI_BASE?.trim() || "http://127.0.0.1:11435";
+export const DEFAULT_MODEL =
+  process.env.NEXT_PUBLIC_LOCAL_AI_MODEL?.trim() || DEFAULT_MODEL_ID;
 
-export class OllamaError extends Error {
+export class LocalAIError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "OllamaError";
+    this.name = "LocalAIError";
   }
 }
 
-export type OllamaHealthStatus =
+export type LocalAIHealthStatus =
   | { status: "ok" }
   | { status: "not_running" }
   | { status: "model_missing"; model: string };
@@ -28,6 +29,24 @@ export type PullProgress = {
   total: number;
   status?: string;
 };
+
+export function formatPullProgressStatus(
+  progress: PullProgress | null | undefined,
+): string {
+  if (!progress?.status) {
+    return progress?.total ? "Downloading…" : "Starting download…";
+  }
+
+  const status = progress.status.toLowerCase();
+
+  if (status === "success") return "Finishing up…";
+  if (status === "pulling manifest") return "Preparing download…";
+  if (status.startsWith("pulling")) return "Downloading model files…";
+  if (status.startsWith("downloading")) return "Downloading model files…";
+  if (status.startsWith("verifying")) return "Verifying download…";
+
+  return "Downloading…";
+}
 
 type ChatResponse = {
   message?: {
@@ -55,9 +74,9 @@ function modelMatches(name: string, model: string): boolean {
   return name === model || name.startsWith(`${model}:`);
 }
 
-export async function checkOllamaRunning(): Promise<boolean> {
+export async function checkLocalAIRunning(): Promise<boolean> {
   try {
-    const response = await fetch(OLLAMA_BASE);
+    const response = await fetch(LOCAL_AI_BASE);
     return response.ok;
   } catch {
     return false;
@@ -66,7 +85,7 @@ export async function checkOllamaRunning(): Promise<boolean> {
 
 export async function listInstalledModels(): Promise<string[]> {
   try {
-    const response = await fetch(`${OLLAMA_BASE}/api/tags`);
+    const response = await fetch(`${LOCAL_AI_BASE}/api/tags`);
     if (!response.ok) return [];
 
     const data = (await response.json()) as TagsResponse;
@@ -77,16 +96,16 @@ export async function listInstalledModels(): Promise<string[]> {
 }
 
 export async function checkModelAvailable(
-  model: string = DEFAULT_OLLAMA_MODEL,
+  model: string = DEFAULT_MODEL,
 ): Promise<boolean> {
   const installed = await listInstalledModels();
   return installed.some((name) => modelMatches(name, model));
 }
 
-export async function getOllamaHealthStatus(
-  model: string = DEFAULT_OLLAMA_MODEL,
-): Promise<OllamaHealthStatus> {
-  const running = await checkOllamaRunning();
+export async function getLocalAIHealthStatus(
+  model: string = DEFAULT_MODEL,
+): Promise<LocalAIHealthStatus> {
+  const running = await checkLocalAIRunning();
   if (!running) {
     return { status: "not_running" };
   }
@@ -99,34 +118,36 @@ export async function getOllamaHealthStatus(
   return { status: "ok" };
 }
 
-export async function pullOllamaModel(
+export async function downloadModel(
   model: string,
   onProgress?: (progress: PullProgress) => void,
 ): Promise<void> {
   let response: Response;
 
   try {
-    response = await fetch(`${OLLAMA_BASE}/api/pull`, {
+    response = await fetch(`${LOCAL_AI_BASE}/api/pull`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: model, stream: true }),
     });
   } catch (error) {
     if (isConnectionError(error)) {
-      throw new OllamaError(
-        "Please start Ollama: run `ollama serve` in your terminal",
+      throw new LocalAIError(
+        "Local AI engine is not running. Restart Recast and try again.",
       );
     }
-    throw new OllamaError("Could not reach Ollama. Please try again.");
+    throw new LocalAIError(
+      "Could not reach the local AI engine. Please try again.",
+    );
   }
 
   if (!response.ok) {
-    throw new OllamaError("Failed to download model. Please try again.");
+    throw new LocalAIError("Failed to download model. Please try again.");
   }
 
   const reader = response.body?.getReader();
   if (!reader) {
-    throw new OllamaError("Failed to download model. Please try again.");
+    throw new LocalAIError("Failed to download model. Please try again.");
   }
 
   const decoder = new TextDecoder();
@@ -151,7 +172,7 @@ export async function pullOllamaModel(
       }
 
       if (chunk.error) {
-        throw new OllamaError(chunk.error);
+        throw new LocalAIError(chunk.error);
       }
 
       onProgress?.({
@@ -163,14 +184,14 @@ export async function pullOllamaModel(
   }
 }
 
-export async function rewriteWithOllama(
+export async function rewriteWithLocalAI(
   input: RewriteInput,
-  model: string = DEFAULT_OLLAMA_MODEL,
+  model: string = DEFAULT_MODEL,
 ): Promise<string> {
   let response: Response;
 
   try {
-    response = await fetch(`${OLLAMA_BASE}/api/chat`, {
+    response = await fetch(`${LOCAL_AI_BASE}/api/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -188,40 +209,42 @@ export async function rewriteWithOllama(
     });
   } catch (error) {
     if (isConnectionError(error)) {
-      throw new OllamaError(
-        "Please start Ollama: run `ollama serve` in your terminal",
+      throw new LocalAIError(
+        "Local AI engine is not running. Restart Recast and try again.",
       );
     }
-    throw new OllamaError("Could not reach Ollama. Please try again.");
+    throw new LocalAIError(
+      "Could not reach the local AI engine. Please try again.",
+    );
   }
 
   let payload: ChatResponse;
   try {
     payload = (await response.json()) as ChatResponse;
   } catch {
-    throw new OllamaError("Invalid response from Ollama. Please try again.");
+    throw new LocalAIError(
+      "Invalid response from the AI engine. Please try again.",
+    );
   }
 
   if (!response.ok) {
     const message = payload.error ?? "";
     if (response.status === 404 || /not found/i.test(message)) {
-      throw new OllamaError(
-        `Model ${model} not found. Run: ollama pull ${model}`,
+      throw new LocalAIError(
+        `Model ${model} is not installed. Download it in Settings.`,
       );
     }
-    throw new OllamaError(
-      message || "Ollama request failed. Please try again.",
-    );
+    throw new LocalAIError(message || "AI request failed. Please try again.");
   }
 
   const raw = payload.message?.content?.trim();
   if (!raw) {
-    throw new OllamaError("Model returned empty rewrite. Please try again.");
+    throw new LocalAIError("Model returned empty rewrite. Please try again.");
   }
 
   const rewritten = sanitizeRewriteOutput(raw, input.text);
   if (!rewritten) {
-    throw new OllamaError("Model returned empty rewrite. Please try again.");
+    throw new LocalAIError("Model returned empty rewrite. Please try again.");
   }
 
   return rewritten;

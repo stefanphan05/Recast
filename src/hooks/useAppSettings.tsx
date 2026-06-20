@@ -1,6 +1,6 @@
 "use client";
 
-import { DEFAULT_OLLAMA_MODEL } from "@/lib/rewrite";
+import { DEFAULT_MODEL } from "@/lib/rewrite";
 import { DEFAULT_GLOBAL_HOTKEY } from "@/lib/hotkey";
 import type { AppSettings } from "@/types/electron";
 import {
@@ -15,7 +15,7 @@ import {
 
 const WEB_DEFAULT_SETTINGS: AppSettings = {
   onboardingComplete: true,
-  selectedModel: DEFAULT_OLLAMA_MODEL,
+  selectedModel: DEFAULT_MODEL,
   globalHotkey: DEFAULT_GLOBAL_HOTKEY,
   showMenuBarIcon: true,
   hideDockIcon: false,
