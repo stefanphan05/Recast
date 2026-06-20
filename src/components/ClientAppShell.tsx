@@ -5,31 +5,55 @@ import OllamaSetupBanner from "@/components/OllamaSetupBanner";
 import RewriteWorkspace from "@/components/rewrite/RewriteWorkspace";
 import WindowChrome from "@/components/WindowChrome";
 import { AppSettingsProvider, useAppSettings } from "@/hooks/useAppSettings";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function AppShell() {
   const { settings, loading, isElectron } = useAppSettings();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const shellRef = useRef<HTMLDivElement>(null);
 
   const showOnboarding =
     isElectron && !loading && !settings.onboardingComplete;
 
-  function handleOpenSettings() {
-    void window.electronAPI?.openSettings();
-  }
+  useEffect(() => {
+    if (!isElectron || expanded || showOnboarding) return;
+
+    const el = shellRef.current;
+    if (!el) return;
+
+    const syncHeight = () => {
+      const height = Math.ceil(el.getBoundingClientRect().height);
+      window.electronAPI?.setContentHeight(height);
+    };
+
+    syncHeight();
+    const observer = new ResizeObserver(syncHeight);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [expanded, isElectron, showOnboarding]);
+
+  const fillWindow = expanded || showOnboarding;
 
   return (
-    <div className="group relative flex h-dvh flex-col overflow-hidden bg-transparent text-neutral-950 dark:text-neutral-50">
-      <WindowChrome showCloseButton={isExpanded && !showOnboarding} />
+    <div
+      ref={shellRef}
+      className={`relative flex flex-col bg-transparent text-neutral-950 dark:text-neutral-50 ${
+        fillWindow ? "h-dvh overflow-hidden" : "h-auto overflow-visible"
+      }`}
+    >
+      <WindowChrome />
       {showOnboarding ? <OnboardingWizard /> : null}
       {!showOnboarding ? (
         <>
           <OllamaSetupBanner selectedModel={settings.selectedModel} />
-          <div className="flex min-h-0 flex-1 flex-col items-center p-2">
+          <div
+            className={`flex w-full flex-col items-center p-2 ${
+              expanded ? "min-h-0 flex-1" : ""
+            }`}
+          >
             <RewriteWorkspace
               selectedModel={settings.selectedModel}
-              onExpandedChange={setIsExpanded}
-              onOpenSettings={isElectron ? handleOpenSettings : undefined}
+              onExpandedChange={setExpanded}
             />
           </div>
         </>

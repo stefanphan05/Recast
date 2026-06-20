@@ -1,8 +1,4 @@
-import {
-  useCallback,
-  useLayoutEffect,
-  type RefObject,
-} from "react";
+import { useCallback, useLayoutEffect, type RefObject } from "react";
 import {
   TEXTAREA_MAX_COMPACT_PX,
   TEXTAREA_MAX_LANDING_PX,

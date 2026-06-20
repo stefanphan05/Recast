@@ -2,6 +2,8 @@ const {
   app,
   BrowserWindow,
   Menu,
+  Tray,
+  nativeImage,
   dialog,
   shell,
   ipcMain,
@@ -11,13 +13,17 @@ const {
   net,
 } = require("electron");
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 const { pathToFileURL } = require("url");
+const { inputEventToAccelerator } = require("./hotkey");
 
 const DEFAULT_SETTINGS = {
   onboardingComplete: false,
   selectedModel: "llama3.2",
   globalHotkey: "Alt+Tab",
+  showMenuBarIcon: true,
+  hideDockIcon: false,
 };
 
 const useStaticExport =
@@ -36,17 +42,13 @@ protocol.registerSchemesAsPrivileged([
   },
 ]);
 
-/** Default global shortcut to show/hide the window (Option+Tab). */
-const DEFAULT_HOTKEY = DEFAULT_SETTINGS.globalHotkey;
-
-/** @type {BrowserWindow | null} */
 let mainWindow = null;
-
-/** @type {BrowserWindow | null} */
 let settingsWindow = null;
-
-/** @type {boolean} */
+let tray = null;
 let isQuitting = false;
+let hotkeyRecording = false;
+let hotkeyRecordingHandler = null;
+let hotkeyRecordingTargets = [];
 
 function showMainWindow() {
   if (!mainWindow) {
@@ -86,7 +88,7 @@ function toggleMainWindow() {
 
 function getGlobalHotkey() {
   const settings = readSettings();
-  return settings.globalHotkey || DEFAULT_HOTKEY;
+  return settings.globalHotkey || DEFAULT_SETTINGS.globalHotkey;
 }
 
 function broadcastSettingsChanged(next) {
@@ -96,6 +98,9 @@ function broadcastSettingsChanged(next) {
 
 function registerGlobalHotkey(accelerator = getGlobalHotkey()) {
   globalShortcut.unregisterAll();
+  if (hotkeyRecording) {
+    return true;
+  }
   const registered = globalShortcut.register(accelerator, toggleMainWindow);
   if (!registered) {
     console.warn(`Failed to register global shortcut: ${accelerator}`);
@@ -103,11 +108,230 @@ function registerGlobalHotkey(accelerator = getGlobalHotkey()) {
   return registered;
 }
 
-const PROMPT_WINDOW_HEIGHT = 200;
+function setGlobalHotkey(accelerator) {
+  if (typeof accelerator !== "string" || !accelerator.trim()) {
+    return { ok: false, error: "Invalid shortcut." };
+  }
+
+  const nextAccelerator = accelerator.trim();
+  hotkeyRecording = false;
+  const registered = registerGlobalHotkey(nextAccelerator);
+  if (!registered) {
+    registerGlobalHotkey(getGlobalHotkey());
+    return {
+      ok: false,
+      error:
+        "That shortcut is already used by macOS or another app. Please try a different combination.",
+    };
+  }
+
+  const next = writeSettings({ globalHotkey: nextAccelerator });
+  broadcastSettingsChanged(next);
+  refreshApplicationMenu();
+  return { ok: true, accelerator: nextAccelerator };
+}
+
+function stopHotkeyRecordingListeners() {
+  if (!hotkeyRecordingHandler) return;
+
+  for (const webContents of hotkeyRecordingTargets) {
+    if (!webContents.isDestroyed()) {
+      webContents.removeListener("before-input-event", hotkeyRecordingHandler);
+    }
+  }
+
+  hotkeyRecordingTargets = [];
+  hotkeyRecordingHandler = null;
+}
+
+function stopHotkeyRecording() {
+  hotkeyRecording = false;
+  stopHotkeyRecordingListeners();
+  registerGlobalHotkey(getGlobalHotkey());
+}
+
+function broadcastHotkeyRecordingCancelled() {
+  for (const webContents of [mainWindow?.webContents, settingsWindow?.webContents]) {
+    if (webContents && !webContents.isDestroyed()) {
+      webContents.send("hotkey:recording-cancelled");
+    }
+  }
+}
+
+function startHotkeyRecording(webContents) {
+  hotkeyRecording = true;
+  globalShortcut.unregisterAll();
+  stopHotkeyRecordingListeners();
+
+  hotkeyRecordingHandler = (event, input) => {
+    if (!hotkeyRecording || input.type !== "keyDown") return;
+
+    if (input.key === "Escape") {
+      stopHotkeyRecording();
+      broadcastHotkeyRecordingCancelled();
+      return;
+    }
+
+    const accelerator = inputEventToAccelerator(input);
+    if (!accelerator) return;
+
+    event.preventDefault();
+    stopHotkeyRecordingListeners();
+    hotkeyRecording = false;
+
+    if (webContents && !webContents.isDestroyed()) {
+      webContents.send("hotkey:captured", accelerator);
+    }
+  };
+
+  const targets = new Set();
+  if (webContents && !webContents.isDestroyed()) {
+    targets.add(webContents);
+  }
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    targets.add(mainWindow.webContents);
+  }
+  if (settingsWindow && !settingsWindow.isDestroyed()) {
+    targets.add(settingsWindow.webContents);
+  }
+
+  for (const target of targets) {
+    target.on("before-input-event", hotkeyRecordingHandler);
+    hotkeyRecordingTargets.push(target);
+  }
+}
+
+function refreshApplicationMenu() {
+  if (!isDev) {
+    Menu.setApplicationMenu(buildMenu());
+  }
+  refreshTrayMenu();
+}
+
+function getMenuIconPath(filename) {
+  const candidates = [
+    path.join(__dirname, "..", "src", "app", filename),
+    path.join(__dirname, filename),
+  ];
+
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) return candidate;
+  }
+
+  return path.join(__dirname, "..", "src", "app", filename);
+}
+
+function getTrayIcon() {
+  const icon1x = nativeImage.createFromPath(
+    getMenuIconPath("menu-icon-22.png"),
+  );
+  const icon2x = nativeImage.createFromPath(
+    getMenuIconPath("menu-icon-44.png"),
+  );
+
+  if (isMac && !icon1x.isEmpty() && !icon2x.isEmpty()) {
+    const icon = nativeImage.createEmpty();
+    icon.addRepresentation({
+      scaleFactor: 1,
+      width: 22,
+      height: 22,
+      buffer: icon1x.toPNG(),
+    });
+    icon.addRepresentation({
+      scaleFactor: 2,
+      width: 22,
+      height: 22,
+      buffer: icon2x.toPNG(),
+    });
+    icon.setTemplateImage(false);
+    return icon;
+  }
+
+  const icon = icon1x.isEmpty() ? icon2x : icon1x;
+  icon.setTemplateImage(false);
+  return icon;
+}
+
+function buildTrayMenu() {
+  const hotkey = getGlobalHotkey();
+
+  return Menu.buildFromTemplate([
+    {
+      label: "Open Recast",
+      accelerator: hotkey,
+      click: () => showMainWindow(),
+    },
+    { type: "separator" },
+    {
+      label: "Settings…",
+      click: () => createSettingsWindow(),
+    },
+    {
+      label: "Quit",
+      click: () => {
+        isQuitting = true;
+        app.quit();
+      },
+    },
+  ]);
+}
+
+function refreshTrayMenu() {
+  if (!tray) return;
+  tray.setContextMenu(buildTrayMenu());
+}
+
+function createTray() {
+  if (!isMac || tray) return;
+  if (readSettings().showMenuBarIcon === false) return;
+
+  tray = new Tray(getTrayIcon());
+  tray.setToolTip("Recast");
+  refreshTrayMenu();
+}
+
+function destroyTray() {
+  if (!tray) return;
+  tray.destroy();
+  tray = null;
+}
+
+function applyMenuBarIconSetting(show) {
+  if (!isMac) return;
+  if (show) {
+    createTray();
+    return;
+  }
+  destroyTray();
+}
+
+function applyDockIconSetting(hide) {
+  if (!isMac || !app.dock) return;
+  if (hide) {
+    app.dock.hide();
+    return;
+  }
+  app.dock.show();
+}
+
+function applyGeneralSettings(settings = readSettings()) {
+  applyMenuBarIconSetting(settings.showMenuBarIcon !== false);
+  applyDockIconSetting(Boolean(settings.hideDockIcon));
+}
+
+function getOllamaModelsPath() {
+  return path.join(os.homedir(), ".ollama", "models");
+}
+
+const PROMPT_WINDOW_MIN_HEIGHT = 140;
+const PROMPT_WINDOW_ABSOLUTE_MIN_HEIGHT = 120;
+const PROMPT_WINDOW_MAX_HEIGHT = 520;
 const EXPANDED_WINDOW_HEIGHT = 520;
 const ONBOARDING_WINDOW_HEIGHT = 640;
 const WINDOW_WIDTH = 480;
 const TOP_MARGIN = 24;
+
+let currentLayoutMode = "prompt";
 
 function getActiveDisplay() {
   return screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
@@ -133,17 +357,24 @@ function positionWindowTopCenter(win, display = getActiveDisplay()) {
   win.setPosition(x, y, false);
 }
 
-function getLayoutHeight(mode) {
+function getLayoutHeight(mode, contentHeight) {
   if (mode === "onboarding") return ONBOARDING_WINDOW_HEIGHT;
   if (mode === "expanded") return EXPANDED_WINDOW_HEIGHT;
-  return PROMPT_WINDOW_HEIGHT;
+  if (typeof contentHeight === "number" && contentHeight > 0) {
+    return Math.min(
+      Math.max(Math.round(contentHeight), PROMPT_WINDOW_ABSOLUTE_MIN_HEIGHT),
+      PROMPT_WINDOW_MAX_HEIGHT,
+    );
+  }
+  return PROMPT_WINDOW_MIN_HEIGHT;
 }
 
-function setWindowLayout(mode) {
+function setWindowLayout(mode, contentHeight) {
   if (!mainWindow) return;
 
-  const height = getLayoutHeight(mode);
-  mainWindow.setMinimumSize(WINDOW_WIDTH, PROMPT_WINDOW_HEIGHT);
+  currentLayoutMode = mode;
+  const height = getLayoutHeight(mode, contentHeight);
+  mainWindow.setMinimumSize(WINDOW_WIDTH, PROMPT_WINDOW_ABSOLUTE_MIN_HEIGHT);
 
   if (mode === "prompt" || mode === "onboarding") {
     mainWindow.setSize(WINDOW_WIDTH, height, true);
@@ -273,9 +504,10 @@ function createSettingsWindow() {
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: WINDOW_WIDTH,
-    height: PROMPT_WINDOW_HEIGHT,
+    height: PROMPT_WINDOW_MIN_HEIGHT,
     minWidth: WINDOW_WIDTH,
-    minHeight: PROMPT_WINDOW_HEIGHT,
+    minHeight: PROMPT_WINDOW_ABSOLUTE_MIN_HEIGHT,
+    resizable: false,
     title: "Recast",
     frame: false,
     transparent: isMac,
@@ -316,9 +548,6 @@ function createWindow() {
 }
 
 function buildMenu() {
-  const isMac = process.platform === "darwin";
-
-  /** @type {Electron.MenuItemConstructorOptions[]} */
   const template = [];
 
   if (isMac) {
@@ -393,7 +622,9 @@ app.whenReady().then(async () => {
         !filePath.startsWith(resolvedOutDir + path.sep) &&
         filePath !== resolvedOutDir
       ) {
-        return net.fetch(pathToFileURL(path.join(resolvedOutDir, "index.html")).toString());
+        return net.fetch(
+          pathToFileURL(path.join(resolvedOutDir, "index.html")).toString(),
+        );
       }
 
       return net.fetch(pathToFileURL(filePath).toString());
@@ -405,10 +636,21 @@ app.whenReady().then(async () => {
     hideMainWindow();
   });
 
-  ipcMain.on("window-set-layout", (_event, mode) => {
+  ipcMain.on("window-set-layout", (_event, mode, contentHeight) => {
     if (mode === "prompt" || mode === "expanded" || mode === "onboarding") {
-      setWindowLayout(mode);
+      setWindowLayout(mode, contentHeight);
     }
+  });
+
+  ipcMain.on("window-set-content-height", (_event, contentHeight) => {
+    if (
+      currentLayoutMode !== "prompt" ||
+      typeof contentHeight !== "number" ||
+      !Number.isFinite(contentHeight)
+    ) {
+      return;
+    }
+    setWindowLayout("prompt", contentHeight);
   });
 
   ipcMain.handle("settings:get", () => readSettings());
@@ -417,6 +659,7 @@ app.whenReady().then(async () => {
       return readSettings();
     }
     const next = writeSettings(partial);
+    applyGeneralSettings(next);
     broadcastSettingsChanged(next);
     return next;
   });
@@ -424,31 +667,26 @@ app.whenReady().then(async () => {
     createSettingsWindow();
     return true;
   });
-  ipcMain.handle("hotkey:get", () => getGlobalHotkey());
-  ipcMain.handle("hotkey:set", (_event, accelerator) => {
-    if (typeof accelerator !== "string" || !accelerator.trim()) {
-      return { ok: false, error: "Invalid shortcut." };
-    }
-
-    const nextAccelerator = accelerator.trim();
-    const registered = registerGlobalHotkey(nextAccelerator);
-    if (!registered) {
-      registerGlobalHotkey(getGlobalHotkey());
-      return {
-        ok: false,
-        error: "That shortcut is unavailable. Try a different combination.",
-      };
-    }
-
-    const next = writeSettings({ globalHotkey: nextAccelerator });
-    broadcastSettingsChanged(next);
-    return { ok: true, accelerator: nextAccelerator };
+  ipcMain.handle("hotkey:beginRecording", (event) => {
+    startHotkeyRecording(event.sender);
+    return true;
   });
+  ipcMain.handle("hotkey:endRecording", () => {
+    stopHotkeyRecording();
+    return true;
+  });
+  ipcMain.handle("hotkey:set", (_event, accelerator) => setGlobalHotkey(accelerator));
   ipcMain.handle("shell:openExternal", (_event, url) => {
     if (typeof url === "string" && /^https?:\/\//.test(url)) {
       return shell.openExternal(url);
     }
     return false;
+  });
+  ipcMain.handle("shell:revealModelsFolder", async () => {
+    const modelsPath = getOllamaModelsPath();
+    fs.mkdirSync(modelsPath, { recursive: true });
+    const error = await shell.openPath(modelsPath);
+    return !error;
   });
 
   if (!isDev) {
@@ -456,6 +694,7 @@ app.whenReady().then(async () => {
   }
 
   registerGlobalHotkey(getGlobalHotkey());
+  applyGeneralSettings();
   createWindow();
   positionWindowTopCenter(mainWindow);
 

@@ -2,7 +2,10 @@ const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("electronAPI", {
   close: () => ipcRenderer.send("window-close"),
-  setLayout: (mode) => ipcRenderer.send("window-set-layout", mode),
+  setLayout: (mode, contentHeight) =>
+    ipcRenderer.send("window-set-layout", mode, contentHeight),
+  setContentHeight: (height) =>
+    ipcRenderer.send("window-set-content-height", height),
   onWindowHidden: (callback) => {
     const handler = () => callback();
     ipcRenderer.on("window-hidden", handler);
@@ -16,8 +19,21 @@ contextBridge.exposeInMainWorld("electronAPI", {
     return () => ipcRenderer.removeListener("settings-changed", handler);
   },
   openSettings: () => ipcRenderer.invoke("settings:open"),
-  getHotkey: () => ipcRenderer.invoke("hotkey:get"),
+  beginHotkeyRecording: () => ipcRenderer.invoke("hotkey:beginRecording"),
+  endHotkeyRecording: () => ipcRenderer.invoke("hotkey:endRecording"),
+  onHotkeyCaptured: (callback) => {
+    const handler = (_event, accelerator) => callback(accelerator);
+    ipcRenderer.on("hotkey:captured", handler);
+    return () => ipcRenderer.removeListener("hotkey:captured", handler);
+  },
+  onHotkeyRecordingCancelled: (callback) => {
+    const handler = () => callback();
+    ipcRenderer.on("hotkey:recording-cancelled", handler);
+    return () =>
+      ipcRenderer.removeListener("hotkey:recording-cancelled", handler);
+  },
   setHotkey: (accelerator) => ipcRenderer.invoke("hotkey:set", accelerator),
   openExternal: (url) => ipcRenderer.invoke("shell:openExternal", url),
+  revealModelsFolder: () => ipcRenderer.invoke("shell:revealModelsFolder"),
   platform: process.platform,
 });
