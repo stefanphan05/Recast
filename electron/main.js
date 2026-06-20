@@ -151,7 +151,10 @@ function stopHotkeyRecording() {
 }
 
 function broadcastHotkeyRecordingCancelled() {
-  for (const webContents of [mainWindow?.webContents, settingsWindow?.webContents]) {
+  for (const webContents of [
+    mainWindow?.webContents,
+    settingsWindow?.webContents,
+  ]) {
     if (webContents && !webContents.isDestroyed()) {
       webContents.send("hotkey:recording-cancelled");
     }
@@ -325,8 +328,8 @@ function getOllamaModelsPath() {
 
 const PROMPT_WINDOW_MIN_HEIGHT = 140;
 const PROMPT_WINDOW_ABSOLUTE_MIN_HEIGHT = 120;
-const PROMPT_WINDOW_MAX_HEIGHT = 520;
-const EXPANDED_WINDOW_HEIGHT = 520;
+const PROMPT_WINDOW_MAX_HEIGHT = 640;
+const EXPANDED_WINDOW_HEIGHT = 640;
 const ONBOARDING_WINDOW_HEIGHT = 640;
 const WINDOW_WIDTH = 480;
 const TOP_MARGIN = 24;
@@ -378,7 +381,6 @@ function setWindowLayout(mode, contentHeight) {
 
   if (mode === "prompt" || mode === "onboarding") {
     mainWindow.setSize(WINDOW_WIDTH, height, true);
-    positionWindowTopCenter(mainWindow);
     return;
   }
 
@@ -675,7 +677,9 @@ app.whenReady().then(async () => {
     stopHotkeyRecording();
     return true;
   });
-  ipcMain.handle("hotkey:set", (_event, accelerator) => setGlobalHotkey(accelerator));
+  ipcMain.handle("hotkey:set", (_event, accelerator) =>
+    setGlobalHotkey(accelerator),
+  );
   ipcMain.handle("shell:openExternal", (_event, url) => {
     if (typeof url === "string" && /^https?:\/\//.test(url)) {
       return shell.openExternal(url);
