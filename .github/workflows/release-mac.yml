@@ -1,0 +1,50 @@
+name: Release Mac
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Electron app
+        run: npm run electron:build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.dmg
+            dist/*.zip
+            dist/*.blockmap
+            dist/latest-mac.yml
+          generate_release_notes: true
+          body: |
+            ## Install on Mac
+
+            1. Download the `.dmg` file below
+            2. Open the DMG and drag Recast to Applications
+            3. **First launch:** right-click Recast → **Open** (required for unsigned builds)
+            4. Follow the in-app setup to install Ollama and download an AI model
+
+            Requires macOS on Apple Silicon (arm64) and [Ollama](https://ollama.com).
