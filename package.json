@@ -16,7 +16,8 @@
   "dependencies": {
     "next": "16.2.6",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "react-icons": "^5.6.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -38,6 +39,8 @@
     "files": [
       "electron/**/*",
       "out/**/*",
+      "src/app/menu-icon-22.png",
+      "src/app/menu-icon-44.png",
       "package.json"
     ],
     "directories": {
