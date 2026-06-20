@@ -1,11 +1,10 @@
 export const MAX_CHARS = 2000;
 
 export const TEXTAREA_MIN_LANDING_PX = 28;
-export const TEXTAREA_MAX_LANDING_PX = 360;
-export const TEXTAREA_MIN_COMPACT_PX = 36;
-export const TEXTAREA_MAX_COMPACT_PX = 120;
-
-export const OUTPUT_MIN_HEIGHT_PX = 100;
+export const TEXTAREA_MAX_LANDING_PX = 480;
+/** Compact input when output is visible: 1 row min, up to 3 rows max */
+export const TEXTAREA_MIN_COMPACT_PX = 24;
+export const TEXTAREA_MAX_COMPACT_PX = 72;
 
 /** Shared surface styling for composer + output panels */
 export const PANEL_SURFACE_CLASS =

@@ -56,34 +56,50 @@ export default function PromptComposer({
         onFlirtIntensityChange={onFlirtIntensityChange}
       />
 
-      <div className="mt-1.5 flex flex-col gap-1">
-        <textarea
-          ref={textareaRef}
-          id="message-input"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Paste or type your message…"
-          rows={1}
-          maxLength={MAX_CHARS}
-          autoFocus
-          className="scrollbar-subtle block w-full resize-none bg-transparent py-0.5 pr-1 text-[15px] leading-snug text-neutral-950 outline-none placeholder:text-neutral-400 dark:text-neutral-50 dark:placeholder:text-neutral-500"
-        />
-
-        <div className="flex justify-end">
+      {compact ? (
+        <div className="mt-1.5 flex items-center gap-2">
+          <textarea
+            ref={textareaRef}
+            id="message-input"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Paste or type your message…"
+            rows={1}
+            maxLength={MAX_CHARS}
+            autoFocus
+            className="scrollbar-subtle min-w-0 flex-1 resize-none bg-transparent py-0.5 pr-1 text-[15px] leading-snug text-neutral-950 outline-none placeholder:text-neutral-400 dark:text-neutral-50 dark:placeholder:text-neutral-500"
+          />
           <SendButton
             canSubmit={canSubmit}
             isLoading={isLoading}
             onClick={onSubmit}
           />
         </div>
-      </div>
+      ) : (
+        <div className="mt-1.5 flex flex-col gap-1">
+          <textarea
+            ref={textareaRef}
+            id="message-input"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Paste or type your message…"
+            rows={1}
+            maxLength={MAX_CHARS}
+            autoFocus
+            className="scrollbar-subtle block w-full resize-none bg-transparent py-0.5 pr-1 text-[15px] leading-snug text-neutral-950 outline-none placeholder:text-neutral-400 dark:text-neutral-50 dark:placeholder:text-neutral-500"
+          />
 
-      {compact && value.length > 0 ? (
-        <p className="mt-1 text-right text-xs tabular-nums text-neutral-400 dark:text-neutral-500">
-          {value.length} / {MAX_CHARS}
-        </p>
-      ) : null}
+          <div className="flex justify-end">
+            <SendButton
+              canSubmit={canSubmit}
+              isLoading={isLoading}
+              onClick={onSubmit}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
