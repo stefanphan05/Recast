@@ -43,7 +43,7 @@ window.DEMO_NARRATION = {
     {
       id: "s2",
       file: "voice-narr-02-brand.mp3",
-      script: "Meet Message Rewriter.",
+      script: "Meet Recast.",
       when: "Scene 2 — brand reveal (~3s)",
     },
     {
@@ -77,14 +77,14 @@ window.DEMO_NARRATION = {
       id: "s7",
       file: "voice-narr-07-cta.mp3",
       script:
-        "Fix your texts before you send them. Try Message Rewriter — messagerewriter dot vercel dot app.",
+        "Fix your texts before you send them. Try Recast — messagerewriter dot vercel dot app.",
       when: "Scene 7 — CTA (~18s)",
     },
   ],
   /** Reference only — do not export as one file unless you add silences yourself */
   fullScriptForElevenLabs: `Ever sent a text you immediately regretted? Yeah, we've all been there.
 
-Meet Message Rewriter.
+Meet Recast.
 Paste your messy message, hit rewrite, and watch awkward turn confident.
 
 Pick your vibe — flirty, professional, Gen Z, whatever fits the moment.
@@ -93,5 +93,5 @@ Need another language? Rewrite in twenty-plus languages, right from advanced set
 
 No app store. No signup. Just rewrite in your browser.
 
-Fix your texts before you send them. Try Message Rewriter — messagerewriter dot vercel dot app.`,
+Fix your texts before you send them. Try Recast — messagerewriter dot vercel dot app.`,
 };
