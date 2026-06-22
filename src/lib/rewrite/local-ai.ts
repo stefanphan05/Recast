@@ -201,6 +201,7 @@ export async function rewriteWithLocalAI(
           { role: "user", content: buildUserPrompt(input) },
         ],
         stream: false,
+        think: false,
         options: {
           temperature: 0.2,
           num_predict: maxOutputTokens(input.text.length),

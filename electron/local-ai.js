@@ -122,6 +122,7 @@ async function warmUpModel(model) {
         model,
         messages: [{ role: "user", content: "hi" }],
         stream: false,
+        think: false,
         keep_alive: "24h",
         options: { num_predict: 1 },
       }),
