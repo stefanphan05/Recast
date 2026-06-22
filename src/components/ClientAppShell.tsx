@@ -6,15 +6,30 @@ import RewriteWorkspace from "@/components/rewrite/RewriteWorkspace";
 import WindowChrome from "@/components/WindowChrome";
 import { AppSettingsProvider, useAppSettings } from "@/hooks/useAppSettings";
 import { WINDOW_MAX_HEIGHT_PX } from "@/components/rewrite/constants";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 
 function AppShell() {
   const { settings, loading, isElectron } = useAppSettings();
   const shellRef = useRef<HTMLDivElement>(null);
   const [workspaceExpanded, setWorkspaceExpanded] = useState(false);
 
-  const showOnboarding =
-    isElectron && !loading && !settings.onboardingComplete;
+  const showOnboarding = isElectron && !loading && !settings.onboardingComplete;
+
+  useLayoutEffect(() => {
+    if (!isElectron || showOnboarding || !workspaceExpanded) return;
+
+    const el = shellRef.current;
+    if (!el) return;
+
+    const height = Math.ceil(el.getBoundingClientRect().height);
+    window.electronAPI?.setLayout("expanded", height);
+  }, [isElectron, showOnboarding, workspaceExpanded]);
 
   useEffect(() => {
     if (!isElectron || showOnboarding) return;
@@ -36,14 +51,16 @@ function AppShell() {
   return (
     <div
       ref={shellRef}
-      className={`relative flex flex-col bg-transparent text-neutral-950 dark:text-neutral-50 ${
+      className={`group relative flex flex-col bg-transparent text-neutral-950 dark:text-neutral-50 ${
         workspaceExpanded
           ? "max-h-[var(--window-max-height)] min-h-0 overflow-hidden"
           : "h-auto overflow-visible"
       }`}
       style={
         workspaceExpanded
-          ? ({ "--window-max-height": `${WINDOW_MAX_HEIGHT_PX}px` } as CSSProperties)
+          ? ({
+              "--window-max-height": `${WINDOW_MAX_HEIGHT_PX}px`,
+            } as CSSProperties)
           : undefined
       }
     >

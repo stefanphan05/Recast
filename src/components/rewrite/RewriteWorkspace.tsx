@@ -2,10 +2,7 @@
 
 import PromptComposer from "@/components/rewrite/PromptComposer";
 import OutputPanel from "@/components/rewrite/OutputPanel";
-import {
-  EXPANDED_BLOCK_GAP_CLASS,
-  MAX_CHARS,
-} from "@/components/rewrite/constants";
+import { EXPANDED_BLOCK_GAP_CLASS, MAX_CHARS } from "@/components/rewrite/constants";
 import {
   SOURCE_LANGUAGE_AUTO,
   TARGET_LANGUAGE_SAME,
@@ -53,7 +50,7 @@ export default function RewriteWorkspace({
     return unsubscribe;
   }, [resetWorkspace]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     window.electronAPI?.setLayout(hasOutput ? "expanded" : "prompt");
   }, [hasOutput]);
 
@@ -107,14 +104,6 @@ export default function RewriteWorkspace({
           : ""
       }`}
     >
-      {hasOutput ? (
-        <OutputPanel
-          result={result}
-          isLoading={isLoading}
-          onStartOver={resetWorkspace}
-        />
-      ) : null}
-
       <div className={hasOutput ? "shrink-0" : undefined}>
         <PromptComposer
           value={text}
@@ -147,6 +136,14 @@ export default function RewriteWorkspace({
           </div>
         ) : null}
       </div>
+
+      {hasOutput ? (
+        <OutputPanel
+          result={result}
+          isLoading={isLoading}
+          onReset={resetWorkspace}
+        />
+      ) : null}
     </main>
   );
 }
