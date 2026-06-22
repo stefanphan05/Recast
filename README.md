@@ -1,80 +1,28 @@
 # Recast
 
-Rewrite messages with better grammar and style presets:
+Recast is a small Mac app for quickly rewriting text with better grammar and tone presets. It runs **local AI**, so your text stays on your machine (no cloud).
 
-- `Grammar` — fix mistakes only
-- `Shorter` / `Formal` / `Casual`
-- `GenZ` (with 0–10 intensity slider)
-- `Flirt` (with 1–10 cringe intensity slider)
+## What it does
 
-Recast runs **local AI via Ollama** — your text never leaves your Mac.
+- **Rewrite modes**: Correct, Shorter, Longer, Casual, Formal, Friendly, Direct, Polite, Gen Z (0–10 intensity), Flirty (1–10 intensity)
+- **Global hotkey**: Press **Option+Tab** to show/hide Recast from anywhere on your Mac
 
-## Download for Mac
+## Download & install (macOS)
 
-Get the latest build from [GitHub Releases](https://github.com/stefanphan05/MessageRewriter/releases/latest) or the [download page](/download) when deployed.
+- **Download**: Get the latest build from [GitHub Releases](https://github.com/stefanphan05/MessageRewriter/releases/latest) (or the `/download` page when deployed).
+- **Move to Applications**: Drag `Recast.app` into **Applications**.
+- **First launch**: Because builds are currently **unsigned**, macOS may block the app. Right-click `Recast` → **Open** to bypass Gatekeeper.
 
-**First launch (unsigned build):** right-click Recast → **Open** to bypass Gatekeeper.
+### If macOS shows “can’t be opened” / “damaged” / blocked
 
-The in-app setup wizard will guide you to install [Ollama](https://ollama.com) and download an AI model.
-
-Press **Option+Tab** to show or hide Recast from anywhere on your Mac.
-
-## Development
-
-### Web (Next.js)
+Remove Apple’s quarantine attribute from the app:
 
 ```bash
-npm install
-npm run dev
+xattr -cr /Applications/Recast.app
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Requires Ollama running locally at `http://localhost:11434`.
+Then try opening Recast again.
 
-Optional env override:
+## First run
 
-```bash
-NEXT_PUBLIC_OLLAMA_MODEL=llama3.2
-```
-
-### Electron desktop
-
-```bash
-npm run electron:dev
-```
-
-Build a Mac `.dmg` and `.zip` locally:
-
-```bash
-npm run electron:build
-```
-
-Output goes to `dist/`.
-
-## Release a new Mac build
-
-1. Bump the version in `package.json`
-2. Commit and push
-3. Tag and push:
-
-```bash
-git tag v0.1.0
-git push origin v0.1.0
-```
-
-GitHub Actions builds the Mac app and publishes assets to the GitHub Release.
-
-**Note:** Builds are unsigned. Users must right-click → Open on first launch. Code signing and notarization can be added later with an Apple Developer account.
-
-## Deploy website to Vercel
-
-1. Push to GitHub
-2. Import the repo in Vercel
-3. Deploy
-
-The site includes a `/download` page linking to GitHub Releases.
-
-## Architecture
-
-- **Frontend:** Next.js (static export for Electron)
-- **Desktop:** Electron with global hotkey overlay
-- **AI:** Ollama at `localhost:11434` — model chosen in first-run setup, stored in Electron user settings
+Recast will guide you to install a local AI model, then you’re ready to rewrite.
