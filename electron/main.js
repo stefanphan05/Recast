@@ -16,7 +16,11 @@ const fs = require("fs");
 const path = require("path");
 const { pathToFileURL } = require("url");
 const { inputEventToAccelerator } = require("./hotkey");
-const { ensureLocalAIReady, stopLocalAIIfStartedByUs, warmUpModel } = require("./local-ai");
+const {
+  ensureLocalAIReady,
+  stopLocalAIIfStartedByUs,
+  warmUpModel,
+} = require("./local-ai");
 const { ensureEngineHome, getLocalModelsPath } = require("./engine-path");
 
 const DEFAULT_SETTINGS = {
@@ -355,38 +359,45 @@ function positionWindowTopCenter(win, display = getActiveDisplay()) {
   win.setPosition(x, y, false);
 }
 
-function getLayoutHeight(mode, contentHeight) {
-  if (
-    mode === "prompt" ||
-    mode === "onboarding" ||
-    mode === "expanded"
-  ) {
+function getLayoutHeight(mode, contentHeight, currentHeight) {
+  if (mode === "prompt" || mode === "onboarding" || mode === "expanded") {
     if (typeof contentHeight === "number" && contentHeight > 0) {
       return Math.min(
         Math.max(Math.round(contentHeight), PROMPT_WINDOW_ABSOLUTE_MIN_HEIGHT),
         PROMPT_WINDOW_MAX_HEIGHT,
       );
     }
-    if (mode === "expanded") return PROMPT_WINDOW_MIN_HEIGHT;
+    // Keep the current height when expanding so the window doesn't shrink then grow.
+    if (
+      mode === "expanded" &&
+      typeof currentHeight === "number" &&
+      currentHeight > 0
+    ) {
+      return Math.min(
+        Math.max(currentHeight, PROMPT_WINDOW_ABSOLUTE_MIN_HEIGHT),
+        PROMPT_WINDOW_MAX_HEIGHT,
+      );
+    }
     return PROMPT_WINDOW_MIN_HEIGHT;
   }
   return PROMPT_WINDOW_MIN_HEIGHT;
 }
 
-function setWindowLayout(mode, contentHeight) {
+function setWindowLayout(mode, contentHeight, animate = true) {
   if (!mainWindow) return;
 
   currentLayoutMode = mode;
-  const height = getLayoutHeight(mode, contentHeight);
+  const currentHeight = mainWindow.getBounds().height;
+  const height = getLayoutHeight(mode, contentHeight, currentHeight);
   mainWindow.setMinimumSize(WINDOW_WIDTH, PROMPT_WINDOW_ABSOLUTE_MIN_HEIGHT);
 
   if (mode === "prompt" || mode === "onboarding") {
-    mainWindow.setSize(WINDOW_WIDTH, height, true);
+    mainWindow.setSize(WINDOW_WIDTH, height, animate);
     return;
   }
 
   const bounds = mainWindow.getBounds();
-  mainWindow.setSize(WINDOW_WIDTH, height, true);
+  mainWindow.setSize(WINDOW_WIDTH, height, animate);
   const display = screen.getDisplayMatching(bounds);
   const { x: areaX, width: areaW } = display.workArea;
   const x = Math.round(areaX + (areaW - WINDOW_WIDTH) / 2);
@@ -655,7 +666,7 @@ app.whenReady().then(async () => {
     ) {
       return;
     }
-    setWindowLayout(currentLayoutMode, contentHeight);
+    setWindowLayout(currentLayoutMode, contentHeight, false);
   });
 
   ipcMain.handle("settings:get", () => readSettings());
@@ -705,10 +716,14 @@ app.whenReady().then(async () => {
     return !error;
   });
   ipcMain.handle("local-ai:ensureReady", (_event, model) =>
-    ensureLocalAIReady(typeof model === "string" ? model : readSettings().selectedModel),
+    ensureLocalAIReady(
+      typeof model === "string" ? model : readSettings().selectedModel,
+    ),
   );
   ipcMain.handle("local-ai:warmUp", (_event, model) =>
-    warmUpModel(typeof model === "string" ? model : readSettings().selectedModel),
+    warmUpModel(
+      typeof model === "string" ? model : readSettings().selectedModel,
+    ),
   );
 
   if (!isDev) {
