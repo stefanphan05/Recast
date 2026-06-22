@@ -326,7 +326,6 @@ function applyGeneralSettings(settings = readSettings()) {
 const PROMPT_WINDOW_MIN_HEIGHT = 140;
 const PROMPT_WINDOW_ABSOLUTE_MIN_HEIGHT = 120;
 const PROMPT_WINDOW_MAX_HEIGHT = 640;
-const EXPANDED_WINDOW_HEIGHT = 640;
 const WINDOW_WIDTH = 480;
 const TOP_MARGIN = 24;
 
@@ -357,14 +356,18 @@ function positionWindowTopCenter(win, display = getActiveDisplay()) {
 }
 
 function getLayoutHeight(mode, contentHeight) {
-  if (mode === "expanded") return EXPANDED_WINDOW_HEIGHT;
-  if (mode === "prompt" || mode === "onboarding") {
+  if (
+    mode === "prompt" ||
+    mode === "onboarding" ||
+    mode === "expanded"
+  ) {
     if (typeof contentHeight === "number" && contentHeight > 0) {
       return Math.min(
         Math.max(Math.round(contentHeight), PROMPT_WINDOW_ABSOLUTE_MIN_HEIGHT),
         PROMPT_WINDOW_MAX_HEIGHT,
       );
     }
+    if (mode === "expanded") return PROMPT_WINDOW_MIN_HEIGHT;
     return PROMPT_WINDOW_MIN_HEIGHT;
   }
   return PROMPT_WINDOW_MIN_HEIGHT;
@@ -645,7 +648,8 @@ app.whenReady().then(async () => {
   ipcMain.on("window-set-content-height", (_event, contentHeight) => {
     if (
       (currentLayoutMode !== "prompt" &&
-        currentLayoutMode !== "onboarding") ||
+        currentLayoutMode !== "onboarding" &&
+        currentLayoutMode !== "expanded") ||
       typeof contentHeight !== "number" ||
       !Number.isFinite(contentHeight)
     ) {

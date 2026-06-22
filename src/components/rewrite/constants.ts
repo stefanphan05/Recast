@@ -13,6 +13,9 @@ export const PANEL_SURFACE_CLASS =
 /** Vertical rhythm between toolbar rows and panels in expanded mode */
 export const EXPANDED_BLOCK_GAP_CLASS = "gap-2";
 
+/** Max scrollable output height before the window hits its cap */
+export const OUTPUT_CONTENT_MAX_PX = 440;
+
 /** Square icon action buttons (close, copy) */
 export const ICON_ACTION_BTN_CLASS =
   "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors focus-visible:outline-none";

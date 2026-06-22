@@ -2,7 +2,10 @@
 
 import PromptComposer from "@/components/rewrite/PromptComposer";
 import OutputPanel from "@/components/rewrite/OutputPanel";
-import { MAX_CHARS } from "@/components/rewrite/constants";
+import {
+  EXPANDED_BLOCK_GAP_CLASS,
+  MAX_CHARS,
+} from "@/components/rewrite/constants";
 import {
   SOURCE_LANGUAGE_AUTO,
   TARGET_LANGUAGE_SAME,
@@ -17,10 +20,8 @@ const INITIAL_FLIRT_INTENSITY = 5;
 
 export default function RewriteWorkspace({
   selectedModel,
-  onExpandedChange,
 }: {
   selectedModel: string;
-  onExpandedChange?: (expanded: boolean) => void;
 }) {
   const [text, setText] = useState("");
   const [style, setStyle] = useState<RewriteStyle>(INITIAL_STYLE);
@@ -43,8 +44,7 @@ export default function RewriteWorkspace({
     setIsLoading(false);
     setErrorMessage(null);
     window.electronAPI?.setLayout("prompt");
-    onExpandedChange?.(false);
-  }, [onExpandedChange]);
+  }, []);
 
   useEffect(() => {
     const unsubscribe = window.electronAPI?.onWindowHidden(resetWorkspace);
@@ -53,8 +53,7 @@ export default function RewriteWorkspace({
 
   useEffect(() => {
     window.electronAPI?.setLayout(hasOutput ? "expanded" : "prompt");
-    onExpandedChange?.(hasOutput);
-  }, [hasOutput, onExpandedChange]);
+  }, [hasOutput]);
 
   const canSubmit = useMemo(() => {
     const trimmedLength = text.trim().length;
@@ -97,7 +96,7 @@ export default function RewriteWorkspace({
   return (
     <main
       className={`flex w-full max-w-[480px] flex-col ${
-        hasOutput ? "min-h-0 flex-1 gap-3 overflow-hidden" : ""
+        hasOutput ? EXPANDED_BLOCK_GAP_CLASS : ""
       }`}
     >
       {hasOutput ? (
@@ -105,11 +104,10 @@ export default function RewriteWorkspace({
           result={result}
           isLoading={isLoading}
           onStartOver={resetWorkspace}
-          className="min-h-0 flex-1"
         />
       ) : null}
 
-      <div className={hasOutput ? "shrink-0" : ""}>
+      <div>
         <PromptComposer
           value={text}
           onChange={setText}

@@ -5,18 +5,17 @@ import LocalAISetupBanner from "@/components/LocalAISetupBanner";
 import RewriteWorkspace from "@/components/rewrite/RewriteWorkspace";
 import WindowChrome from "@/components/WindowChrome";
 import { AppSettingsProvider, useAppSettings } from "@/hooks/useAppSettings";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 function AppShell() {
   const { settings, loading, isElectron } = useAppSettings();
-  const [expanded, setExpanded] = useState(false);
   const shellRef = useRef<HTMLDivElement>(null);
 
   const showOnboarding =
     isElectron && !loading && !settings.onboardingComplete;
 
   useEffect(() => {
-    if (!isElectron || expanded || showOnboarding) return;
+    if (!isElectron || showOnboarding) return;
 
     const el = shellRef.current;
     if (!el) return;
@@ -30,31 +29,20 @@ function AppShell() {
     const observer = new ResizeObserver(syncHeight);
     observer.observe(el);
     return () => observer.disconnect();
-  }, [expanded, isElectron, showOnboarding]);
-
-  const fillWindow = expanded;
+  }, [isElectron, showOnboarding]);
 
   return (
     <div
       ref={shellRef}
-      className={`relative flex flex-col bg-transparent text-neutral-950 dark:text-neutral-50 ${
-        fillWindow ? "h-dvh overflow-hidden" : "h-auto overflow-visible"
-      }`}
+      className="relative flex h-auto flex-col overflow-visible bg-transparent text-neutral-950 dark:text-neutral-50"
     >
       <WindowChrome />
       {showOnboarding ? <OnboardingWizard /> : null}
       {!showOnboarding ? (
         <>
           <LocalAISetupBanner selectedModel={settings.selectedModel} />
-          <div
-            className={`flex w-full flex-col items-center p-2 ${
-              expanded ? "min-h-0 flex-1" : ""
-            }`}
-          >
-            <RewriteWorkspace
-              selectedModel={settings.selectedModel}
-              onExpandedChange={setExpanded}
-            />
+          <div className="flex w-full flex-col items-center p-2">
+            <RewriteWorkspace selectedModel={settings.selectedModel} />
           </div>
         </>
       ) : null}
