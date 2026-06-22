@@ -2,62 +2,19 @@
   "name": "recast",
   "version": "0.1.1",
   "private": true,
-  "main": "electron/main.js",
+  "workspaces": [
+    "app",
+    "website"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "electron:dev": "concurrently -k \"next dev\" \"wait-on http://localhost:3000 && electron .\"",
-    "electron:build": "next build && electron-builder --mac",
-    "electron:preview": "next build && ELECTRON_USE_STATIC=1 electron .",
-    "electron:start": "electron ."
-  },
-  "dependencies": {
-    "next": "16.2.6",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "react-icons": "^5.6.0"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "concurrently": "^9.2.1",
-    "electron": "^35.7.5",
-    "electron-builder": "^26.0.12",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.6",
-    "tailwindcss": "^4",
-    "typescript": "^5",
-    "wait-on": "^8.0.5"
-  },
-  "build": {
-    "appId": "com.recast.app",
-    "productName": "Recast",
-    "files": [
-      "electron/**/*",
-      "out/**/*",
-      "src/app/menu-icon-22.png",
-      "src/app/menu-icon-44.png",
-      "package.json"
-    ],
-    "directories": {
-      "output": "dist"
-    },
-    "mac": {
-      "category": "public.app-category.productivity",
-      "target": [
-        "dmg",
-        "zip"
-      ],
-      "icon": "src/app/icon.png"
-    },
-    "publish": {
-      "provider": "github",
-      "owner": "stefanphan05",
-      "repo": "MessageRewriter"
-    }
+    "dev:app": "npm run dev -w recast-app",
+    "dev:website": "npm run dev -w recast-website",
+    "build:app": "npm run build -w recast-app",
+    "build:website": "npm run build -w recast-website",
+    "lint": "npm run lint -w recast-app && npm run lint -w recast-website",
+    "electron:dev": "npm run electron:dev -w recast-app",
+    "electron:build": "npm run electron:build -w recast-app",
+    "electron:preview": "npm run electron:preview -w recast-app",
+    "electron:start": "npm run electron:start -w recast-app"
   }
 }
