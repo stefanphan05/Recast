@@ -3,7 +3,6 @@
 import {
   EXPANDED_BLOCK_GAP_CLASS,
   ICON_ACTION_BTN_SECONDARY_CLASS,
-  OUTPUT_CONTENT_MAX_PX,
   PANEL_SURFACE_CLASS,
 } from "@/components/rewrite/constants";
 import {
@@ -40,7 +39,7 @@ export default function OutputPanel({
 
   return (
     <div
-      className={`flex flex-col ${EXPANDED_BLOCK_GAP_CLASS}`}
+      className={`flex min-h-0 flex-1 flex-col ${EXPANDED_BLOCK_GAP_CLASS}`}
       aria-live="polite"
       aria-busy={isLoading}
     >
@@ -116,11 +115,10 @@ export default function OutputPanel({
         </div>
       </div>
 
-      <section className={`${PANEL_SURFACE_CLASS} p-2.5`}>
-        <div
-          className="scrollbar-subtle overflow-y-auto py-0.5 pr-1"
-          style={{ maxHeight: OUTPUT_CONTENT_MAX_PX }}
-        >
+      <section
+        className={`flex min-h-0 flex-1 flex-col ${PANEL_SURFACE_CLASS} p-2.5`}
+      >
+        <div className="scrollbar-subtle min-h-0 flex-1 overflow-y-auto py-0.5 pr-1">
           {isLoading ? (
             <div className="flex flex-col gap-3" aria-hidden>
               <div className="h-4 animate-pulse rounded-md bg-neutral-200/90 dark:bg-neutral-700/90" />

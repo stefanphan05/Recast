@@ -5,11 +5,13 @@ import LocalAISetupBanner from "@/components/LocalAISetupBanner";
 import RewriteWorkspace from "@/components/rewrite/RewriteWorkspace";
 import WindowChrome from "@/components/WindowChrome";
 import { AppSettingsProvider, useAppSettings } from "@/hooks/useAppSettings";
-import { useEffect, useRef } from "react";
+import { WINDOW_MAX_HEIGHT_PX } from "@/components/rewrite/constants";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 function AppShell() {
   const { settings, loading, isElectron } = useAppSettings();
   const shellRef = useRef<HTMLDivElement>(null);
+  const [workspaceExpanded, setWorkspaceExpanded] = useState(false);
 
   const showOnboarding =
     isElectron && !loading && !settings.onboardingComplete;
@@ -34,15 +36,31 @@ function AppShell() {
   return (
     <div
       ref={shellRef}
-      className="relative flex h-auto flex-col overflow-visible bg-transparent text-neutral-950 dark:text-neutral-50"
+      className={`relative flex flex-col bg-transparent text-neutral-950 dark:text-neutral-50 ${
+        workspaceExpanded
+          ? "max-h-[var(--window-max-height)] min-h-0 overflow-hidden"
+          : "h-auto overflow-visible"
+      }`}
+      style={
+        workspaceExpanded
+          ? ({ "--window-max-height": `${WINDOW_MAX_HEIGHT_PX}px` } as CSSProperties)
+          : undefined
+      }
     >
       <WindowChrome />
       {showOnboarding ? <OnboardingWizard /> : null}
       {!showOnboarding ? (
         <>
           <LocalAISetupBanner selectedModel={settings.selectedModel} />
-          <div className="flex w-full flex-col items-center p-2">
-            <RewriteWorkspace selectedModel={settings.selectedModel} />
+          <div
+            className={`flex w-full flex-col items-center p-2 ${
+              workspaceExpanded ? "min-h-0 flex-1" : ""
+            }`}
+          >
+            <RewriteWorkspace
+              selectedModel={settings.selectedModel}
+              onExpandedChange={setWorkspaceExpanded}
+            />
           </div>
         </>
       ) : null}

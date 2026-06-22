@@ -13,8 +13,8 @@ export const PANEL_SURFACE_CLASS =
 /** Vertical rhythm between toolbar rows and panels in expanded mode */
 export const EXPANDED_BLOCK_GAP_CLASS = "gap-2";
 
-/** Max scrollable output height before the window hits its cap */
-export const OUTPUT_CONTENT_MAX_PX = 440;
+/** Electron window height cap — keep in sync with PROMPT_WINDOW_MAX_HEIGHT in electron/main.js */
+export const WINDOW_MAX_HEIGHT_PX = 640;
 
 /** Square icon action buttons (close, copy) */
 export const ICON_ACTION_BTN_CLASS =
