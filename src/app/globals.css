@@ -74,16 +74,14 @@ html:not([data-platform="darwin"]) body {
 @keyframes output-fade-in {
   from {
     opacity: 0;
-    transform: translateY(4px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 .output-fade-in {
-  animation: output-fade-in 0.35s ease-out both;
+  animation: output-fade-in 0.2s ease-out both;
 }
 
 .scrollbar-hide {
