@@ -5,7 +5,6 @@ export type DemoConfig = {
   label: string;
   title: string;
   description: string;
-  imageSrc: string;
 };
 
 export const DEMOS: DemoConfig[] = [
@@ -15,7 +14,6 @@ export const DEMOS: DemoConfig[] = [
     title: "Sound like you — or who you need to be.",
     description:
       "Switch between Correct, Formal, Casual, Gen Z, Flirty, and more. Dial intensity up or down for styles like Gen Z and Flirty.",
-    imageSrc: "/demos/posters/tones.svg",
   },
   {
     id: "hotkey",
@@ -23,7 +21,6 @@ export const DEMOS: DemoConfig[] = [
     title: "Summon Recast from anywhere.",
     description:
       "Press Option+Tab to show or hide Recast over any app — email, Slack, iMessage, Notion. Rewrite without breaking flow.",
-    imageSrc: "/demos/posters/hotkey.svg",
   },
   {
     id: "private",
@@ -31,7 +28,6 @@ export const DEMOS: DemoConfig[] = [
     title: "Your words never leave your Mac.",
     description:
       "Recast runs AI locally on your machine. No cloud uploads, no account, no training on your messages. Private by design.",
-    imageSrc: "/demos/posters/private.svg",
   },
   {
     id: "fast",
@@ -39,11 +35,5 @@ export const DEMOS: DemoConfig[] = [
     title: "Paste, pick, done.",
     description:
       "Drop in your draft, choose a style, and get a polished rewrite in seconds. Copy the result and move on with your day.",
-    imageSrc: "/demos/posters/fast.svg",
   },
 ];
-
-export const HERO_IMAGE = {
-  src: "/demos/posters/hero.svg",
-  alt: "Recast rewrite interface on Mac",
-};

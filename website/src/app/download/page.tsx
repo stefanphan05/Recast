@@ -14,13 +14,13 @@ export default function DownloadPage() {
       <SiteHeader />
       <main className="mx-auto flex min-h-[70dvh] max-w-2xl flex-col justify-center px-6 py-16">
         <div className="site-card rounded-3xl p-8 md:p-10">
-          <p className="text-sm font-medium uppercase tracking-[0.12em] text-neutral-500">
+          <p className="text-sm font-medium uppercase tracking-[0.12em] text-(--muted)">
             Recast for Mac
           </p>
-          <h1 className="font-display mt-2 text-4xl tracking-tight text-neutral-950">
+          <h1 className="font-display mt-2 text-4xl tracking-tight text-(--foreground)">
             Download for Mac
           </h1>
-          <p className="mt-3 text-base leading-relaxed text-neutral-600">
+          <p className="mt-3 text-base leading-relaxed text-(--muted)">
             Rewrite messages in different styles using AI that runs entirely on
             your Mac. Your text never leaves your device.
           </p>
@@ -29,9 +29,9 @@ export default function DownloadPage() {
             Download for Mac (Apple Silicon)
           </DownloadButton>
 
-          <div className="mt-8 space-y-6 text-sm leading-relaxed text-neutral-600">
+          <div className="mt-8 space-y-6 text-sm leading-relaxed text-(--muted)">
             <section>
-              <h2 className="text-base font-medium text-neutral-950">
+              <h2 className="text-base font-medium text-(--foreground)">
                 First-time setup
               </h2>
               <ol className="mt-2 list-decimal space-y-1 pl-5">
@@ -49,7 +49,7 @@ export default function DownloadPage() {
             </section>
 
             <section>
-              <h2 className="text-base font-medium text-neutral-950">
+              <h2 className="text-base font-medium text-(--foreground)">
                 Requirements
               </h2>
               <ul className="mt-2 list-disc space-y-1 pl-5">
@@ -60,12 +60,12 @@ export default function DownloadPage() {
             </section>
 
             <section>
-              <h2 className="text-base font-medium text-neutral-950">
+              <h2 className="text-base font-medium text-(--foreground)">
                 Keyboard shortcut
               </h2>
               <p className="mt-2">
                 Press{" "}
-                <kbd className="rounded border px-1.5 py-0.5 font-mono text-xs">
+                <kbd className="rounded border border-(--border) bg-[rgba(255,255,255,0.03)] px-1.5 py-0.5 font-mono text-xs text-(--foreground)">
                   Option+Tab
                 </kbd>{" "}
                 to show or hide Recast from anywhere on your Mac.
@@ -73,8 +73,8 @@ export default function DownloadPage() {
             </section>
           </div>
 
-          <p className="mt-8 text-sm text-neutral-500">
-            <Link href="/" className="underline underline-offset-2">
+          <p className="mt-8 text-sm text-(--muted)">
+            <Link href="/" className="underline underline-offset-2 hover:text-(--foreground)">
               Back to home
             </Link>
           </p>

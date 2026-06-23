@@ -1,30 +1,25 @@
-import Image from "next/image";
+import AppMock from "@/components/AppMock";
+import type { DemoId } from "@/lib/demos";
 
 type DemoImageProps = {
-  src: string;
+  variant: DemoId | "hero";
   alt: string;
   className?: string;
   priority?: boolean;
 };
 
 export default function DemoImage({
-  src,
+  variant,
   alt,
   className = "",
-  priority = false,
 }: DemoImageProps) {
   return (
     <div
-      className={`demo-frame relative overflow-hidden rounded-[1.75rem] bg-[#ece7df] ${className}`}
+      className={`demo-frame relative overflow-hidden rounded-[1.75rem] bg-[rgba(19,15,13,0.92)] ${className}`}
+      aria-label={alt}
+      role="img"
     >
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        priority={priority}
-        sizes="(max-width: 768px) 100vw, 1152px"
-        className="object-cover object-top"
-      />
+      <AppMock variant={variant} className="h-full w-full" />
     </div>
   );
 }

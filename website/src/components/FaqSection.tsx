@@ -33,13 +33,13 @@ const FAQ_ITEMS = [
 
 export default function FaqSection() {
   return (
-    <section id="faq" className="border-b border-black/5 py-20 md:py-28">
+    <section id="faq" className="site-divider border-b py-20 md:py-28">
       <div className="mx-auto max-w-3xl px-6">
         <div className="text-center">
-          <h2 className="font-display text-4xl tracking-tight text-neutral-950 md:text-5xl">
+          <h2 className="font-display text-4xl tracking-tight text-(--foreground) md:text-5xl">
             FAQ
           </h2>
-          <p className="mt-4 text-neutral-600">
+          <p className="mt-4 text-(--muted)">
             Quick answers before you download.
           </p>
         </div>
@@ -50,13 +50,13 @@ export default function FaqSection() {
               key={item.question}
               className="faq-item site-card group rounded-2xl px-5 py-4 open:pb-5"
             >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-medium text-neutral-700">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-medium text-[rgba(245,237,225,0.82)]">
                 {item.question}
-                <span className="text-xl text-neutral-400 transition-transform group-open:rotate-45">
+                <span className="text-xl text-(--muted) transition-transform group-open:rotate-45">
                   +
                 </span>
               </summary>
-              <p className="mt-3 text-sm leading-relaxed text-neutral-600">
+              <p className="mt-3 text-sm leading-relaxed text-(--muted)">
                 {item.answer}
               </p>
             </details>

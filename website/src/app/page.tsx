@@ -19,10 +19,10 @@ export default function HomePage() {
 
         <section className="cta-glow py-20 md:py-28">
           <div className="mx-auto max-w-3xl px-6 text-center">
-            <h2 className="font-display text-4xl tracking-tight text-neutral-950 md:text-5xl">
+            <h2 className="font-display text-4xl tracking-tight text-(--foreground) md:text-5xl">
               Ready to rewrite?
             </h2>
-            <p className="mt-4 text-lg text-neutral-600">
+            <p className="mt-4 text-lg text-(--muted)">
               Download Recast for Mac and stop explaining yourself to ChatGPT.
             </p>
             <div className="mt-8">
