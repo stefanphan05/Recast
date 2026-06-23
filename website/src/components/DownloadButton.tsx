@@ -16,8 +16,8 @@ export default function DownloadButton({
     "inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium transition-all";
   const styles =
     variant === "primary"
-      ? "bg-neutral-950 text-[#f7f4ef] hover:opacity-90"
-      : "border border-neutral-300 bg-white text-neutral-950 hover:bg-neutral-50";
+      ? "site-button-primary"
+      : "site-button-secondary";
 
   return (
     <a

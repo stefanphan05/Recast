@@ -1,5 +1,5 @@
 export const GITHUB_RELEASES_URL =
-  "https://github.com/stefanphan05/MessageRewriter/releases/latest";
+  "https://github.com/stefanphan05/MessageRewriter/releases/latest/download/Recast.dmg";
 
 export const STYLE_OPTIONS = [
   "Correct",

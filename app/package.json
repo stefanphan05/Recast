@@ -46,6 +46,7 @@
     "directories": {
       "output": "dist"
     },
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
     "mac": {
       "category": "public.app-category.productivity",
       "target": [
@@ -53,6 +54,9 @@
         "zip"
       ],
       "icon": "src/app/icon.png"
+    },
+    "dmg": {
+      "artifactName": "${productName}.${ext}"
     },
     "publish": {
       "provider": "github",
