@@ -25,9 +25,23 @@ export default function DownloadPage() {
             your Mac. Your text never leaves your device.
           </p>
 
-          <DownloadButton className="mt-8">
+          <DownloadButton className="mt-8" directDownload>
             Download for Mac (Apple Silicon)
           </DownloadButton>
+
+          <div className="mt-4 rounded-2xl border border-[rgba(244,201,120,0.18)] bg-[rgba(244,201,120,0.08)] px-4 py-3 text-sm leading-relaxed text-(--muted)">
+            <p className="font-medium text-(--foreground)">
+              Unsigned app note
+            </p>
+            <p className="mt-1">
+              macOS may say Recast can&apos;t be opened, is damaged, or is blocked.
+              First try right-clicking the app in Applications and choosing{" "}
+              <strong>Open</strong>. If that still fails, open Terminal and run:
+            </p>
+            <pre className="mt-3 overflow-x-auto rounded-xl border border-(--border) bg-[rgba(0,0,0,0.18)] px-3 py-2 font-mono text-xs text-(--foreground)">
+              xattr -cr /Applications/Recast.app
+            </pre>
+          </div>
 
           <div className="mt-8 space-y-6 text-sm leading-relaxed text-(--muted)">
             <section>
@@ -41,6 +55,12 @@ export default function DownloadPage() {
                 <li>
                   Right-click Recast in Applications and choose{" "}
                   <strong>Open</strong> (required for unsigned builds)
+                </li>
+                <li>
+                  If macOS still says the app is damaged or blocked, open{" "}
+                  <strong>Terminal</strong>, run{" "}
+                  <code>xattr -cr /Applications/Recast.app</code>, then try
+                  opening Recast again
                 </li>
                 <li>
                   Follow the in-app wizard to choose and download an AI model

@@ -5,12 +5,14 @@ type DownloadButtonProps = {
   className?: string;
   children?: React.ReactNode;
   variant?: "primary" | "secondary";
+  directDownload?: boolean;
 };
 
 export default function DownloadButton({
   className = "",
   children = "Download for Mac",
   variant = "primary",
+  directDownload = false,
 }: DownloadButtonProps) {
   const base =
     "inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium transition-all";
@@ -19,15 +21,23 @@ export default function DownloadButton({
       ? "site-button-primary"
       : "site-button-secondary";
 
+  if (directDownload) {
+    return (
+      <a
+        href={GITHUB_RELEASES_URL}
+        className={`${base} ${styles} ${className}`}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {children}
+      </a>
+    );
+  }
+
   return (
-    <a
-      href={GITHUB_RELEASES_URL}
-      className={`${base} ${styles} ${className}`}
-      target="_blank"
-      rel="noopener noreferrer"
-    >
+    <Link href="/download/" className={`${base} ${styles} ${className}`}>
       {children}
-    </a>
+    </Link>
   );
 }
 
