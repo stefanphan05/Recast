@@ -4,24 +4,40 @@
 
 :root {
   --background: transparent;
-  --foreground: #0a0a0a;
-  --muted: #737373;
-  --border: #e5e5e5;
-  --surface: #f9f9f9;
-  --surface-elevated: #ffffff;
-  --surface-fade: #ffffff;
-  --window-border: #e5e5e5;
+  --foreground: #f6efe3;
+  --muted: #b2a695;
+  --border: rgba(239, 226, 204, 0.12);
+  --surface: rgba(29, 25, 23, 0.9);
+  --surface-elevated: rgba(36, 31, 28, 0.96);
+  --surface-fade: #161210;
+  --surface-strong: #221c18;
+  --window-border: rgba(239, 226, 204, 0.12);
+  --accent: #f4e0b8;
+  --accent-strong: #f6c978;
+  --accent-contrast: #1a1411;
+  --app-shell: radial-gradient(circle at top, rgba(139, 92, 42, 0.22), transparent 34%),
+    radial-gradient(circle at bottom, rgba(92, 112, 154, 0.16), transparent 30%),
+    linear-gradient(180deg, #191411 0%, #110e0c 100%);
+  --app-noise-opacity: 0.14;
 }
 
 .dark {
   --background: transparent;
-  --foreground: #fafafa;
-  --muted: #a3a3a3;
-  --border: #404040;
-  --surface: #1f1f1f;
-  --surface-elevated: #262626;
-  --surface-fade: #171717;
-  --window-border: #404040;
+  --foreground: #f6efe3;
+  --muted: #b2a695;
+  --border: rgba(239, 226, 204, 0.12);
+  --surface: rgba(29, 25, 23, 0.9);
+  --surface-elevated: rgba(36, 31, 28, 0.96);
+  --surface-fade: #161210;
+  --surface-strong: #221c18;
+  --window-border: rgba(239, 226, 204, 0.12);
+  --accent: #f4e0b8;
+  --accent-strong: #f6c978;
+  --accent-contrast: #1a1411;
+  --app-shell: radial-gradient(circle at top, rgba(139, 92, 42, 0.22), transparent 34%),
+    radial-gradient(circle at bottom, rgba(92, 112, 154, 0.16), transparent 30%),
+    linear-gradient(180deg, #191411 0%, #110e0c 100%);
+  --app-noise-opacity: 0.14;
 }
 
 html,
@@ -30,6 +46,11 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(244, 201, 120, 0.24);
+  color: var(--foreground);
 }
 
 .glass-surface {
@@ -47,28 +68,34 @@ body {
   border: 1px solid var(--border);
 }
 
+.app-shell {
+  background: var(--app-shell);
+}
+
+.app-noise {
+  opacity: var(--app-noise-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+.app-panel-shadow {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 24px 60px rgba(0, 0, 0, 0.42),
+    0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.accent-ring {
+  box-shadow:
+    0 0 0 1px rgba(244, 201, 120, 0.2),
+    0 12px 34px rgba(246, 201, 120, 0.1);
+}
+
 html[data-platform="darwin"] body {
   background: transparent;
 }
 
-html:not([data-platform="darwin"]) {
-  --background: #ffffff;
-  --surface: #fafafa;
-  --surface-elevated: #f5f5f5;
-  --surface-fade: #ffffff;
-  --border: #e5e5e5;
-}
-
-html:not([data-platform="darwin"]).dark {
-  --background: #0a0a0a;
-  --surface: #171717;
-  --surface-elevated: #262626;
-  --surface-fade: #0a0a0a;
-  --border: #262626;
-}
-
 html:not([data-platform="darwin"]) body {
-  background: var(--background);
+  background: #110e0c;
 }
 
 @keyframes output-fade-in {
@@ -95,7 +122,7 @@ html:not([data-platform="darwin"]) body {
 
 .scrollbar-subtle {
   scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  scrollbar-color: rgba(246, 239, 227, 0.18) transparent;
 }
 
 .scrollbar-subtle::-webkit-scrollbar {
@@ -107,30 +134,23 @@ html:not([data-platform="darwin"]) body {
 }
 
 .scrollbar-subtle::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.18);
+  background: rgba(246, 239, 227, 0.18);
   border-radius: 9999px;
 }
 
 .dark .scrollbar-subtle {
-  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+  scrollbar-color: rgba(246, 239, 227, 0.18) transparent;
 }
 
 .dark .scrollbar-subtle::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(246, 239, 227, 0.18);
 }
 
 html[data-window="settings"] {
-  --settings-bg: #f5f5f5;
-  --settings-sidebar: #ebebeb;
-  --settings-panel: #ffffff;
-  --settings-border: rgba(0, 0, 0, 0.08);
-}
-
-html[data-window="settings"].dark {
-  --settings-bg: #171717;
-  --settings-sidebar: #1f1f1f;
-  --settings-panel: #262626;
-  --settings-border: rgba(255, 255, 255, 0.1);
+  --settings-bg: #110e0c;
+  --settings-sidebar: rgba(31, 26, 24, 0.92);
+  --settings-panel: rgba(36, 31, 28, 0.96);
+  --settings-border: rgba(239, 226, 204, 0.1);
 }
 
 html[data-window="settings"],

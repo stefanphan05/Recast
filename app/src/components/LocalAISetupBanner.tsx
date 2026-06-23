@@ -110,14 +110,14 @@ export default function LocalAISetupBanner({
   return (
     <div
       role="alert"
-      className="border-b border-amber-200/80 bg-amber-50/75 px-4 py-3 text-sm text-amber-950 backdrop-blur-md dark:border-amber-900/60 dark:bg-amber-950/50 dark:text-amber-100"
+      className="relative z-10 border-b border-[rgba(244,201,120,0.18)] bg-[rgba(244,201,120,0.08)] px-4 py-3 text-sm text-[var(--foreground)] backdrop-blur-md"
     >
       <div className="mx-auto flex max-w-3xl flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
           {health.status === "not_running" ? (
             <>
               <p className="font-medium">AI engine not running</p>
-              <p className="text-amber-900/90 dark:text-amber-100/90">
+              <p className="text-[rgba(246,239,227,0.76)]">
                 Recast can start it in the background. If you haven&apos;t
                 installed it yet, download the free AI engine first.
               </p>
@@ -125,7 +125,7 @@ export default function LocalAISetupBanner({
           ) : (
             <>
               <p className="font-medium">AI model not downloaded</p>
-              <p className="text-amber-900/90 dark:text-amber-100/90">
+              <p className="text-[rgba(246,239,227,0.76)]">
                 Download your model here — it only takes a few minutes.
               </p>
             </>
@@ -133,15 +133,15 @@ export default function LocalAISetupBanner({
 
           {recovering && downloadProgress ? (
             <div className="mt-2 space-y-1">
-              <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-amber-200 dark:bg-amber-900">
+              <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-[rgba(246,239,227,0.12)]">
                 <div
-                  className="h-full rounded-full bg-amber-800 transition-all dark:bg-amber-200"
+                  className="h-full rounded-full bg-[var(--accent)] transition-all"
                   style={{
                     width: `${progressPercent ?? 8}%`,
                   }}
                 />
               </div>
-              <p className="text-xs text-amber-900/80 dark:text-amber-100/80">
+              <p className="text-xs text-[rgba(246,239,227,0.7)]">
                 {formatPullProgressLine(downloadProgress, {
                   percent: progressPercent,
                   etaSeconds,
@@ -151,7 +151,7 @@ export default function LocalAISetupBanner({
           ) : null}
 
           {errorMessage ? (
-            <p className="text-xs text-red-700 dark:text-red-300">
+            <p className="text-xs text-red-300">
               {errorMessage}
             </p>
           ) : null}
@@ -163,7 +163,7 @@ export default function LocalAISetupBanner({
               type="button"
               onClick={() => void handleStartEngine()}
               disabled={recovering || checking}
-              className="rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium transition-colors hover:bg-amber-100 disabled:opacity-60 dark:border-amber-800 dark:bg-amber-950 dark:hover:bg-amber-900"
+              className="rounded-lg border border-[rgba(244,201,120,0.18)] bg-[rgba(255,255,255,0.03)] px-3 py-1.5 text-xs font-medium transition-colors hover:bg-[rgba(244,201,120,0.08)] disabled:opacity-60"
             >
               {recovering ? "Starting…" : "Start in background"}
             </button>
@@ -172,7 +172,7 @@ export default function LocalAISetupBanner({
               type="button"
               onClick={() => void handleDownloadModel()}
               disabled={recovering || checking}
-              className="rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium transition-colors hover:bg-amber-100 disabled:opacity-60 dark:border-amber-800 dark:bg-amber-950 dark:hover:bg-amber-900"
+              className="rounded-lg border border-[rgba(244,201,120,0.18)] bg-[rgba(255,255,255,0.03)] px-3 py-1.5 text-xs font-medium transition-colors hover:bg-[rgba(244,201,120,0.08)] disabled:opacity-60"
             >
               {recovering ? "Downloading…" : "Download model"}
             </button>
@@ -181,14 +181,14 @@ export default function LocalAISetupBanner({
             type="button"
             onClick={() => void refresh()}
             disabled={checking || recovering}
-            className="rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium transition-colors hover:bg-amber-100 disabled:opacity-60 dark:border-amber-800 dark:bg-amber-950 dark:hover:bg-amber-900"
+            className="rounded-lg border border-[rgba(244,201,120,0.18)] bg-[rgba(255,255,255,0.03)] px-3 py-1.5 text-xs font-medium transition-colors hover:bg-[rgba(244,201,120,0.08)] disabled:opacity-60"
           >
             {checking ? "Checking…" : "Retry"}
           </button>
           <button
             type="button"
             onClick={() => setDismissed(true)}
-            className="rounded-lg px-2 py-1.5 text-xs font-medium text-amber-900/80 transition-colors hover:bg-amber-100 dark:text-amber-100/80 dark:hover:bg-amber-900"
+            className="rounded-lg px-2 py-1.5 text-xs font-medium text-[rgba(246,239,227,0.76)] transition-colors hover:bg-white/[0.04]"
             aria-label="Dismiss setup banner"
           >
             Dismiss

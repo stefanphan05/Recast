@@ -72,19 +72,19 @@ export default function AISection() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-neutral-950 dark:text-neutral-50">
+        <h2 className="text-xl font-semibold text-[var(--foreground)]">
           AI
         </h2>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className="mt-1 text-sm text-[var(--muted)]">
           Choose which local model Recast uses for rewrites.
         </p>
       </div>
 
-      <section className="rounded-2xl border border-[var(--settings-border)] bg-[var(--settings-panel)] p-5">
-        <h3 className="text-sm font-medium text-neutral-950 dark:text-neutral-50">
+      <section className="app-panel-shadow rounded-[24px] border border-[var(--settings-border)] bg-[var(--settings-panel)] p-5 backdrop-blur-xl">
+        <h3 className="text-sm font-medium text-[var(--foreground)]">
           AI model
         </h3>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className="mt-1 text-sm text-[var(--muted)]">
           Select the model used for rewrites. Larger models are more capable but
           use more disk space.
         </p>
@@ -100,30 +100,30 @@ export default function AISection() {
         </div>
 
         {modelInstalled === true && selectedModel === settings.selectedModel ? (
-          <p className="mt-3 text-xs text-emerald-700 dark:text-emerald-400">
+          <p className="mt-3 text-xs text-emerald-300">
             Current model is installed and ready.
           </p>
         ) : modelInstalled === true ? (
-          <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
+          <p className="mt-3 text-xs text-[var(--muted)]">
             This model is already installed.
           </p>
         ) : modelInstalled === false ? (
-          <p className="mt-3 text-xs text-amber-800 dark:text-amber-300">
+          <p className="mt-3 text-xs text-amber-300">
             This model needs to be downloaded before use.
           </p>
         ) : null}
 
         {downloading ? (
           <div className="mt-3 space-y-2">
-            <div className="h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+            <div className="h-2 overflow-hidden rounded-full bg-[rgba(246,239,227,0.08)]">
               <div
-                className="h-full rounded-full bg-neutral-950 transition-all duration-300 dark:bg-neutral-50"
+                className="h-full rounded-full bg-[var(--accent)] transition-all duration-300"
                 style={{
                   width: `${progressPercent ?? (downloadProgress ? 8 : 0)}%`,
                 }}
               />
             </div>
-            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+            <p className="text-xs text-[var(--muted)]">
               {formatPullProgressLine(downloadProgress, {
                 percent: progressPercent,
                 etaSeconds,
@@ -133,13 +133,13 @@ export default function AISection() {
         ) : null}
 
         {errorMessage ? (
-          <p className="mt-3 text-sm text-red-600 dark:text-red-400">
+          <p className="mt-3 text-sm text-red-300">
             {errorMessage}
           </p>
         ) : null}
 
         {saved && !hasChanges ? (
-          <p className="mt-3 text-sm text-emerald-700 dark:text-emerald-400">
+          <p className="mt-3 text-sm text-emerald-300">
             Model saved.
           </p>
         ) : null}
@@ -148,7 +148,7 @@ export default function AISection() {
           type="button"
           onClick={() => void handleSave()}
           disabled={downloading || (!hasChanges && modelInstalled === true)}
-          className="mt-5 cursor-pointer rounded-xl bg-neutral-950 px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-neutral-50 dark:text-neutral-950"
+          className="accent-ring mt-5 cursor-pointer rounded-xl bg-[var(--accent)] px-4 py-2.5 text-sm font-medium text-[var(--accent-contrast)] transition-colors hover:bg-[var(--accent-strong)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {downloading ? "Saving…" : hasChanges ? "Save model" : "Saved"}
         </button>

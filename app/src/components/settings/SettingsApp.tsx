@@ -29,14 +29,15 @@ export default function SettingsApp() {
 
   return (
     <AppSettingsProvider>
-      <div className="relative flex h-dvh bg-[var(--settings-bg)] text-neutral-950 dark:text-neutral-50">
+      <div className="app-shell relative flex h-dvh overflow-hidden text-[var(--foreground)]">
+        <div className="app-noise pointer-events-none absolute inset-0" />
         <WindowChrome />
-        <aside className="flex w-[220px] shrink-0 flex-col border-r border-[var(--settings-border)] bg-[var(--settings-sidebar)] pt-10">
+        <aside className="relative z-10 flex w-[220px] shrink-0 flex-col border-r border-[var(--settings-border)] bg-[var(--settings-sidebar)]/95 pt-10 backdrop-blur-xl">
           <div className="px-4 pb-4">
-            <h1 className="text-sm font-semibold text-neutral-950 dark:text-neutral-50">
+            <h1 className="text-sm font-semibold text-[var(--foreground)]">
               Recast
             </h1>
-            <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+            <p className="mt-0.5 text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
               Settings
             </p>
           </div>
@@ -51,8 +52,8 @@ export default function SettingsApp() {
                   onClick={() => setActiveSection(section.id)}
                   className={`flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-sm transition-colors ${
                     active
-                      ? "bg-neutral-950/5 font-medium text-neutral-950 dark:bg-neutral-50/10 dark:text-neutral-50"
-                      : "text-neutral-600 hover:bg-neutral-950/5 dark:text-neutral-400 dark:hover:bg-neutral-50/5"
+                      ? "bg-[rgba(244,201,120,0.12)] font-medium text-[var(--foreground)]"
+                      : "text-[var(--muted)] hover:bg-white/[0.04] hover:text-[var(--foreground)]"
                   }`}
                 >
                   <SettingsSidebarIcon section={section.id} />
@@ -63,7 +64,7 @@ export default function SettingsApp() {
           </nav>
         </aside>
 
-        <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain">
+        <main className="relative z-10 min-h-0 flex-1 overflow-y-auto overscroll-y-contain">
           <div className="mx-auto max-w-xl px-8 py-8">
             {activeSection === "general" ? <GeneralSection /> : null}
             {activeSection === "ai" ? <AISection /> : null}

@@ -10,19 +10,19 @@ export default function ShortcutsSection() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-neutral-950 dark:text-neutral-50">
+        <h2 className="text-xl font-semibold text-[var(--foreground)]">
           Shortcuts
         </h2>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className="mt-1 text-sm text-[var(--muted)]">
           Choose a keyboard shortcut to show or hide Recast from anywhere.
         </p>
       </div>
 
-      <section className="rounded-2xl border border-[var(--settings-border)] bg-[var(--settings-panel)] p-5">
-        <h3 className="text-sm font-medium text-neutral-950 dark:text-neutral-50">
+      <section className="app-panel-shadow rounded-[24px] border border-[var(--settings-border)] bg-[var(--settings-panel)] p-5 backdrop-blur-xl">
+        <h3 className="text-sm font-medium text-[var(--foreground)]">
           Show Recast
         </h3>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className="mt-1 text-sm text-[var(--muted)]">
           Press the shortcut once to open Recast, and again to hide it.
         </p>
 

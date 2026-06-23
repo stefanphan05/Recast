@@ -15,17 +15,17 @@ export default function GeneralSection() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-neutral-950 dark:text-neutral-50">
+        <h2 className="text-xl font-semibold text-[var(--foreground)]">
           General
         </h2>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className="mt-1 text-sm text-[var(--muted)]">
           Control how Recast appears on your Mac.
         </p>
       </div>
 
       {isMac ? (
-        <section className="rounded-2xl border border-[var(--settings-border)] bg-[var(--settings-panel)] p-5">
-          <h3 className="text-sm font-medium text-neutral-950 dark:text-neutral-50">
+        <section className="app-panel-shadow rounded-[24px] border border-[var(--settings-border)] bg-[var(--settings-panel)] p-5 backdrop-blur-xl">
+          <h3 className="text-sm font-medium text-[var(--foreground)]">
             Application
           </h3>
 
@@ -50,11 +50,11 @@ export default function GeneralSection() {
         </section>
       ) : null}
 
-      <section className="rounded-2xl border border-[var(--settings-border)] bg-[var(--settings-panel)] p-5">
-        <h3 className="text-sm font-medium text-neutral-950 dark:text-neutral-50">
+      <section className="app-panel-shadow rounded-[24px] border border-[var(--settings-border)] bg-[var(--settings-panel)] p-5 backdrop-blur-xl">
+        <h3 className="text-sm font-medium text-[var(--foreground)]">
           Model files
         </h3>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className="mt-1 text-sm text-[var(--muted)]">
           Open the folder containing downloaded AI models.
         </p>
 
@@ -62,7 +62,7 @@ export default function GeneralSection() {
           type="button"
           onClick={() => void handleRevealModelsFolder()}
           disabled={!isElectron}
-          className="mt-4 cursor-pointer rounded-xl border border-[var(--settings-border)] bg-[var(--settings-panel)] px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:border-neutral-400/70 disabled:cursor-not-allowed disabled:opacity-50 dark:text-neutral-300 dark:hover:border-neutral-500/70"
+          className="mt-4 cursor-pointer rounded-xl border border-[var(--settings-border)] bg-[rgba(255,255,255,0.02)] px-4 py-2 text-sm font-medium text-[var(--foreground)] transition-colors hover:border-[rgba(244,201,120,0.24)] hover:bg-[rgba(244,201,120,0.08)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           Reveal in Finder
         </button>

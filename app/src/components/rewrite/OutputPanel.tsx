@@ -50,12 +50,12 @@ export default function OutputPanel({
         <div className="scrollbar-subtle min-h-0 flex-1 overflow-y-auto py-0.5 pr-1">
           {isLoading ? (
             <div className="flex flex-col gap-3" aria-hidden>
-              <div className="h-4 animate-pulse rounded-md bg-neutral-200/90 dark:bg-neutral-700/90" />
-              <div className="h-4 w-[94%] animate-pulse rounded-md bg-neutral-200/90 dark:bg-neutral-700/90" />
-              <div className="h-4 w-[72%] animate-pulse rounded-md bg-neutral-200/90 dark:bg-neutral-700/90" />
+              <div className="h-4 animate-pulse rounded-md bg-[rgba(246,239,227,0.09)]" />
+              <div className="h-4 w-[94%] animate-pulse rounded-md bg-[rgba(246,239,227,0.09)]" />
+              <div className="h-4 w-[72%] animate-pulse rounded-md bg-[rgba(246,239,227,0.09)]" />
             </div>
           ) : (
-            <p className="output-fade-in whitespace-pre-wrap text-[15px] leading-snug text-neutral-950 dark:text-neutral-50">
+            <p className="output-fade-in whitespace-pre-wrap text-[15px] leading-snug text-[var(--foreground)]">
               {result}
             </p>
           )}
@@ -68,7 +68,7 @@ export default function OutputPanel({
           onClick={handleCopy}
           disabled={isLoading || !result}
           aria-label={copied ? "Copied" : "Copy to clipboard"}
-          className={`${ICON_ACTION_BTN_SECONDARY_CLASS} ${HOVER_REVEAL_DISABLED_AWARE_CLASS} cursor-pointer disabled:cursor-not-allowed disabled:hover:bg-[var(--surface-elevated)] disabled:hover:text-neutral-600 dark:disabled:hover:bg-[var(--surface-elevated)] dark:disabled:hover:text-neutral-300`}
+          className={`${ICON_ACTION_BTN_SECONDARY_CLASS} ${HOVER_REVEAL_DISABLED_AWARE_CLASS} cursor-pointer disabled:cursor-not-allowed disabled:hover:bg-[var(--surface-elevated)] disabled:hover:text-[var(--muted)]`}
           style={NO_DRAG_STYLE}
         >
           {copied ? (

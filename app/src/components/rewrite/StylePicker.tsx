@@ -33,7 +33,7 @@ export default function StylePicker({
   return (
     <div className="flex flex-col">
       {!embedded ? (
-        <p className="text-[11px] uppercase tracking-[0.08em] text-neutral-400 dark:text-neutral-500">
+        <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--muted)]">
           Rewrite as
         </p>
       ) : null}
@@ -60,13 +60,13 @@ export default function StylePicker({
                 embedded
                   ? `rounded-full border px-3 py-1 text-[12px] ${
                       style === value
-                        ? "border-neutral-950 bg-neutral-950 text-white dark:border-neutral-50 dark:bg-neutral-50 dark:text-neutral-950"
-                        : "glass-surface border text-neutral-600 hover:border-neutral-400/70 hover:text-neutral-950 dark:text-neutral-400 dark:hover:border-neutral-500/70 dark:hover:text-neutral-50"
+                        ? "border-[rgba(244,201,120,0.36)] bg-[rgba(244,201,120,0.12)] text-[var(--foreground)]"
+                        : "glass-surface border text-[var(--muted)] hover:border-[rgba(244,201,120,0.24)] hover:text-[var(--foreground)]"
                     }`
                   : `w-[76px] rounded-xl border px-2 py-2 text-center text-[13px] ${
                       style === value
-                        ? "border-neutral-950 bg-neutral-950 text-white dark:border-neutral-50 dark:bg-neutral-50 dark:text-neutral-950"
-                        : "glass-surface border text-neutral-600 hover:border-neutral-400/70 hover:text-neutral-950 dark:text-neutral-400 dark:hover:border-neutral-500/70 dark:hover:text-neutral-50"
+                        ? "border-[rgba(244,201,120,0.36)] bg-[rgba(244,201,120,0.12)] text-[var(--foreground)]"
+                        : "glass-surface border text-[var(--muted)] hover:border-[rgba(244,201,120,0.24)] hover:text-[var(--foreground)]"
                     }`
               }`}
             >
@@ -123,7 +123,7 @@ function ScrollArrow({
       aria-label={isLeft ? "Show earlier styles" : "Show more styles"}
       disabled={disabled}
       onClick={onClick}
-      className={`absolute top-1/2 z-10 flex -translate-y-1/2 cursor-pointer items-center text-neutral-500 transition-opacity hover:text-neutral-800 disabled:pointer-events-none disabled:opacity-0 dark:hover:text-neutral-200 ${
+      className={`absolute top-1/2 z-10 flex -translate-y-1/2 cursor-pointer items-center text-[var(--muted)] transition-opacity hover:text-[var(--foreground)] disabled:pointer-events-none disabled:opacity-0 ${
         embedded ? "h-7 w-6" : "h-full w-7"
       } ${
         isLeft

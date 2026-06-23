@@ -122,14 +122,14 @@ export default function RewriteWorkspace({
 
         {errorMessage ? (
           <div className="mt-3 flex flex-col items-center gap-2.5">
-            <p className="text-center text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="text-center text-sm text-(--muted)">
               {errorMessage}
             </p>
             <button
               type="button"
               disabled={!canSubmit}
               onClick={handleRewrite}
-              className="cursor-pointer rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-1.5 text-sm text-neutral-700 transition-colors hover:border-neutral-400/70 hover:text-neutral-950 disabled:cursor-not-allowed disabled:opacity-50 dark:text-neutral-300 dark:hover:border-neutral-500/70 dark:hover:text-neutral-50"
+              className="cursor-pointer rounded-xl border border-(--border) bg-(--surface-elevated) px-4 py-1.5 text-sm text-(--foreground) transition-colors hover:border-[rgba(244,201,120,0.24)] hover:bg-[rgba(244,201,120,0.08)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               Retry
             </button>

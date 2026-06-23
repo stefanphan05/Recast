@@ -45,10 +45,10 @@ function ModelCard({
     <button
       type="button"
       onClick={onSelect}
-      className={`w-full cursor-pointer rounded-xl border px-3 py-2.5 text-left transition-colors ${
+      className={`w-full cursor-pointer rounded-[20px] border px-3 py-2.5 text-left transition-colors ${
         selected
-          ? "border-neutral-950 bg-neutral-950 text-white dark:border-neutral-50 dark:bg-neutral-50 dark:text-neutral-950"
-          : "border-[var(--border)] bg-[var(--surface-elevated)] text-neutral-950 hover:border-neutral-400/70 dark:text-neutral-50 dark:hover:border-neutral-500/70"
+          ? "border-[rgba(244,201,120,0.32)] bg-[rgba(244,201,120,0.1)] text-[var(--foreground)]"
+          : "border-[var(--border)] bg-[var(--surface-elevated)] text-[var(--foreground)] hover:border-[rgba(244,201,120,0.24)] hover:bg-[rgba(244,201,120,0.05)]"
       }`}
     >
       <div className="flex items-center justify-between gap-2">
@@ -58,8 +58,8 @@ function ModelCard({
             <span
               className={`shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
                 selected
-                  ? "bg-white/15 text-white/90 dark:bg-neutral-950/10 dark:text-neutral-950/80"
-                  : "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300"
+                  ? "bg-[rgba(246,239,227,0.1)] text-[var(--foreground)]"
+                  : "bg-[rgba(255,255,255,0.05)] text-[var(--muted)]"
               }`}
             >
               Recommended
@@ -69,8 +69,8 @@ function ModelCard({
         <span
           className={`shrink-0 text-xs tabular-nums ${
             selected
-              ? "text-white/70 dark:text-neutral-950/70"
-              : "text-neutral-500 dark:text-neutral-400"
+              ? "text-[rgba(246,239,227,0.72)]"
+              : "text-[var(--muted)]"
           }`}
         >
           {model.size}
@@ -79,8 +79,8 @@ function ModelCard({
       <p
         className={`mt-0.5 text-xs ${
           selected
-            ? "text-white/80 dark:text-neutral-950/80"
-            : "text-neutral-500 dark:text-neutral-400"
+            ? "text-[rgba(246,239,227,0.8)]"
+            : "text-[var(--muted)]"
         }`}
       >
         {model.description}

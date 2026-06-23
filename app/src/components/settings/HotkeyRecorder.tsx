@@ -33,7 +33,7 @@ export default function HotkeyRecorder({
     : "border-[var(--settings-border)] bg-[var(--settings-panel)]";
   const displayClass = isEmbedded
     ? buttonClass
-    : "border-[var(--settings-border)] bg-neutral-50 dark:bg-neutral-900";
+    : "border-[var(--settings-border)] bg-[rgba(255,255,255,0.03)]";
 
   return (
     <>
@@ -52,7 +52,7 @@ export default function HotkeyRecorder({
           type="button"
           onClick={startRecording}
           disabled={recording || saving}
-          className={`cursor-pointer rounded-xl border px-4 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:border-neutral-400/70 disabled:cursor-not-allowed disabled:opacity-50 dark:text-neutral-300 dark:hover:border-neutral-500/70 ${buttonClass}`}
+          className={`cursor-pointer rounded-xl border px-4 py-2.5 text-sm font-medium text-[var(--foreground)] transition-colors hover:border-[rgba(244,201,120,0.24)] hover:bg-[rgba(244,201,120,0.08)] disabled:cursor-not-allowed disabled:opacity-50 ${buttonClass}`}
         >
           {recording ? "Press keys…" : saving ? "Saving…" : "Change shortcut"}
         </button>
@@ -61,7 +61,7 @@ export default function HotkeyRecorder({
             type="button"
             onClick={() => void restoreDefault()}
             disabled={recording || saving}
-            className={`cursor-pointer rounded-xl border px-4 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:border-neutral-400/70 disabled:cursor-not-allowed disabled:opacity-50 dark:text-neutral-300 dark:hover:border-neutral-500/70 ${buttonClass}`}
+            className={`cursor-pointer rounded-xl border px-4 py-2.5 text-sm font-medium text-[var(--foreground)] transition-colors hover:border-[rgba(244,201,120,0.24)] hover:bg-[rgba(244,201,120,0.08)] disabled:cursor-not-allowed disabled:opacity-50 ${buttonClass}`}
           >
             Restore default
           </button>
@@ -69,13 +69,13 @@ export default function HotkeyRecorder({
       </div>
 
       {recording ? (
-        <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
+        <p className="mt-3 text-xs text-[var(--muted)]">
           Press the key combination you want to use. Press Esc to cancel.
         </p>
       ) : null}
 
       {saved ? (
-        <p className="mt-3 text-sm text-emerald-700 dark:text-emerald-400">
+        <p className="mt-3 text-sm text-emerald-300">
           Shortcut saved.
         </p>
       ) : null}

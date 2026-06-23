@@ -141,8 +141,9 @@ export default function OnboardingWizard() {
   return (
     <div
       ref={wizardRef}
-      className="group relative z-40 flex max-h-[640px] flex-col overflow-hidden bg-[var(--surface-fade)]"
+      className="group relative z-40 flex max-h-[640px] flex-col overflow-hidden text-[var(--foreground)]"
     >
+      <div className="app-noise pointer-events-none absolute inset-0" />
       <div className="relative h-9 shrink-0">
         <div
           className="absolute inset-x-2 top-2 bottom-0"
@@ -151,19 +152,19 @@ export default function OnboardingWizard() {
         />
         <CloseWindowButton className="absolute top-2 right-2 z-10 pointer-events-none opacity-0 transition-opacity duration-150 group-hover:pointer-events-auto group-hover:opacity-100 focus-visible:pointer-events-auto focus-visible:opacity-100" />
       </div>
-      <div className="flex min-h-0 flex-col overflow-y-auto overscroll-y-contain px-4 pb-5">
+      <div className="relative z-10 flex min-h-0 flex-col overflow-y-auto overscroll-y-contain px-4 pb-5">
         {step === "welcome" ? (
           <div className="mx-auto flex w-full max-w-md flex-col gap-4">
             <div>
-              <h1 className="text-xl font-semibold text-neutral-950 dark:text-neutral-50">
+              <h1 className="text-xl font-semibold text-[var(--foreground)]">
                 Welcome to Recast
               </h1>
-              <p className="mt-2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+              <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
                 Rewrite messages in different styles using AI that runs entirely
                 on your Mac. Your text never leaves your device.
               </p>
             </div>
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="text-sm text-[var(--muted)]">
               This one-time setup lets you pick and download an AI model —
               Gemma, Qwen, and more. After that, just open Recast and start
               rewriting.
@@ -177,10 +178,10 @@ export default function OnboardingWizard() {
         {step === "model" ? (
           <div className="mx-auto flex w-full max-w-md flex-col gap-4">
             <div>
-              <h2 className="text-lg font-semibold text-neutral-950 dark:text-neutral-50">
+              <h2 className="text-lg font-semibold text-[var(--foreground)]">
                 Choose a model
               </h2>
-              <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+              <p className="mt-2 text-sm text-[var(--muted)]">
                 Pick one to download to your Mac. Everything runs locally — no
                 cloud. You can change this later in Settings.
               </p>
@@ -211,10 +212,10 @@ export default function OnboardingWizard() {
         {step === "download" || step === "preparing" ? (
           <div className="mx-auto flex w-full max-w-md flex-col gap-4">
             <div>
-              <h2 className="text-lg font-semibold text-neutral-950 dark:text-neutral-50">
+              <h2 className="text-lg font-semibold text-[var(--foreground)]">
                 {step === "preparing" ? "Almost ready" : "Downloading model"}
               </h2>
-              <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+              <p className="mt-2 text-sm text-[var(--muted)]">
                 {step === "preparing" ? (
                   preparingMessage
                 ) : (
@@ -232,15 +233,15 @@ export default function OnboardingWizard() {
 
             {step === "download" ? (
               <div className="space-y-2">
-                <div className="h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+                <div className="h-2 overflow-hidden rounded-full bg-[rgba(246,239,227,0.08)]">
                   <div
-                    className="h-full rounded-full bg-neutral-950 transition-all duration-300 dark:bg-neutral-50"
+                    className="h-full rounded-full bg-[var(--accent)] transition-all duration-300"
                     style={{
                       width: `${progressPercent ?? (downloading ? 8 : 0)}%`,
                     }}
                   />
                 </div>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                <p className="text-xs text-[var(--muted)]">
                   {formatPullProgressLine(downloadProgress, {
                     percent: progressPercent,
                     etaSeconds,
@@ -248,14 +249,14 @@ export default function OnboardingWizard() {
                 </p>
               </div>
             ) : (
-              <div className="flex items-center gap-3 text-sm text-neutral-600 dark:text-neutral-400">
-                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-neutral-300 border-t-neutral-950 dark:border-neutral-700 dark:border-t-neutral-50" />
+              <div className="flex items-center gap-3 text-sm text-[var(--muted)]">
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-[rgba(246,239,227,0.14)] border-t-[var(--accent)]" />
                 {preparingMessage}
               </div>
             )}
 
             {downloadError ? (
-              <p className="text-sm text-red-600 dark:text-red-400">
+              <p className="text-sm text-red-300">
                 {downloadError}
               </p>
             ) : null}
@@ -282,10 +283,10 @@ export default function OnboardingWizard() {
         {step === "done" ? (
           <div className="mx-auto flex w-full max-w-md flex-col gap-4">
             <div>
-              <h2 className="text-lg font-semibold text-neutral-950 dark:text-neutral-50">
+              <h2 className="text-lg font-semibold text-[var(--foreground)]">
                 You&apos;re all set
               </h2>
-              <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+              <p className="mt-2 text-sm text-[var(--muted)]">
                 Your model is downloaded and ready. Choose a keyboard shortcut
                 to show or hide Recast from anywhere.
               </p>
@@ -320,7 +321,7 @@ function PrimaryButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="cursor-pointer rounded-xl bg-neutral-950 px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-neutral-50 dark:text-neutral-950"
+      className="accent-ring cursor-pointer rounded-xl bg-[var(--accent)] px-4 py-2.5 text-sm font-medium text-[var(--accent-contrast)] transition-colors hover:bg-[var(--accent-strong)] disabled:cursor-not-allowed disabled:opacity-50"
     >
       {children}
     </button>
@@ -341,7 +342,7 @@ function SecondaryButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="cursor-pointer rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:border-neutral-400/70 disabled:cursor-not-allowed disabled:opacity-50 dark:text-neutral-300 dark:hover:border-neutral-500/70"
+      className="cursor-pointer rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-2.5 text-sm font-medium text-[var(--foreground)] transition-colors hover:border-[rgba(244,201,120,0.24)] hover:bg-[rgba(244,201,120,0.08)] disabled:cursor-not-allowed disabled:opacity-50"
     >
       {children}
     </button>

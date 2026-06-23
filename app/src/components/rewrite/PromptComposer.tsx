@@ -68,7 +68,7 @@ export default function PromptComposer({
             rows={1}
             maxLength={MAX_CHARS}
             autoFocus
-            className="scrollbar-subtle min-w-0 flex-1 resize-none bg-transparent py-0.5 pr-1 text-[15px] leading-snug text-neutral-950 outline-none placeholder:text-neutral-400 dark:text-neutral-50 dark:placeholder:text-neutral-500"
+            className="scrollbar-subtle min-w-0 flex-1 resize-none bg-transparent py-0.5 pr-1 text-[15px] leading-snug text-[var(--foreground)] outline-none placeholder:text-[color:rgba(246,239,227,0.38)]"
           />
           <SendButton
             canSubmit={canSubmit}
@@ -88,7 +88,7 @@ export default function PromptComposer({
             rows={1}
             maxLength={MAX_CHARS}
             autoFocus
-            className="scrollbar-subtle block w-full resize-none bg-transparent py-0.5 pr-1 text-[15px] leading-snug text-neutral-950 outline-none placeholder:text-neutral-400 dark:text-neutral-50 dark:placeholder:text-neutral-500"
+            className="scrollbar-subtle block w-full resize-none bg-transparent py-0.5 pr-1 text-[15px] leading-snug text-[var(--foreground)] outline-none placeholder:text-[color:rgba(246,239,227,0.38)]"
           />
 
           <div className="flex justify-end">
@@ -124,13 +124,13 @@ function SendButton({
       aria-busy={isLoading}
       className={`flex h-8 w-8 shrink-0 appearance-none items-center justify-center rounded-full border-0 outline-none transition-colors ${
         enabled
-          ? "cursor-pointer bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-neutral-50 dark:text-neutral-950 dark:hover:bg-neutral-200"
-          : "cursor-not-allowed bg-[#b8b8b8] text-[#ffffff] dark:bg-[#2a2a2a] dark:text-[#737373]"
+          ? "accent-ring cursor-pointer bg-[var(--accent)] text-[var(--accent-contrast)] hover:bg-[var(--accent-strong)]"
+          : "cursor-not-allowed bg-[rgba(246,239,227,0.08)] text-[rgba(246,239,227,0.34)]"
       } ${isLoading ? "cursor-wait" : ""}`}
     >
       {isLoading ? (
         <span
-          className="h-4 w-4 animate-spin rounded-full border-2 border-white/25 border-t-white dark:border-neutral-950/25 dark:border-t-neutral-950"
+          className="h-4 w-4 animate-spin rounded-full border-2 border-[rgba(26,20,17,0.2)] border-t-[var(--accent-contrast)]"
           aria-hidden
         />
       ) : (
