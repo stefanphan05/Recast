@@ -4,44 +4,63 @@ import DemoImage from "@/components/DemoImage";
 export default function Hero() {
   return (
     <section className="hero-glow site-divider relative overflow-hidden border-b">
-      <div className="site-grain pointer-events-none absolute inset-0" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-linear-to-b from-white/4 to-transparent" />
-      <div className="relative mx-auto max-w-6xl px-6 pb-20 pt-16 md:pb-28 md:pt-24">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-sm font-medium uppercase tracking-[0.18em] text-(--muted)">
-            For Mac · Local AI
-          </p>
-          <h1 className="font-display mt-5 text-5xl leading-[1.02] tracking-tight text-(--foreground) md:text-7xl">
-            Write with confidence.
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-(--muted) md:text-xl">
-            Paste your message, pick a tone — fix grammar, sound professional,
-            write like Gen Z, or keep it casual — and get a rewritten version in
-            seconds. No more copy-pasting into ChatGPT.
-          </p>
+      <div className="relative mx-auto max-w-7xl px-6">
+        <div className="grid min-h-[calc(100vh-4rem)] items-center gap-10 py-16 md:grid-cols-[1fr_1fr] md:gap-12 md:py-0 lg:grid-cols-[1.1fr_0.9fr]">
 
-          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <DownloadButton />
-            <a
-              href="#features"
-              className="site-button-secondary inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium transition-colors"
+          {/* ── Left column: Text ──────────────────────────────── */}
+          <div className="md:py-28">
+            <div className="hero-badge animate-fade-up">
+              <span className="hero-badge-dot" />
+              Local AI for Mac
+            </div>
+
+            <h1
+              className="font-display animate-fade-up mt-7 text-[clamp(2.8rem,5.5vw,5rem)] leading-none tracking-tight text-(--foreground)"
+              style={{ animationDelay: "0.08s" }}
             >
-              See how it works
-            </a>
+              Write with<br />confidence.
+            </h1>
+
+            <p
+              className="animate-fade-up mt-6 max-w-md text-lg leading-relaxed text-(--muted)"
+              style={{ animationDelay: "0.18s" }}
+            >
+              Paste your message, pick a tone — fix grammar, sound professional,
+              write like Gen Z, or keep it casual — and get a rewritten version
+              in seconds. No more copy-pasting into ChatGPT.
+            </p>
+
+            <div
+              className="animate-fade-up mt-8 flex flex-wrap items-center gap-3"
+              style={{ animationDelay: "0.28s" }}
+            >
+              <DownloadButton />
+              <a
+                href="#features"
+                className="site-button-secondary inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium"
+              >
+                See how it works
+              </a>
+            </div>
+
+            <p
+              className="animate-fade-up mt-5 text-sm text-(--muted)"
+              style={{ animationDelay: "0.38s" }}
+            >
+              Free · Apple Silicon · Your text stays on your Mac
+            </p>
           </div>
 
-          <p className="mt-4 text-sm text-(--muted)">
-            Free · Apple Silicon · Your text stays on your Mac
-          </p>
-        </div>
+          {/* ── Right column: App mock ─────────────────────────── */}
+          <div className="animate-scale-in relative">
+            <DemoImage
+              variant="hero"
+              alt="Recast rewrite interface on Mac"
+              priority
+              className="aspect-[4/3] w-full"
+            />
+          </div>
 
-        <div className="mx-auto mt-16 max-w-5xl animate-fade-up">
-          <DemoImage
-            variant="hero"
-            alt="Recast rewrite interface on Mac"
-            priority
-            className="aspect-16/10 w-full"
-          />
         </div>
       </div>
     </section>

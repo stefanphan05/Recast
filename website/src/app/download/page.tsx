@@ -29,7 +29,7 @@ export default function DownloadPage() {
             Download for Mac (Apple Silicon)
           </DownloadButton>
 
-          <div className="mt-4 rounded-2xl border border-[rgba(244,201,120,0.18)] bg-[rgba(244,201,120,0.08)] px-4 py-3 text-sm leading-relaxed text-(--muted)">
+          <div className="mt-4 rounded-2xl border border-[rgba(17,17,16,0.1)] bg-[rgba(17,17,16,0.03)] px-4 py-3 text-sm leading-relaxed text-(--muted)">
             <p className="font-medium text-(--foreground)">
               Unsigned app note
             </p>
@@ -38,7 +38,7 @@ export default function DownloadPage() {
               First try right-clicking the app in Applications and choosing{" "}
               <strong>Open</strong>. If that still fails, open Terminal and run:
             </p>
-            <pre className="mt-3 overflow-x-auto rounded-xl border border-(--border) bg-[rgba(0,0,0,0.18)] px-3 py-2 font-mono text-xs text-(--foreground)">
+            <pre className="mt-3 overflow-x-auto rounded-xl border border-(--border) bg-[rgba(17,17,16,0.05)] px-3 py-2 font-mono text-xs text-(--foreground)">
               xattr -cr /Applications/Recast.app
             </pre>
           </div>
@@ -85,7 +85,7 @@ export default function DownloadPage() {
               </h2>
               <p className="mt-2">
                 Press{" "}
-                <kbd className="rounded border border-(--border) bg-[rgba(255,255,255,0.03)] px-1.5 py-0.5 font-mono text-xs text-(--foreground)">
+                <kbd className="rounded border border-(--border) bg-[rgba(17,17,16,0.04)] px-1.5 py-0.5 font-mono text-xs text-(--foreground)">
                   Option+Tab
                 </kbd>{" "}
                 to show or hide Recast from anywhere on your Mac.

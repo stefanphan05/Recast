@@ -15,7 +15,7 @@ export default function DemoImage({
 }: DemoImageProps) {
   return (
     <div
-      className={`demo-frame relative overflow-hidden rounded-[1.75rem] bg-[rgba(19,15,13,0.92)] ${className}`}
+      className={`demo-frame relative overflow-hidden rounded-[1.75rem] bg-white ${className}`}
       aria-label={alt}
       role="img"
     >
