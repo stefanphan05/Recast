@@ -1,6 +1,6 @@
 {
   "name": "recast-app",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "main": "electron/main.js",
   "scripts": {
@@ -55,13 +55,10 @@
       ],
       "icon": "src/app/icon.png"
     },
-    "dmg": {
-      "artifactName": "${productName}.${ext}"
-    },
     "publish": {
       "provider": "github",
       "owner": "stefanphan05",
-      "repo": "MessageRewriter"
+      "repo": "Recast"
     }
   }
 }
