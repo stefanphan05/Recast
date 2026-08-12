@@ -17,6 +17,7 @@ import {
   formatPullProgressLine,
   usePullProgressTracking,
 } from "@/hooks/usePullProgress";
+import type { LocalAIEngineProgress } from "@/types/local-ai-engine";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type OnboardingStep = "welcome" | "model" | "download" | "preparing" | "done";
@@ -30,6 +31,8 @@ export default function OnboardingWizard() {
   const [downloadProgress, setDownloadProgress] = useState<PullProgress | null>(
     null,
   );
+  const [engineProgress, setEngineProgress] =
+    useState<LocalAIEngineProgress | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
   const [preparingMessage, setPreparingMessage] = useState(
@@ -37,6 +40,7 @@ export default function OnboardingWizard() {
   );
   const downloadStartedRef = useRef(false);
   const skipCheckedRef = useRef(false);
+  const engineErrorRef = useRef<string | null>(null);
   const wizardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,6 +48,18 @@ export default function OnboardingWizard() {
     return () => {
       window.electronAPI?.setLayout("prompt");
     };
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = window.electronAPI?.onLocalAIEngineProgress(
+      (progress) => {
+        setEngineProgress(progress);
+        if (progress.phase === "error" && progress.message) {
+          engineErrorRef.current = progress.message;
+        }
+      },
+    );
+    return () => unsubscribe?.();
   }, []);
 
   useEffect(() => {
@@ -87,6 +103,8 @@ export default function OnboardingWizard() {
     setDownloading(true);
     setDownloadError(null);
     setDownloadProgress(null);
+    setEngineProgress(null);
+    engineErrorRef.current = null;
 
     try {
       let running = await checkLocalAIRunning();
@@ -97,10 +115,12 @@ export default function OnboardingWizard() {
 
       if (!running) {
         throw new LocalAIError(
-          "Could not start the local AI engine. Restart Recast and try again.",
+          engineErrorRef.current ||
+            "Could not set up the local AI engine. Check your internet connection and try again.",
         );
       }
 
+      setEngineProgress(null);
       const alreadyInstalled = await checkModelAvailable(selectedModel);
       if (!alreadyInstalled) {
         await downloadModel(selectedModel, setDownloadProgress);
@@ -138,12 +158,55 @@ export default function OnboardingWizard() {
   const { progressPercent, etaSeconds } =
     usePullProgressTracking(downloadProgress);
 
+  const settingUpEngine =
+    downloading &&
+    !downloadProgress &&
+    engineProgress !== null &&
+    engineProgress.phase !== "ready";
+
+  const headline =
+    step === "preparing"
+      ? "Almost ready"
+      : settingUpEngine
+        ? "Setting up AI engine"
+        : "Downloading model";
+
+  const description =
+    step === "preparing" ? (
+      preparingMessage
+    ) : settingUpEngine ? (
+      engineProgress?.message ||
+      "Recast is installing the local AI engine. This only happens once."
+    ) : (
+      <>
+        Downloading{" "}
+        <span className="font-medium">
+          {getModelDisplayName(selectedModel)}
+        </span>{" "}
+        to your Mac. This may take a few minutes depending on your connection.
+      </>
+    );
+
+  const barPercent = settingUpEngine
+    ? (engineProgress?.percent ??
+      (engineProgress?.phase === "extracting" ? 100 : 8))
+    : (progressPercent ?? (downloading ? 8 : 0));
+
+  const statusLine = settingUpEngine
+    ? engineProgress?.phase === "downloading" &&
+      typeof engineProgress.percent === "number"
+      ? `Engine download ${engineProgress.percent}%`
+      : engineProgress?.message || "Setting up…"
+    : formatPullProgressLine(downloadProgress, {
+        percent: progressPercent,
+        etaSeconds,
+      });
+
   return (
     <div
       ref={wizardRef}
-      className="group relative z-40 flex max-h-[640px] flex-col overflow-hidden text-[var(--foreground)]"
+      className="group relative z-40 flex max-h-[640px] flex-col overflow-hidden bg-[var(--surface-fade)]"
     >
-      <div className="app-noise pointer-events-none absolute inset-0" />
       <div className="relative h-9 shrink-0">
         <div
           className="absolute inset-x-2 top-2 bottom-0"
@@ -152,20 +215,20 @@ export default function OnboardingWizard() {
         />
         <CloseWindowButton className="absolute top-2 right-2 z-10 pointer-events-none opacity-0 transition-opacity duration-150 group-hover:pointer-events-auto group-hover:opacity-100 focus-visible:pointer-events-auto focus-visible:opacity-100" />
       </div>
-      <div className="relative z-10 flex min-h-0 flex-col overflow-y-auto overscroll-y-contain px-4 pb-5">
+      <div className="flex min-h-0 flex-col overflow-y-auto overscroll-y-contain px-4 pb-5">
         {step === "welcome" ? (
           <div className="mx-auto flex w-full max-w-md flex-col gap-4">
             <div>
-              <h1 className="text-xl font-semibold text-[var(--foreground)]">
+              <h1 className="text-xl font-semibold text-neutral-950 dark:text-neutral-50">
                 Welcome to Recast
               </h1>
-              <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+              <p className="mt-2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
                 Rewrite messages in different styles using AI that runs entirely
                 on your Mac. Your text never leaves your device.
               </p>
             </div>
-            <p className="text-sm text-[var(--muted)]">
-              This one-time setup lets you pick and download an AI model —
+            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+              This one-time setup downloads a local AI engine and a model —
               Gemma, Qwen, and more. After that, just open Recast and start
               rewriting.
             </p>
@@ -178,10 +241,10 @@ export default function OnboardingWizard() {
         {step === "model" ? (
           <div className="mx-auto flex w-full max-w-md flex-col gap-4">
             <div>
-              <h2 className="text-lg font-semibold text-[var(--foreground)]">
+              <h2 className="text-lg font-semibold text-neutral-950 dark:text-neutral-50">
                 Choose a model
               </h2>
-              <p className="mt-2 text-sm text-[var(--muted)]">
+              <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
                 Pick one to download to your Mac. Everything runs locally — no
                 cloud. You can change this later in Settings.
               </p>
@@ -212,51 +275,37 @@ export default function OnboardingWizard() {
         {step === "download" || step === "preparing" ? (
           <div className="mx-auto flex w-full max-w-md flex-col gap-4">
             <div>
-              <h2 className="text-lg font-semibold text-[var(--foreground)]">
-                {step === "preparing" ? "Almost ready" : "Downloading model"}
+              <h2 className="text-lg font-semibold text-neutral-950 dark:text-neutral-50">
+                {headline}
               </h2>
-              <p className="mt-2 text-sm text-[var(--muted)]">
-                {step === "preparing" ? (
-                  preparingMessage
-                ) : (
-                  <>
-                    Downloading{" "}
-                    <span className="font-medium">
-                      {getModelDisplayName(selectedModel)}
-                    </span>{" "}
-                    to your Mac. This may take a few minutes depending on your
-                    connection.
-                  </>
-                )}
+              <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+                {description}
               </p>
             </div>
 
             {step === "download" ? (
               <div className="space-y-2">
-                <div className="h-2 overflow-hidden rounded-full bg-[rgba(246,239,227,0.08)]">
+                <div className="h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
                   <div
-                    className="h-full rounded-full bg-[var(--accent)] transition-all duration-300"
+                    className="h-full rounded-full bg-neutral-950 transition-all duration-300 dark:bg-neutral-50"
                     style={{
-                      width: `${progressPercent ?? (downloading ? 8 : 0)}%`,
+                      width: `${barPercent}%`,
                     }}
                   />
                 </div>
-                <p className="text-xs text-[var(--muted)]">
-                  {formatPullProgressLine(downloadProgress, {
-                    percent: progressPercent,
-                    etaSeconds,
-                  })}
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                  {statusLine}
                 </p>
               </div>
             ) : (
-              <div className="flex items-center gap-3 text-sm text-[var(--muted)]">
-                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-[rgba(246,239,227,0.14)] border-t-[var(--accent)]" />
+              <div className="flex items-center gap-3 text-sm text-neutral-600 dark:text-neutral-400">
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-neutral-300 border-t-neutral-950 dark:border-neutral-700 dark:border-t-neutral-50" />
                 {preparingMessage}
               </div>
             )}
 
             {downloadError ? (
-              <p className="text-sm text-red-300">
+              <p className="text-sm text-red-600 dark:text-red-400">
                 {downloadError}
               </p>
             ) : null}
@@ -283,10 +332,10 @@ export default function OnboardingWizard() {
         {step === "done" ? (
           <div className="mx-auto flex w-full max-w-md flex-col gap-4">
             <div>
-              <h2 className="text-lg font-semibold text-[var(--foreground)]">
+              <h2 className="text-lg font-semibold text-neutral-950 dark:text-neutral-50">
                 You&apos;re all set
               </h2>
-              <p className="mt-2 text-sm text-[var(--muted)]">
+              <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
                 Your model is downloaded and ready. Choose a keyboard shortcut
                 to show or hide Recast from anywhere.
               </p>
@@ -321,7 +370,7 @@ function PrimaryButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="accent-ring cursor-pointer rounded-xl bg-[var(--accent)] px-4 py-2.5 text-sm font-medium text-[var(--accent-contrast)] transition-colors hover:bg-[var(--accent-strong)] disabled:cursor-not-allowed disabled:opacity-50"
+      className="cursor-pointer rounded-xl bg-neutral-950 px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-neutral-50 dark:text-neutral-950"
     >
       {children}
     </button>
@@ -342,7 +391,7 @@ function SecondaryButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="cursor-pointer rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-2.5 text-sm font-medium text-[var(--foreground)] transition-colors hover:border-[rgba(244,201,120,0.24)] hover:bg-[rgba(244,201,120,0.08)] disabled:cursor-not-allowed disabled:opacity-50"
+      className="cursor-pointer rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:border-neutral-400/70 disabled:cursor-not-allowed disabled:opacity-50 dark:text-neutral-300 dark:hover:border-neutral-500/70"
     >
       {children}
     </button>

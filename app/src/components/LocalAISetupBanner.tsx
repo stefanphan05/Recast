@@ -11,6 +11,7 @@ import {
   formatPullProgressLine,
   usePullProgressTracking,
 } from "@/hooks/usePullProgress";
+import type { LocalAIEngineProgress } from "@/types/local-ai-engine";
 import { useCallback, useEffect, useState } from "react";
 
 type LocalAISetupBannerProps = {
@@ -27,6 +28,8 @@ export default function LocalAISetupBanner({
   const [downloadProgress, setDownloadProgress] = useState<PullProgress | null>(
     null,
   );
+  const [engineProgress, setEngineProgress] =
+    useState<LocalAIEngineProgress | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { progressPercent, etaSeconds } =
     usePullProgressTracking(downloadProgress);
@@ -47,6 +50,15 @@ export default function LocalAISetupBanner({
   }, [refresh]);
 
   useEffect(() => {
+    const unsubscribe = window.electronAPI?.onLocalAIEngineProgress(
+      (progress) => {
+        setEngineProgress(progress);
+      },
+    );
+    return () => unsubscribe?.();
+  }, []);
+
+  useEffect(() => {
     if (health?.status !== "not_running") return;
 
     const interval = window.setInterval(() => {
@@ -59,11 +71,14 @@ export default function LocalAISetupBanner({
   async function handleStartEngine() {
     setRecovering(true);
     setErrorMessage(null);
+    setEngineProgress(null);
     try {
       await window.electronAPI?.ensureLocalAIReady(selectedModel);
       await refresh();
     } catch {
-      setErrorMessage("Could not start the AI engine. Please try again.");
+      setErrorMessage(
+        "Could not set up the AI engine. Check your internet connection and try again.",
+      );
     } finally {
       setRecovering(false);
     }
@@ -76,6 +91,7 @@ export default function LocalAISetupBanner({
     setRecovering(true);
     setErrorMessage(null);
     setDownloadProgress(null);
+    setEngineProgress(null);
 
     try {
       let status = await getLocalAIHealthStatus(model);
@@ -85,7 +101,9 @@ export default function LocalAISetupBanner({
       }
 
       if (status.status === "not_running") {
-        throw new LocalAIError("Local AI engine is not running.");
+        throw new LocalAIError(
+          "Could not set up the local AI engine. Please try again.",
+        );
       }
 
       await downloadModel(model, setDownloadProgress);
@@ -107,41 +125,62 @@ export default function LocalAISetupBanner({
     return null;
   }
 
+  const engineBusy =
+    recovering &&
+    !downloadProgress &&
+    engineProgress !== null &&
+    engineProgress.phase !== "ready";
+
   return (
     <div
       role="alert"
-      className="relative z-10 border-b border-[rgba(244,201,120,0.18)] bg-[rgba(244,201,120,0.08)] px-4 py-3 text-sm text-[var(--foreground)] backdrop-blur-md"
+      className="border-b border-amber-200/80 bg-amber-50/75 px-4 py-3 text-sm text-amber-950 backdrop-blur-md dark:border-amber-900/60 dark:bg-amber-950/50 dark:text-amber-100"
     >
       <div className="mx-auto flex max-w-3xl flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
           {health.status === "not_running" ? (
             <>
               <p className="font-medium">AI engine not running</p>
-              <p className="text-[rgba(246,239,227,0.76)]">
-                Recast can start it in the background. If you haven&apos;t
-                installed it yet, download the free AI engine first.
+              <p className="text-amber-900/90 dark:text-amber-100/90">
+                Recast can install and start it automatically in the background.
               </p>
             </>
           ) : (
             <>
               <p className="font-medium">AI model not downloaded</p>
-              <p className="text-[rgba(246,239,227,0.76)]">
+              <p className="text-amber-900/90 dark:text-amber-100/90">
                 Download your model here — it only takes a few minutes.
               </p>
             </>
           )}
 
+          {engineBusy ? (
+            <div className="mt-2 space-y-1">
+              <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-amber-200 dark:bg-amber-900">
+                <div
+                  className="h-full rounded-full bg-amber-800 transition-all dark:bg-amber-200"
+                  style={{
+                    width: `${engineProgress?.percent ?? (engineProgress?.phase === "extracting" ? 100 : 8)}%`,
+                  }}
+                />
+              </div>
+              <p className="text-xs text-amber-900/80 dark:text-amber-100/80">
+                {engineProgress?.message || "Setting up AI engine…"}
+              </p>
+            </div>
+          ) : null}
+
           {recovering && downloadProgress ? (
             <div className="mt-2 space-y-1">
-              <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-[rgba(246,239,227,0.12)]">
+              <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-amber-200 dark:bg-amber-900">
                 <div
-                  className="h-full rounded-full bg-[var(--accent)] transition-all"
+                  className="h-full rounded-full bg-amber-800 transition-all dark:bg-amber-200"
                   style={{
                     width: `${progressPercent ?? 8}%`,
                   }}
                 />
               </div>
-              <p className="text-xs text-[rgba(246,239,227,0.7)]">
+              <p className="text-xs text-amber-900/80 dark:text-amber-100/80">
                 {formatPullProgressLine(downloadProgress, {
                   percent: progressPercent,
                   etaSeconds,
@@ -151,7 +190,7 @@ export default function LocalAISetupBanner({
           ) : null}
 
           {errorMessage ? (
-            <p className="text-xs text-red-300">
+            <p className="text-xs text-red-700 dark:text-red-300">
               {errorMessage}
             </p>
           ) : null}
@@ -163,16 +202,16 @@ export default function LocalAISetupBanner({
               type="button"
               onClick={() => void handleStartEngine()}
               disabled={recovering || checking}
-              className="rounded-lg border border-[rgba(244,201,120,0.18)] bg-[rgba(255,255,255,0.03)] px-3 py-1.5 text-xs font-medium transition-colors hover:bg-[rgba(244,201,120,0.08)] disabled:opacity-60"
+              className="rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium transition-colors hover:bg-amber-100 disabled:opacity-60 dark:border-amber-800 dark:bg-amber-950 dark:hover:bg-amber-900"
             >
-              {recovering ? "Starting…" : "Start in background"}
+              {recovering ? "Setting up…" : "Set up engine"}
             </button>
           ) : (
             <button
               type="button"
               onClick={() => void handleDownloadModel()}
               disabled={recovering || checking}
-              className="rounded-lg border border-[rgba(244,201,120,0.18)] bg-[rgba(255,255,255,0.03)] px-3 py-1.5 text-xs font-medium transition-colors hover:bg-[rgba(244,201,120,0.08)] disabled:opacity-60"
+              className="rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium transition-colors hover:bg-amber-100 disabled:opacity-60 dark:border-amber-800 dark:bg-amber-950 dark:hover:bg-amber-900"
             >
               {recovering ? "Downloading…" : "Download model"}
             </button>
@@ -181,14 +220,14 @@ export default function LocalAISetupBanner({
             type="button"
             onClick={() => void refresh()}
             disabled={checking || recovering}
-            className="rounded-lg border border-[rgba(244,201,120,0.18)] bg-[rgba(255,255,255,0.03)] px-3 py-1.5 text-xs font-medium transition-colors hover:bg-[rgba(244,201,120,0.08)] disabled:opacity-60"
+            className="rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium transition-colors hover:bg-amber-100 disabled:opacity-60 dark:border-amber-800 dark:bg-amber-950 dark:hover:bg-amber-900"
           >
             {checking ? "Checking…" : "Retry"}
           </button>
           <button
             type="button"
             onClick={() => setDismissed(true)}
-            className="rounded-lg px-2 py-1.5 text-xs font-medium text-[rgba(246,239,227,0.76)] transition-colors hover:bg-white/[0.04]"
+            className="rounded-lg px-2 py-1.5 text-xs font-medium text-amber-900/80 transition-colors hover:bg-amber-100 dark:text-amber-100/80 dark:hover:bg-amber-900"
             aria-label="Dismiss setup banner"
           >
             Dismiss

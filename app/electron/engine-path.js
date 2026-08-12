@@ -7,6 +7,19 @@ function getEngineHomePath() {
   return path.join(app.getPath("userData"), "engine");
 }
 
+/** Unpacked managed Ollama CLI + libs (downloaded on first run). */
+function getManagedEngineDir() {
+  return path.join(getEngineHomePath(), "runtime");
+}
+
+function getManagedEngineBinaryPath() {
+  return path.join(getManagedEngineDir(), "ollama");
+}
+
+function getManagedEngineVersionPath() {
+  return path.join(getManagedEngineDir(), ".version");
+}
+
 function getOllamaDataPath() {
   return path.join(getEngineHomePath(), ".ollama");
 }
@@ -67,4 +80,7 @@ module.exports = {
   getEngineEnv,
   getEngineHomePath,
   getLocalModelsPath,
+  getManagedEngineBinaryPath,
+  getManagedEngineDir,
+  getManagedEngineVersionPath,
 };

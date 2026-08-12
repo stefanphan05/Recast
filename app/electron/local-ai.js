@@ -2,7 +2,14 @@ const { spawn, spawnSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const { LOCAL_AI_BASE } = require("./local-ai-config");
-const { getEngineEnv } = require("./engine-path");
+const {
+  getEngineEnv,
+  getManagedEngineBinaryPath,
+} = require("./engine-path");
+const {
+  ensureManagedEngineInstalled,
+  isManagedEngineInstalled,
+} = require("./engine-install");
 
 const ENGINE_APP_PATH = "/Applications/Ollama.app";
 const ENGINE_APP_BINARY = path.join(
@@ -25,6 +32,9 @@ async function checkLocalAIRunning() {
 }
 
 function findEngineBinary() {
+  const managed = getManagedEngineBinaryPath();
+  if (fs.existsSync(managed)) return managed;
+
   const candidates = [
     "/usr/local/bin/ollama",
     "/opt/homebrew/bin/ollama",
@@ -65,7 +75,7 @@ function startEngineServe() {
     ...getEngineEnv(),
     OLLAMA_HOST: LOCAL_AI_BASE.replace(/^https?:\/\//, ""),
   };
-  if (binary === ENGINE_APP_BINARY) {
+  if (binary === ENGINE_APP_BINARY || binary === getManagedEngineBinaryPath()) {
     env.PATH = `${binaryDir}${path.delimiter}${env.PATH ?? ""}`;
   }
 
@@ -79,8 +89,25 @@ function startEngineServe() {
   return true;
 }
 
-async function ensureEngineRunning() {
+async function ensureEngineRunning(onProgress) {
   if (await checkLocalAIRunning()) return true;
+
+  const managedPresent = fs.existsSync(getManagedEngineBinaryPath());
+  const needsInstall =
+    !findEngineBinary() ||
+    (managedPresent && !isManagedEngineInstalled());
+
+  if (needsInstall) {
+    const installed = await ensureManagedEngineInstalled(onProgress);
+    if (!installed && !findEngineBinary()) return false;
+  }
+
+  if (typeof onProgress === "function") {
+    onProgress({
+      phase: "starting",
+      message: "Starting local AI engine…",
+    });
+  }
 
   // Run headless on Recast's dedicated port — never reuse a system Ollama on 11434.
   if (startEngineServe()) {
@@ -91,7 +118,7 @@ async function ensureEngineRunning() {
 }
 
 function isEngineInstalled() {
-  return fs.existsSync(ENGINE_APP_PATH) || findEngineBinary() !== null;
+  return findEngineBinary() !== null;
 }
 
 async function isModelInstalled(model) {
@@ -135,8 +162,8 @@ async function warmUpModel(model) {
 }
 
 async function ensureLocalAIReady(model, options = {}) {
-  const { warmUp = true } = options;
-  const running = await ensureEngineRunning();
+  const { warmUp = true, onProgress } = options;
+  const running = await ensureEngineRunning(onProgress);
   if (!running) {
     console.warn("Could not start local AI engine automatically.");
     return { running: false, warmed: false, installed: isEngineInstalled() };

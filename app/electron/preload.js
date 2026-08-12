@@ -37,5 +37,11 @@ contextBridge.exposeInMainWorld("electronAPI", {
   revealModelsFolder: () => ipcRenderer.invoke("shell:revealModelsFolder"),
   ensureLocalAIReady: (model) => ipcRenderer.invoke("local-ai:ensureReady", model),
   warmUpModel: (model) => ipcRenderer.invoke("local-ai:warmUp", model),
+  onLocalAIEngineProgress: (callback) => {
+    const handler = (_event, progress) => callback(progress);
+    ipcRenderer.on("local-ai:engine-progress", handler);
+    return () =>
+      ipcRenderer.removeListener("local-ai:engine-progress", handler);
+  },
   platform: process.platform,
 });

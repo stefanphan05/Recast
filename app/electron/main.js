@@ -101,6 +101,15 @@ function broadcastSettingsChanged(next) {
   settingsWindow?.webContents.send("settings-changed", next);
 }
 
+function broadcastLocalAIEngineProgress(progress) {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send("local-ai:engine-progress", progress);
+  }
+  if (settingsWindow && !settingsWindow.isDestroyed()) {
+    settingsWindow.webContents.send("local-ai:engine-progress", progress);
+  }
+}
+
 function registerGlobalHotkey(accelerator = getGlobalHotkey()) {
   globalShortcut.unregisterAll();
   if (hotkeyRecording) {
@@ -683,7 +692,9 @@ app.whenReady().then(async () => {
       partial.selectedModel &&
       partial.selectedModel !== previous.selectedModel
     ) {
-      void ensureLocalAIReady(next.selectedModel);
+      void ensureLocalAIReady(next.selectedModel, {
+        onProgress: broadcastLocalAIEngineProgress,
+      });
     }
 
     return next;
@@ -718,6 +729,7 @@ app.whenReady().then(async () => {
   ipcMain.handle("local-ai:ensureReady", (_event, model) =>
     ensureLocalAIReady(
       typeof model === "string" ? model : readSettings().selectedModel,
+      { onProgress: broadcastLocalAIEngineProgress },
     ),
   );
   ipcMain.handle("local-ai:warmUp", (_event, model) =>
@@ -732,7 +744,9 @@ app.whenReady().then(async () => {
 
   registerGlobalHotkey(getGlobalHotkey());
   applyGeneralSettings();
-  void ensureLocalAIReady(readSettings().selectedModel);
+  void ensureLocalAIReady(readSettings().selectedModel, {
+    onProgress: broadcastLocalAIEngineProgress,
+  });
   createWindow();
   positionWindowTopCenter(mainWindow);
 

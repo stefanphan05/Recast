@@ -1,3 +1,5 @@
+import type { LocalAIEngineProgress } from "./local-ai-engine";
+
 export type AppSettings = {
   onboardingComplete: boolean;
   selectedModel: string;
@@ -5,6 +7,8 @@ export type AppSettings = {
   showMenuBarIcon: boolean;
   hideDockIcon: boolean;
 };
+
+export type { LocalAIEngineProgress };
 
 export {};
 
@@ -35,6 +39,9 @@ declare global {
         model?: string,
       ) => Promise<{ running: boolean; warmed: boolean; installed: boolean }>;
       warmUpModel: (model?: string) => Promise<boolean>;
+      onLocalAIEngineProgress: (
+        callback: (progress: LocalAIEngineProgress) => void,
+      ) => () => void;
       platform: string;
     };
   }
