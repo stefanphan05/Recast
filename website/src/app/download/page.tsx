@@ -74,7 +74,10 @@ export default function DownloadPage() {
               </h2>
               <ul className="mt-2 list-disc space-y-1 pl-5">
                 <li>macOS on Apple Silicon (M1 or newer)</li>
-                <li>Local AI engine (set up automatically by Recast)</li>
+                <li>Internet connection for first-time setup</li>
+                <li>
+                  Local AI engine (~150 MB) set up automatically by Recast
+                </li>
                 <li>~2–3 GB free disk space for the AI model</li>
               </ul>
             </section>

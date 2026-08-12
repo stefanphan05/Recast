@@ -34,10 +34,10 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/*.dmg
-            dist/*.zip
-            dist/*.blockmap
-            dist/latest-mac.yml
+            app/dist/*.dmg
+            app/dist/*.zip
+            app/dist/*.blockmap
+            app/dist/latest-mac.yml
           generate_release_notes: true
           body: |
             ## Install on Mac
@@ -45,6 +45,6 @@ jobs:
             1. Download the `.dmg` file below
             2. Open the DMG and drag Recast to Applications
             3. **First launch:** right-click Recast → **Open** (required for unsigned builds)
-            4. Follow the in-app setup to install Ollama and download an AI model
+            4. Follow the in-app setup — Recast installs the local AI engine and downloads your model automatically
 
-            Requires macOS on Apple Silicon (arm64) and [Ollama](https://ollama.com).
+            Requires macOS on Apple Silicon (arm64) and an internet connection for first-time setup.

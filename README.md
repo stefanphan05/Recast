@@ -70,4 +70,4 @@ Then try opening Recast again.
 
 ## First run
 
-Recast will guide you to install a local AI model, then you’re ready to rewrite.
+Recast downloads a local AI engine and guides you to install a model. After that, you’re ready to rewrite — no separate apps to install.
