@@ -31,74 +31,80 @@ export default function AppMock({ variant, className = "" }: AppMockProps) {
     : SAMPLE_OUTPUT;
 
   return (
-    <div
-      className={`relative overflow-hidden bg-[#fbcfe8] ${className}`}
-    >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(49,46,129,0.9),transparent_24%),linear-gradient(135deg,#4338ca_0%,#6366f1_24%,#8b5cf6_58%,#ec4899_84%,#fbcfe8_100%)]" />
-      <div className="pointer-events-none absolute inset-0 opacity-95 [background:repeating-linear-gradient(-32deg,rgba(255,255,255,0.09)_0,rgba(255,255,255,0.09)_22px,transparent_22px,transparent_64px)]" />
-      <div className="pointer-events-none absolute inset-0 opacity-60 [background:radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.18),transparent_28%)]" />
+    <div className={`flex h-full w-full flex-col bg-white ${className}`}>
+      {/* Mac window titlebar */}
+      <div className="grid shrink-0 grid-cols-[auto_1fr_auto] items-center gap-2 border-b border-black/[0.06] bg-[#f7f7f8] px-4 py-3">
+        <div className="flex items-center gap-[7px]">
+          <span className="h-3 w-3 rounded-full bg-[#ff5f57]" />
+          <span className="h-3 w-3 rounded-full bg-[#febc2e]" />
+          <span className="h-3 w-3 rounded-full bg-[#28c840]" />
+        </div>
+        <p className="text-center text-[13px] font-medium text-black/35">
+          Recast
+        </p>
+        <div aria-hidden className="h-3 w-[57px]" />
+      </div>
 
-      <div className="relative flex h-full flex-col px-[8.5%] py-[9%]">
-        <div className="rounded-4xl border border-black/8 bg-white px-4 py-4 shadow-[0_10px_30px_rgba(49,46,129,0.2)] md:px-5 md:py-5">
-          <div className="flex items-center gap-2 overflow-hidden">
+      {/* Desktop area the Recast panel floats over */}
+      <div className="relative flex flex-1 flex-col items-center justify-center gap-2.5 bg-[#f4f4f5] px-[7%] py-[6%]">
+        <div className="w-full max-w-[400px] rounded-[20px] border border-black/[0.08] bg-white p-3.5 shadow-[0_2px_10px_rgba(0,0,0,0.05)] md:p-4">
+          <div className="flex items-center gap-1.5 overflow-hidden">
             {STYLE_CHIPS.map((chip) => (
               <span
                 key={chip}
-                className={`shrink-0 rounded-full border px-3 py-1.5 text-[11px] md:px-4 md:text-[12px] ${
+                className={`shrink-0 rounded-full border px-3 py-1.5 text-[12px] font-medium md:px-3.5 md:text-[13px] ${
                   chip === activeChip
                     ? "border-black bg-black text-white"
-                    : "border-black/8 bg-[#fbfbfb] text-black/60"
+                    : "border-black/[0.08] bg-[#fafafa] text-black/50"
                 }`}
               >
                 {chip}
               </span>
             ))}
-
-            <span className="ml-auto inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-black/8 bg-white text-black/40">
-              <ArrowRightIcon />
-            </span>
           </div>
 
           {flirtMode ? (
-            <div className="mt-5">
-              <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.12em] text-black/30 md:text-[11px]">
-                <span>How flirt</span>
-                <span className="text-lg tracking-normal text-black/65">10</span>
+            <div className="mt-3">
+              <div className="flex items-baseline justify-between">
+                <span className="text-[10px] uppercase tracking-[0.08em] text-black/35 md:text-[11px]">
+                  How flirt
+                </span>
+                <span className="text-[13px] tabular-nums text-black/55">
+                  7
+                </span>
               </div>
-              <div className="mt-3 h-3 rounded-full bg-black/8">
-                <div className="relative h-full w-full rounded-full">
-                  <span className="absolute right-0 top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-black shadow-[0_1px_3px_rgba(0,0,0,0.18)]" />
-                </div>
+              <div className="mt-1.5 h-1.5 rounded-full bg-black/[0.08]">
+                <div className="h-full w-[70%] rounded-full bg-black/80" />
               </div>
-              <div className="mt-3 flex justify-between text-sm text-black/32">
+              <div className="mt-1 flex justify-between text-[11px] text-black/35">
                 <span>Normal cringe</span>
                 <span>Most cringy</span>
               </div>
             </div>
           ) : null}
 
-          <div className="mt-4 flex items-end gap-3">
-            <p className="flex-1 text-[19px] leading-[1.45] text-black/90 md:text-[21px]">
+          <div className="mt-3 flex items-center gap-2.5">
+            <p className="flex-1 text-[14px] leading-snug text-black/90 md:text-[15px]">
               {SAMPLE_INPUT}
             </p>
-            <button className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-black text-white shadow-[0_6px_16px_rgba(0,0,0,0.18)]">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black text-white">
               <SendUpIcon />
-            </button>
+            </span>
           </div>
         </div>
 
-        <div className="mt-5 rounded-4xl border border-black/8 bg-white px-4 py-5 shadow-[0_10px_30px_rgba(49,46,129,0.18)] md:px-5">
-          <p className="text-[19px] leading-[1.45] text-black/88 md:text-[21px]">
+        <div className="w-full max-w-[400px] rounded-[20px] border border-black/[0.08] bg-white p-3.5 shadow-[0_2px_10px_rgba(0,0,0,0.05)] md:p-4">
+          <p className="text-[14px] leading-snug text-black/85 md:text-[15px]">
             {outputText}
           </p>
         </div>
 
-        <div className="mt-4 flex items-center justify-between px-2">
+        <div className="flex w-full max-w-[400px] items-center justify-between">
           <ActionIconButton>
             <CopyIcon />
           </ActionIconButton>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
             <ActionIconButton>
               <RotateIcon />
             </ActionIconButton>
@@ -109,14 +115,14 @@ export default function AppMock({ variant, className = "" }: AppMockProps) {
         </div>
 
         {variant === "private" ? (
-          <div className="mt-4 max-w-[320px] rounded-3xl border border-white/55 bg-white/82 px-4 py-3 text-sm text-black/65 shadow-[0_10px_20px_rgba(49,46,129,0.14)] backdrop-blur-sm">
+          <div className="mt-1 max-w-[300px] rounded-2xl border border-black/[0.08] bg-white px-3.5 py-2.5 text-center text-[12px] text-black/60 shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
             Runs locally on your Mac. Your text stays private.
           </div>
         ) : null}
 
         {variant === "hotkey" ? (
-          <div className="mt-4 flex items-center gap-2 self-start rounded-3xl border border-white/55 bg-white/82 px-4 py-3 text-sm text-black/65 shadow-[0_10px_20px_rgba(49,46,129,0.14)] backdrop-blur-sm">
-            <Keycap label="Option" />
+          <div className="mt-1 flex items-center gap-1.5 rounded-2xl border border-black/[0.08] bg-white px-3.5 py-2.5 text-[12px] text-black/60 shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
+            <Keycap label="⌥ Option" />
             <span>+</span>
             <Keycap label="Tab" />
             <span className="ml-1">from anywhere</span>
@@ -129,36 +135,17 @@ export default function AppMock({ variant, className = "" }: AppMockProps) {
 
 function ActionIconButton({ children }: { children: React.ReactNode }) {
   return (
-    <button className="flex h-12 w-12 items-center justify-center rounded-[1.1rem] border border-black/8 bg-white text-black/55 shadow-[0_8px_18px_rgba(49,46,129,0.14)]">
+    <span className="flex h-8 w-8 items-center justify-center rounded-[10px] border border-black/[0.08] bg-white text-black/45">
       {children}
-    </button>
+    </span>
   );
 }
 
 function Keycap({ label }: { label: string }) {
   return (
-    <span className="rounded-lg border border-black/8 bg-white px-2 py-1 text-[11px] font-medium text-black/72">
+    <span className="rounded-lg border border-black/[0.08] bg-[#fafafa] px-2 py-1 text-[11px] font-medium text-black/70">
       {label}
     </span>
-  );
-}
-
-function ArrowRightIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <path d="m9 18 6-6-6-6" />
-    </svg>
   );
 }
 
@@ -166,8 +153,8 @@ function SendUpIcon() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="20"
-      height="20"
+      width="16"
+      height="16"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -186,8 +173,8 @@ function CopyIcon() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="20"
-      height="20"
+      width="16"
+      height="16"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -206,8 +193,8 @@ function RotateIcon() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="21"
-      height="21"
+      width="16"
+      height="16"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -226,8 +213,8 @@ function CloseIcon() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="21"
-      height="21"
+      width="16"
+      height="16"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
