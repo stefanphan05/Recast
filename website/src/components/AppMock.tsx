@@ -32,14 +32,14 @@ export default function AppMock({ variant, className = "" }: AppMockProps) {
 
   return (
     <div
-      className={`relative overflow-hidden rounded-[2.25rem] bg-[#f7d3be] ${className}`}
+      className={`relative overflow-hidden bg-[#fbcfe8] ${className}`}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(84,18,54,0.9),transparent_24%),linear-gradient(135deg,#6c1d51_0%,#c9194f_24%,#e64839_58%,#ff8c58_84%,#f6d5c0_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(49,46,129,0.9),transparent_24%),linear-gradient(135deg,#4338ca_0%,#6366f1_24%,#8b5cf6_58%,#ec4899_84%,#fbcfe8_100%)]" />
       <div className="pointer-events-none absolute inset-0 opacity-95 [background:repeating-linear-gradient(-32deg,rgba(255,255,255,0.09)_0,rgba(255,255,255,0.09)_22px,transparent_22px,transparent_64px)]" />
       <div className="pointer-events-none absolute inset-0 opacity-60 [background:radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.18),transparent_28%)]" />
 
       <div className="relative flex h-full flex-col px-[8.5%] py-[9%]">
-        <div className="rounded-4xl border border-black/8 bg-white px-4 py-4 shadow-[0_10px_30px_rgba(125,37,32,0.2)] md:px-5 md:py-5">
+        <div className="rounded-4xl border border-black/8 bg-white px-4 py-4 shadow-[0_10px_30px_rgba(49,46,129,0.2)] md:px-5 md:py-5">
           <div className="flex items-center gap-2 overflow-hidden">
             {STYLE_CHIPS.map((chip) => (
               <span
@@ -87,7 +87,7 @@ export default function AppMock({ variant, className = "" }: AppMockProps) {
           </div>
         </div>
 
-        <div className="mt-5 rounded-4xl border border-black/8 bg-white px-4 py-5 shadow-[0_10px_30px_rgba(125,37,32,0.18)] md:px-5">
+        <div className="mt-5 rounded-4xl border border-black/8 bg-white px-4 py-5 shadow-[0_10px_30px_rgba(49,46,129,0.18)] md:px-5">
           <p className="text-[19px] leading-[1.45] text-black/88 md:text-[21px]">
             {outputText}
           </p>
@@ -109,13 +109,13 @@ export default function AppMock({ variant, className = "" }: AppMockProps) {
         </div>
 
         {variant === "private" ? (
-          <div className="mt-4 max-w-[320px] rounded-3xl border border-white/55 bg-white/82 px-4 py-3 text-sm text-black/65 shadow-[0_10px_20px_rgba(125,37,32,0.14)] backdrop-blur-sm">
+          <div className="mt-4 max-w-[320px] rounded-3xl border border-white/55 bg-white/82 px-4 py-3 text-sm text-black/65 shadow-[0_10px_20px_rgba(49,46,129,0.14)] backdrop-blur-sm">
             Runs locally on your Mac. Your text stays private.
           </div>
         ) : null}
 
         {variant === "hotkey" ? (
-          <div className="mt-4 flex items-center gap-2 self-start rounded-3xl border border-white/55 bg-white/82 px-4 py-3 text-sm text-black/65 shadow-[0_10px_20px_rgba(125,37,32,0.14)] backdrop-blur-sm">
+          <div className="mt-4 flex items-center gap-2 self-start rounded-3xl border border-white/55 bg-white/82 px-4 py-3 text-sm text-black/65 shadow-[0_10px_20px_rgba(49,46,129,0.14)] backdrop-blur-sm">
             <Keycap label="Option" />
             <span>+</span>
             <Keycap label="Tab" />
@@ -129,7 +129,7 @@ export default function AppMock({ variant, className = "" }: AppMockProps) {
 
 function ActionIconButton({ children }: { children: React.ReactNode }) {
   return (
-    <button className="flex h-12 w-12 items-center justify-center rounded-[1.1rem] border border-black/8 bg-white text-black/55 shadow-[0_8px_18px_rgba(125,37,32,0.14)]">
+    <button className="flex h-12 w-12 items-center justify-center rounded-[1.1rem] border border-black/8 bg-white text-black/55 shadow-[0_8px_18px_rgba(49,46,129,0.14)]">
       {children}
     </button>
   );
