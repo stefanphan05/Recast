@@ -1,4 +1,4 @@
-import Link from "next/link";
+import UnderlineLink from "@/components/UnderlineLink";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import DownloadButton from "@/components/DownloadButton";
@@ -13,14 +13,12 @@ export default function DownloadPage() {
     <>
       <SiteHeader />
       <main className="mx-auto flex min-h-[70dvh] max-w-2xl flex-col justify-center px-6 py-16">
-        <div className="site-card rounded-3xl p-8 md:p-10">
-          <p className="text-sm font-medium uppercase tracking-[0.12em] text-(--muted)">
-            Recast for Mac
-          </p>
-          <h1 className="font-display mt-2 text-4xl tracking-tight text-(--foreground)">
+        <div className="site-card p-8 md:p-10">
+          <p className="eyebrow">Recast for Mac</p>
+          <h1 className="mt-2 text-4xl font-semibold tracking-tight text-foreground">
             Download for Mac
           </h1>
-          <p className="mt-3 text-base leading-relaxed text-(--muted)">
+          <p className="mt-3 text-base leading-relaxed text-muted-foreground">
             Rewrite messages in different styles using AI that runs entirely on
             your Mac. Your text never leaves your device.
           </p>
@@ -29,23 +27,22 @@ export default function DownloadPage() {
             Download for Mac (Apple Silicon)
           </DownloadButton>
 
-          <div className="mt-4 rounded-2xl border border-[rgba(17,17,16,0.1)] bg-[rgba(17,17,16,0.03)] px-4 py-3 text-sm leading-relaxed text-(--muted)">
-            <p className="font-medium text-(--foreground)">
-              Unsigned app note
-            </p>
+          <div className="mt-4 rounded-xl border border-border bg-accent/40 px-4 py-3 text-sm leading-relaxed text-muted-foreground">
+            <p className="font-medium text-foreground">Unsigned app note</p>
             <p className="mt-1">
               macOS may say Recast can&apos;t be opened, is damaged, or is blocked.
               First try right-clicking the app in Applications and choosing{" "}
-              <strong>Open</strong>. If that still fails, open Terminal and run:
+              <strong className="text-foreground">Open</strong>. If that still
+              fails, open Terminal and run:
             </p>
-            <pre className="mt-3 overflow-x-auto rounded-xl border border-(--border) bg-[rgba(17,17,16,0.05)] px-3 py-2 font-mono text-xs text-(--foreground)">
+            <pre className="mt-3 overflow-x-auto rounded-lg border border-border bg-card px-3 py-2 font-mono text-xs text-foreground">
               xattr -cr /Applications/Recast.app
             </pre>
           </div>
 
-          <div className="mt-8 space-y-6 text-sm leading-relaxed text-(--muted)">
+          <div className="mt-8 space-y-6 text-sm leading-relaxed text-muted-foreground">
             <section>
-              <h2 className="text-base font-medium text-(--foreground)">
+              <h2 className="text-base font-medium text-foreground">
                 First-time setup
               </h2>
               <ol className="mt-2 list-decimal space-y-1 pl-5">
@@ -54,13 +51,16 @@ export default function DownloadPage() {
                 </li>
                 <li>
                   Right-click Recast in Applications and choose{" "}
-                  <strong>Open</strong> (required for unsigned builds)
+                  <strong className="text-foreground">Open</strong> (required
+                  for unsigned builds)
                 </li>
                 <li>
                   If macOS still says the app is damaged or blocked, open{" "}
-                  <strong>Terminal</strong>, run{" "}
-                  <code>xattr -cr /Applications/Recast.app</code>, then try
-                  opening Recast again
+                  <strong className="text-foreground">Terminal</strong>, run{" "}
+                  <code className="font-mono text-foreground">
+                    xattr -cr /Applications/Recast.app
+                  </code>
+                  , then try opening Recast again
                 </li>
                 <li>
                   Follow the in-app wizard to choose and download an AI model
@@ -69,7 +69,7 @@ export default function DownloadPage() {
             </section>
 
             <section>
-              <h2 className="text-base font-medium text-(--foreground)">
+              <h2 className="text-base font-medium text-foreground">
                 Requirements
               </h2>
               <ul className="mt-2 list-disc space-y-1 pl-5">
@@ -83,12 +83,12 @@ export default function DownloadPage() {
             </section>
 
             <section>
-              <h2 className="text-base font-medium text-(--foreground)">
+              <h2 className="text-base font-medium text-foreground">
                 Keyboard shortcut
               </h2>
               <p className="mt-2">
                 Press{" "}
-                <kbd className="rounded border border-(--border) bg-[rgba(17,17,16,0.04)] px-1.5 py-0.5 font-mono text-xs text-(--foreground)">
+                <kbd className="rounded border border-border bg-accent px-1.5 py-0.5 font-mono text-xs text-foreground">
                   Option+Tab
                 </kbd>{" "}
                 to show or hide Recast from anywhere on your Mac.
@@ -96,10 +96,10 @@ export default function DownloadPage() {
             </section>
           </div>
 
-          <p className="mt-8 text-sm text-(--muted)">
-            <Link href="/" className="underline underline-offset-2 hover:text-(--foreground)">
+          <p className="mt-8 text-sm text-muted-foreground">
+            <UnderlineLink href="/" showIcon={false}>
               Back to home
-            </Link>
+            </UnderlineLink>
           </p>
         </div>
       </main>
