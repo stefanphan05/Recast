@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, Manrope } from "next/font/google";
+import { Geist_Mono, Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
-const manrope = Manrope({
-  variable: "--font-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument-serif",
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
   subsets: ["latin"],
-  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -18,6 +18,14 @@ export const metadata: Metadata = {
   description:
     "Paste your message, pick a tone, and get a rewritten version in seconds. Local AI for Mac — your text never leaves your device.",
 };
+
+const THEME_INIT_SCRIPT = `
+try {
+  var stored = localStorage.getItem("recast-theme");
+  var theme = stored === "light" || stored === "dark" ? stored : "dark";
+  document.documentElement.classList.toggle("dark", theme === "dark");
+} catch (e) {}
+`;
 
 export default function RootLayout({
   children,
@@ -27,9 +35,15 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${manrope.variable} ${instrumentSerif.variable} antialiased`}
+      className={`dark ${inter.variable} ${geistMono.variable} antialiased`}
+      suppressHydrationWarning
     >
-      <body>{children}</body>
+      <body>
+        <Script id="theme-init" strategy="beforeInteractive">
+          {THEME_INIT_SCRIPT}
+        </Script>
+        {children}
+      </body>
     </html>
   );
 }
