@@ -56,7 +56,6 @@ export default function Hero() {
             <DemoImage
               variant="hero"
               alt="Recast rewrite interface on Mac"
-              priority
               className="aspect-[4/3] w-full"
             />
           </div>

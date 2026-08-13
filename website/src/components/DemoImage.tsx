@@ -5,7 +5,6 @@ type DemoImageProps = {
   variant: DemoId | "hero";
   alt: string;
   className?: string;
-  priority?: boolean;
 };
 
 export default function DemoImage({

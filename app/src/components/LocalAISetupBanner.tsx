@@ -11,7 +11,11 @@ import {
   formatPullProgressLine,
   usePullProgressTracking,
 } from "@/hooks/usePullProgress";
-import type { LocalAIEngineProgress } from "@/types/local-ai-engine";
+import {
+  getEngineProgressPercent,
+  isEngineSettingUp,
+  type LocalAIEngineProgress,
+} from "@/types/local-ai-engine";
 import { useCallback, useEffect, useState } from "react";
 
 type LocalAISetupBannerProps = {
@@ -125,11 +129,11 @@ export default function LocalAISetupBanner({
     return null;
   }
 
-  const engineBusy =
-    recovering &&
-    !downloadProgress &&
-    engineProgress !== null &&
-    engineProgress.phase !== "ready";
+  const engineBusy = isEngineSettingUp(
+    recovering,
+    Boolean(downloadProgress),
+    engineProgress,
+  );
 
   return (
     <div
@@ -155,38 +159,20 @@ export default function LocalAISetupBanner({
           )}
 
           {engineBusy ? (
-            <div className="mt-2 space-y-1">
-              <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-amber-200 dark:bg-amber-900">
-                <div
-                  className="h-full rounded-full bg-amber-800 transition-all dark:bg-amber-200"
-                  style={{
-                    width: `${engineProgress?.percent ?? (engineProgress?.phase === "extracting" ? 100 : 8)}%`,
-                  }}
-                />
-              </div>
-              <p className="text-xs text-amber-900/80 dark:text-amber-100/80">
-                {engineProgress?.message || "Setting up AI engine…"}
-              </p>
-            </div>
+            <AmberProgressBar
+              percent={getEngineProgressPercent(engineProgress)}
+              message={engineProgress?.message || "Setting up AI engine…"}
+            />
           ) : null}
 
           {recovering && downloadProgress ? (
-            <div className="mt-2 space-y-1">
-              <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-amber-200 dark:bg-amber-900">
-                <div
-                  className="h-full rounded-full bg-amber-800 transition-all dark:bg-amber-200"
-                  style={{
-                    width: `${progressPercent ?? 8}%`,
-                  }}
-                />
-              </div>
-              <p className="text-xs text-amber-900/80 dark:text-amber-100/80">
-                {formatPullProgressLine(downloadProgress, {
-                  percent: progressPercent,
-                  etaSeconds,
-                })}
-              </p>
-            </div>
+            <AmberProgressBar
+              percent={progressPercent ?? 8}
+              message={formatPullProgressLine(downloadProgress, {
+                percent: progressPercent,
+                etaSeconds,
+              })}
+            />
           ) : null}
 
           {errorMessage ? (
@@ -234,6 +220,28 @@ export default function LocalAISetupBanner({
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function AmberProgressBar({
+  percent,
+  message,
+}: {
+  percent: number;
+  message: string;
+}) {
+  return (
+    <div className="mt-2 space-y-1">
+      <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-amber-200 dark:bg-amber-900">
+        <div
+          className="h-full rounded-full bg-amber-800 transition-all dark:bg-amber-200"
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+      <p className="text-xs text-amber-900/80 dark:text-amber-100/80">
+        {message}
+      </p>
     </div>
   );
 }

@@ -12,16 +12,22 @@ export const DRAG_STYLE = {
   WebkitAppRegion: "drag",
 } as CSSProperties;
 
-type CloseWindowButtonProps = {
-  className?: string;
-};
-
-export function CloseWindowButton({ className = "" }: CloseWindowButtonProps) {
+function useIsElectron(): boolean {
   const [isElectron, setIsElectron] = useState(false);
 
   useEffect(() => {
     setIsElectron(Boolean(window.electronAPI));
   }, []);
+
+  return isElectron;
+}
+
+type CloseWindowButtonProps = {
+  className?: string;
+};
+
+export function CloseWindowButton({ className = "" }: CloseWindowButtonProps) {
+  const isElectron = useIsElectron();
 
   if (!isElectron) return null;
 
@@ -52,11 +58,7 @@ export function CloseWindowButton({ className = "" }: CloseWindowButtonProps) {
 }
 
 export default function WindowChrome() {
-  const [isElectron, setIsElectron] = useState(false);
-
-  useEffect(() => {
-    setIsElectron(Boolean(window.electronAPI));
-  }, []);
+  const isElectron = useIsElectron();
 
   if (!isElectron) return null;
 

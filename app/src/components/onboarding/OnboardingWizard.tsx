@@ -17,7 +17,11 @@ import {
   formatPullProgressLine,
   usePullProgressTracking,
 } from "@/hooks/usePullProgress";
-import type { LocalAIEngineProgress } from "@/types/local-ai-engine";
+import {
+  getEngineProgressPercent,
+  isEngineSettingUp,
+  type LocalAIEngineProgress,
+} from "@/types/local-ai-engine";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type OnboardingStep = "welcome" | "model" | "download" | "preparing" | "done";
@@ -158,11 +162,11 @@ export default function OnboardingWizard() {
   const { progressPercent, etaSeconds } =
     usePullProgressTracking(downloadProgress);
 
-  const settingUpEngine =
-    downloading &&
-    !downloadProgress &&
-    engineProgress !== null &&
-    engineProgress.phase !== "ready";
+  const settingUpEngine = isEngineSettingUp(
+    downloading,
+    Boolean(downloadProgress),
+    engineProgress,
+  );
 
   const headline =
     step === "preparing"
@@ -188,8 +192,7 @@ export default function OnboardingWizard() {
     );
 
   const barPercent = settingUpEngine
-    ? (engineProgress?.percent ??
-      (engineProgress?.phase === "extracting" ? 100 : 8))
+    ? getEngineProgressPercent(engineProgress)
     : (progressPercent ?? (downloading ? 8 : 0));
 
   const statusLine = settingUpEngine

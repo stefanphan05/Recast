@@ -1,7 +1,6 @@
 "use client";
 
-import GenzIntensitySlider from "@/components/rewrite/GenzIntensitySlider";
-import FlirtIntensitySlider from "@/components/rewrite/FlirtIntensitySlider";
+import IntensitySlider from "@/components/rewrite/IntensitySlider";
 import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
 import { STYLE_OPTIONS, type RewriteStyle } from "@/lib/rewrite";
 import { useRef } from "react";
@@ -49,30 +48,28 @@ export default function StylePicker({
           role="tablist"
           aria-label="Rewrite style"
         >
-          {STYLE_OPTIONS.map(({ value, label }) => (
-            <button
-              key={value}
-              type="button"
-              role="tab"
-              aria-selected={style === value}
-              onClick={() => onStyleChange(value)}
-              className={`shrink-0 cursor-pointer whitespace-nowrap transition-colors ${
-                embedded
-                  ? `rounded-full border px-3 py-1 text-[12px] ${
-                      style === value
-                        ? "border-neutral-950 bg-neutral-950 text-white dark:border-neutral-50 dark:bg-neutral-50 dark:text-neutral-950"
-                        : "glass-surface border text-neutral-600 hover:border-neutral-400/70 hover:text-neutral-950 dark:text-neutral-400 dark:hover:border-neutral-500/70 dark:hover:text-neutral-50"
-                    }`
-                  : `w-[76px] rounded-xl border px-2 py-2 text-center text-[13px] ${
-                      style === value
-                        ? "border-neutral-950 bg-neutral-950 text-white dark:border-neutral-50 dark:bg-neutral-50 dark:text-neutral-950"
-                        : "glass-surface border text-neutral-600 hover:border-neutral-400/70 hover:text-neutral-950 dark:text-neutral-400 dark:hover:border-neutral-500/70 dark:hover:text-neutral-50"
-                    }`
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+          {STYLE_OPTIONS.map(({ value, label }) => {
+            const shapeClass = embedded
+              ? "rounded-full border px-3 py-1 text-[12px]"
+              : "w-[76px] rounded-xl border px-2 py-2 text-center text-[13px]";
+            const colorClass =
+              style === value
+                ? "border-neutral-950 bg-neutral-950 text-white dark:border-neutral-50 dark:bg-neutral-50 dark:text-neutral-950"
+                : "glass-surface border text-neutral-600 hover:border-neutral-400/70 hover:text-neutral-950 dark:text-neutral-400 dark:hover:border-neutral-500/70 dark:hover:text-neutral-50";
+
+            return (
+              <button
+                key={value}
+                type="button"
+                role="tab"
+                aria-selected={style === value}
+                onClick={() => onStyleChange(value)}
+                className={`shrink-0 cursor-pointer whitespace-nowrap transition-colors ${shapeClass} ${colorClass}`}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
         <ScrollArrow
           direction="left"
@@ -88,16 +85,24 @@ export default function StylePicker({
         />
       </div>
       {style === "genz" ? (
-        <GenzIntensitySlider
+        <IntensitySlider
           value={genzIntensity}
           onChange={onGenzIntensityChange}
+          label="How Gen Z"
+          ariaLabel="Gen Z intensity"
+          minLabel="Less"
+          maxLabel="Most"
           compact={embedded}
         />
       ) : null}
       {style === "flirt" ? (
-        <FlirtIntensitySlider
+        <IntensitySlider
           value={flirtIntensity}
           onChange={onFlirtIntensityChange}
+          label="How flirt"
+          ariaLabel="Flirt intensity"
+          minLabel="Normal cringe"
+          maxLabel="Most cringy"
           compact={embedded}
         />
       ) : null}

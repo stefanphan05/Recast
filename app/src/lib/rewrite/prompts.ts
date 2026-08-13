@@ -32,9 +32,6 @@ export const REWRITE_SYSTEM_INSTRUCTION = [
 const PRESERVE_INPUT_LANGUAGE_RULE =
   "Preserve the input message language exactly. Change tone and wording only—never translate or switch languages unless the user prompt specifies a target language.";
 
-/** @deprecated Use buildSystemInstruction */
-export const SYSTEM_INSTRUCTION = REWRITE_SYSTEM_INSTRUCTION;
-
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
