@@ -1,4 +1,4 @@
-import UnderlineLink from "@/components/UnderlineLink";
+import UnderlineLink from "@/components/ui/UnderlineLink";
 
 export default function SiteFooter() {
   return (

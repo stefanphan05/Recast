@@ -1,4 +1,4 @@
-import AppMock, { type AppMockVariant } from "@/components/AppMock";
+import AppMock, { type AppMockVariant } from "@/components/app-mock/AppMock";
 
 type AppMockFrameProps = {
   variant: AppMockVariant;

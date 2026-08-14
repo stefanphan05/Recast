@@ -1,7 +1,7 @@
-import UnderlineLink from "@/components/UnderlineLink";
-import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
-import DownloadButton from "@/components/DownloadButton";
+import UnderlineLink from "@/components/ui/UnderlineLink";
+import SiteHeader from "@/components/layout/SiteHeader";
+import SiteFooter from "@/components/layout/SiteFooter";
+import DownloadButton from "@/components/ui/DownloadButton";
 
 export const metadata = {
   title: "Download Recast for Mac",

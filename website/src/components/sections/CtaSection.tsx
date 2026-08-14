@@ -1,4 +1,4 @@
-import DownloadButton from "@/components/DownloadButton";
+import DownloadButton from "@/components/ui/DownloadButton";
 
 export default function CtaSection() {
   return (

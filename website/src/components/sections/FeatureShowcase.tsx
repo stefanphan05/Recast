@@ -1,4 +1,4 @@
-import AppMockFrame from "@/components/AppMockFrame";
+import AppMockFrame from "@/components/app-mock/AppMockFrame";
 
 function HotkeyVisual() {
   return (

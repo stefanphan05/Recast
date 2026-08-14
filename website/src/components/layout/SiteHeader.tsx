@@ -1,7 +1,7 @@
 import Link from "next/link";
-import UnderlineLink from "@/components/UnderlineLink";
-import ThemeToggle from "@/components/ThemeToggle";
-import DownloadButton from "@/components/DownloadButton";
+import UnderlineLink from "@/components/ui/UnderlineLink";
+import ThemeToggle from "@/components/ui/ThemeToggle";
+import DownloadButton from "@/components/ui/DownloadButton";
 
 const NAV_LINKS = [
   { href: "/#features", label: "Features" },

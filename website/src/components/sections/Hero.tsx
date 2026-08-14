@@ -1,6 +1,6 @@
-import DownloadButton from "@/components/DownloadButton";
-import AppMockFrame from "@/components/AppMockFrame";
-import UnderlineLink from "@/components/UnderlineLink";
+import DownloadButton from "@/components/ui/DownloadButton";
+import AppMockFrame from "@/components/app-mock/AppMockFrame";
+import UnderlineLink from "@/components/ui/UnderlineLink";
 
 export default function Hero() {
   return (
