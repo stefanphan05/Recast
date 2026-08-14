@@ -1,17 +1,16 @@
-import AppMock from "@/components/AppMock";
-import type { DemoId } from "@/lib/demos";
+import AppMock, { type AppMockVariant } from "@/components/AppMock";
 
-type DemoImageProps = {
-  variant: DemoId | "hero";
+type AppMockFrameProps = {
+  variant: AppMockVariant;
   alt: string;
   className?: string;
 };
 
-export default function DemoImage({
+export default function AppMockFrame({
   variant,
   alt,
   className = "",
-}: DemoImageProps) {
+}: AppMockFrameProps) {
   return (
     <div
       className={`demo-frame relative overflow-hidden bg-white ${className}`}

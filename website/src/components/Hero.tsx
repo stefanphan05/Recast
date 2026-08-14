@@ -1,5 +1,5 @@
 import DownloadButton from "@/components/DownloadButton";
-import DemoImage from "@/components/DemoImage";
+import AppMockFrame from "@/components/AppMockFrame";
 import UnderlineLink from "@/components/UnderlineLink";
 
 export default function Hero() {
@@ -60,7 +60,7 @@ export default function Hero() {
           </div>
 
           <div className="animate-scale-in relative">
-            <DemoImage
+            <AppMockFrame
               variant="hero"
               alt="Recast rewrite interface on Mac"
               className="aspect-[4/3] w-full"

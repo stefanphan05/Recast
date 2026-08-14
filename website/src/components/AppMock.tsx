@@ -1,6 +1,6 @@
 "use client";
 
-type AppMockVariant = "hero" | "tones" | "hotkey" | "private" | "fast";
+export type AppMockVariant = "hero" | "tones" | "hotkey" | "private" | "fast";
 
 type AppMockProps = {
   variant: AppMockVariant;

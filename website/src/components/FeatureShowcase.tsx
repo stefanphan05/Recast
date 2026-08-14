@@ -1,4 +1,4 @@
-import DemoImage from "@/components/DemoImage";
+import AppMockFrame from "@/components/AppMockFrame";
 
 function HotkeyVisual() {
   return (
@@ -53,7 +53,7 @@ export default function FeatureShowcase() {
 
         <div className="grid gap-3 md:grid-cols-3">
           <div className="site-card shadow-depth hover-lift overflow-hidden md:col-span-2 md:row-span-2">
-            <DemoImage
+            <AppMockFrame
               variant="tones"
               alt="Tone picker — Recast rewrite interface"
               className="aspect-[4/3] w-full md:h-full md:aspect-auto"
