@@ -1,4 +1,4 @@
-const { BrowserWindow, screen } = require("electron");
+const { BrowserWindow } = require("electron");
 const path = require("path");
 const { isDev, isMac } = require("../env");
 const {
@@ -179,17 +179,9 @@ function setWindowLayout(mode, contentHeight, animate = true) {
   const height = getLayoutHeight(mode, contentHeight, currentHeight);
   mainWindow.setMinimumSize(WINDOW_WIDTH, PROMPT_WINDOW_ABSOLUTE_MIN_HEIGHT);
 
-  if (mode === "prompt" || mode === "onboarding") {
-    mainWindow.setSize(WINDOW_WIDTH, height, animate);
-    return;
-  }
-
-  const bounds = mainWindow.getBounds();
+  // Resize only — the window keeps wherever the user dragged it. Repositioning
+  // happens on summon (positionWindowTopCenter), never on a layout change.
   mainWindow.setSize(WINDOW_WIDTH, height, animate);
-  const display = screen.getDisplayMatching(bounds);
-  const { x: areaX, width: areaW } = display.workArea;
-  const x = Math.round(areaX + (areaW - WINDOW_WIDTH) / 2);
-  mainWindow.setPosition(x, bounds.y, false);
 }
 
 module.exports = {
