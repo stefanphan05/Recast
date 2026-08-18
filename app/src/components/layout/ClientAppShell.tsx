@@ -6,9 +6,11 @@ import RewriteWorkspace from "@/components/rewrite/RewriteWorkspace";
 import WindowChrome from "@/components/layout/WindowChrome";
 import { AppSettingsProvider, useAppSettings } from "@/hooks/useAppSettings";
 import { WINDOW_MAX_HEIGHT_PX } from "@/components/rewrite/constants";
+import { visibleStyleOptions } from "@/lib/rewrite";
 import {
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -20,6 +22,11 @@ function AppShell() {
   const [workspaceExpanded, setWorkspaceExpanded] = useState(false);
 
   const showOnboarding = isElectron && !loading && !settings.onboardingComplete;
+
+  const visibleStyles = useMemo(
+    () => visibleStyleOptions(settings.styleOrder, settings.hiddenStyles),
+    [settings.styleOrder, settings.hiddenStyles],
+  );
 
   useLayoutEffect(() => {
     if (!isElectron || showOnboarding || !workspaceExpanded) return;
@@ -76,6 +83,7 @@ function AppShell() {
           >
             <RewriteWorkspace
               selectedModel={settings.selectedModel}
+              visibleStyles={visibleStyles}
               onExpandedChange={setWorkspaceExpanded}
             />
           </div>

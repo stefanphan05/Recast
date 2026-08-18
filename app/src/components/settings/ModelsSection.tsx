@@ -14,7 +14,7 @@ import {
 } from "@/hooks/usePullProgress";
 import { useCallback, useEffect, useState } from "react";
 
-export default function AISection() {
+export default function ModelsSection() {
   const { settings, updateSettings } = useAppSettings();
   const [selectedModel, setSelectedModel] = useState(settings.selectedModel);
   const [downloading, setDownloading] = useState(false);
@@ -73,7 +73,7 @@ export default function AISection() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold text-neutral-950 dark:text-neutral-50">
-          AI
+          Models
         </h2>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
           Choose which local model Recast uses for rewrites.

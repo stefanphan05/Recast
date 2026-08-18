@@ -3,7 +3,7 @@
 import StylePicker from "@/components/rewrite/StylePicker";
 import { MAX_CHARS, PANEL_SURFACE_CLASS } from "@/components/rewrite/constants";
 import { useAutoResizeTextarea } from "@/hooks/useAutoResizeTextarea";
-import type { RewriteStyle } from "@/lib/rewrite";
+import type { RewriteStyle, StyleOption } from "@/lib/rewrite";
 import { useRef, type KeyboardEvent } from "react";
 
 type PromptComposerProps = {
@@ -11,6 +11,7 @@ type PromptComposerProps = {
   onChange: (value: string) => void;
   style: RewriteStyle;
   onStyleChange: (style: RewriteStyle) => void;
+  styleOptions: StyleOption[];
   genzIntensity: number;
   onGenzIntensityChange: (value: number) => void;
   flirtIntensity: number;
@@ -26,6 +27,7 @@ export default function PromptComposer({
   onChange,
   style,
   onStyleChange,
+  styleOptions,
   genzIntensity,
   onGenzIntensityChange,
   flirtIntensity,
@@ -71,6 +73,7 @@ export default function PromptComposer({
         variant="embedded"
         style={style}
         onStyleChange={onStyleChange}
+        styleOptions={styleOptions}
         genzIntensity={genzIntensity}
         onGenzIntensityChange={onGenzIntensityChange}
         flirtIntensity={flirtIntensity}

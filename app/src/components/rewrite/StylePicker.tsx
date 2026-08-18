@@ -2,12 +2,13 @@
 
 import IntensitySlider from "@/components/rewrite/IntensitySlider";
 import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
-import { STYLE_OPTIONS, type RewriteStyle } from "@/lib/rewrite";
+import type { RewriteStyle, StyleOption } from "@/lib/rewrite";
 import { useRef } from "react";
 
 type StylePickerProps = {
   style: RewriteStyle;
   onStyleChange: (style: RewriteStyle) => void;
+  styleOptions: StyleOption[];
   genzIntensity: number;
   onGenzIntensityChange: (value: number) => void;
   flirtIntensity: number;
@@ -18,6 +19,7 @@ type StylePickerProps = {
 export default function StylePicker({
   style,
   onStyleChange,
+  styleOptions,
   genzIntensity,
   onGenzIntensityChange,
   flirtIntensity,
@@ -27,7 +29,7 @@ export default function StylePicker({
   const embedded = variant === "embedded";
   const stripRef = useRef<HTMLDivElement>(null);
   const { canScrollLeft, canScrollRight, onScroll, scroll } =
-    useHorizontalScroll(stripRef);
+    useHorizontalScroll(stripRef, styleOptions);
 
   return (
     <div className="flex flex-col">
@@ -40,36 +42,41 @@ export default function StylePicker({
         <div
           ref={stripRef}
           onScroll={onScroll}
-          className={`scrollbar-hide grid w-full grid-flow-col overflow-x-auto ${
-            embedded
-              ? "auto-cols-max gap-1.5"
-              : "auto-cols-[76px] gap-1.5"
-          }`}
-          role="tablist"
-          aria-label="Rewrite style"
+          className="scrollbar-hide w-full overflow-x-auto"
         >
-          {STYLE_OPTIONS.map(({ value, label }) => {
-            const shapeClass = embedded
-              ? "rounded-full border px-3 py-1 text-[12px]"
-              : "w-[76px] rounded-xl border px-2 py-2 text-center text-[13px]";
-            const colorClass =
-              style === value
-                ? "border-neutral-950 bg-neutral-950 text-white dark:border-neutral-50 dark:bg-neutral-50 dark:text-neutral-950"
-                : "glass-surface border text-neutral-600 hover:border-neutral-400/70 hover:text-neutral-950 dark:text-neutral-400 dark:hover:border-neutral-500/70 dark:hover:text-neutral-50";
+          {/**
+           * `w-max min-w-full` lets the track fill the row when the modes fit
+           * (each button grows to share the space) and fall back to natural
+           * widths + horizontal scrolling when they don't.
+           */}
+          <div
+            className="flex w-max min-w-full gap-1.5"
+            role="tablist"
+            aria-label="Rewrite style"
+          >
+            {styleOptions.map(({ value, label }) => {
+              const shapeClass = embedded
+                ? "rounded-full border px-3 py-1 text-[12px]"
+                : "min-w-[76px] rounded-xl border px-2 py-2 text-center text-[13px]";
+              const colorClass =
+                style === value
+                  ? "border-neutral-950 bg-neutral-950 text-white dark:border-neutral-50 dark:bg-neutral-50 dark:text-neutral-950"
+                  : "glass-surface border text-neutral-600 hover:border-neutral-400/70 hover:text-neutral-950 dark:text-neutral-400 dark:hover:border-neutral-500/70 dark:hover:text-neutral-50";
 
-            return (
-              <button
-                key={value}
-                type="button"
-                role="tab"
-                aria-selected={style === value}
-                onClick={() => onStyleChange(value)}
-                className={`shrink-0 cursor-pointer whitespace-nowrap transition-colors ${shapeClass} ${colorClass}`}
-              >
-                {label}
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  role="tab"
+                  aria-selected={style === value}
+                  onClick={() => onStyleChange(value)}
+                  className={`shrink-0 grow basis-auto cursor-pointer whitespace-nowrap transition-colors ${shapeClass} ${colorClass}`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
         </div>
         <ScrollArrow
           direction="left"

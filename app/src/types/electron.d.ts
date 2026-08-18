@@ -6,6 +6,10 @@ export type AppSettings = {
   globalHotkey: string;
   showMenuBarIcon: boolean;
   hideDockIcon: boolean;
+  /** User-defined order of rewrite mode ids; empty = built-in order */
+  styleOrder: string[];
+  /** Rewrite mode ids hidden from the rewrite bar */
+  hiddenStyles: string[];
 };
 
 export type { LocalAIEngineProgress };
