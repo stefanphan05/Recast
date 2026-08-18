@@ -19,6 +19,8 @@ const WEB_DEFAULT_SETTINGS: AppSettings = {
   globalHotkey: DEFAULT_GLOBAL_HOTKEY,
   showMenuBarIcon: true,
   hideDockIcon: false,
+  styleOrder: [],
+  hiddenStyles: [],
 };
 
 type AppSettingsContextValue = {

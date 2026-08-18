@@ -6,24 +6,30 @@ import { EXPANDED_BLOCK_GAP_CLASS, MAX_CHARS } from "@/components/rewrite/consta
 import {
   SOURCE_LANGUAGE_AUTO,
   TARGET_LANGUAGE_SAME,
+  resolveActiveStyle,
   type RewriteStyle,
+  type StyleOption,
 } from "@/lib/rewrite";
 import { requestRewrite, rewriteErrorMessage } from "@/lib/rewrite/client";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
-const INITIAL_STYLE: RewriteStyle = "grammar";
 const INITIAL_GENZ_INTENSITY = 5;
 const INITIAL_FLIRT_INTENSITY = 5;
 
 export default function RewriteWorkspace({
   selectedModel,
+  visibleStyles,
   onExpandedChange,
 }: {
   selectedModel: string;
+  visibleStyles: StyleOption[];
   onExpandedChange?: (expanded: boolean) => void;
 }) {
+  const initialStyle = visibleStyles[0].value;
   const [text, setText] = useState("");
-  const [style, setStyle] = useState<RewriteStyle>(INITIAL_STYLE);
+  const [selectedStyle, setStyle] = useState<RewriteStyle>(initialStyle);
+  /** The picked mode can be hidden from settings while this window is open. */
+  const style = resolveActiveStyle(selectedStyle, visibleStyles);
   const [genzIntensity, setGenzIntensity] = useState(INITIAL_GENZ_INTENSITY);
   const [flirtIntensity, setFlirtIntensity] = useState(INITIAL_FLIRT_INTENSITY);
   const [result, setResult] = useState("");
@@ -36,14 +42,14 @@ export default function RewriteWorkspace({
   const resetWorkspace = useCallback(() => {
     requestIdRef.current += 1;
     setText("");
-    setStyle(INITIAL_STYLE);
+    setStyle(initialStyle);
     setGenzIntensity(INITIAL_GENZ_INTENSITY);
     setFlirtIntensity(INITIAL_FLIRT_INTENSITY);
     setResult("");
     setIsLoading(false);
     setErrorMessage(null);
     window.electronAPI?.setLayout("prompt");
-  }, []);
+  }, [initialStyle]);
 
   useEffect(() => {
     const unsubscribe = window.electronAPI?.onWindowHidden(resetWorkspace);
@@ -110,6 +116,7 @@ export default function RewriteWorkspace({
           onChange={setText}
           style={style}
           onStyleChange={setStyle}
+          styleOptions={visibleStyles}
           genzIntensity={genzIntensity}
           onGenzIntensityChange={setGenzIntensity}
           flirtIntensity={flirtIntensity}

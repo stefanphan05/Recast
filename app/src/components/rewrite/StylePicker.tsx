@@ -2,12 +2,13 @@
 
 import IntensitySlider from "@/components/rewrite/IntensitySlider";
 import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
-import { STYLE_OPTIONS, type RewriteStyle } from "@/lib/rewrite";
+import type { RewriteStyle, StyleOption } from "@/lib/rewrite";
 import { useRef } from "react";
 
 type StylePickerProps = {
   style: RewriteStyle;
   onStyleChange: (style: RewriteStyle) => void;
+  styleOptions: StyleOption[];
   genzIntensity: number;
   onGenzIntensityChange: (value: number) => void;
   flirtIntensity: number;
@@ -18,6 +19,7 @@ type StylePickerProps = {
 export default function StylePicker({
   style,
   onStyleChange,
+  styleOptions,
   genzIntensity,
   onGenzIntensityChange,
   flirtIntensity,
@@ -48,7 +50,7 @@ export default function StylePicker({
           role="tablist"
           aria-label="Rewrite style"
         >
-          {STYLE_OPTIONS.map(({ value, label }) => {
+          {styleOptions.map(({ value, label }) => {
             const shapeClass = embedded
               ? "rounded-full border px-3 py-1 text-[12px]"
               : "w-[76px] rounded-xl border px-2 py-2 text-center text-[13px]";
