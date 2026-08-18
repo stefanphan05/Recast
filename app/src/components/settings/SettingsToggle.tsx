@@ -27,26 +27,44 @@ export default function SettingsToggle({
           </p>
         ) : null}
       </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        aria-label={label}
+      <ToggleSwitch
+        label={label}
+        checked={checked}
         disabled={disabled}
-        onClick={() => onChange(!checked)}
-        className={`relative mt-0.5 inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border border-transparent transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950 disabled:cursor-not-allowed disabled:opacity-50 dark:focus-visible:outline-neutral-50 ${
-          checked
-            ? "bg-neutral-950 dark:bg-neutral-50"
-            : "bg-neutral-200 dark:bg-neutral-700"
-        }`}
-      >
-        <span
-          aria-hidden
-          className={`pointer-events-none inline-block h-5 w-5 translate-y-0.5 rounded-full bg-white shadow-sm transition-transform dark:bg-neutral-950 ${
-            checked ? "translate-x-[22px]" : "translate-x-0.5"
-          }`}
-        />
-      </button>
+        onChange={onChange}
+        className="mt-0.5"
+      />
     </div>
+  );
+}
+
+export function ToggleSwitch({
+  label,
+  checked,
+  disabled,
+  onChange,
+  className = "",
+}: Omit<SettingsToggleProps, "description"> & { className?: string }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border border-transparent transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950 disabled:cursor-not-allowed disabled:opacity-50 dark:focus-visible:outline-neutral-50 ${
+        checked
+          ? "bg-neutral-950 dark:bg-neutral-50"
+          : "bg-neutral-200 dark:bg-neutral-700"
+      } ${className}`}
+    >
+      <span
+        aria-hidden
+        className={`pointer-events-none inline-block h-5 w-5 translate-y-0.5 rounded-full bg-white shadow-sm transition-transform dark:bg-neutral-950 ${
+          checked ? "translate-x-[22px]" : "translate-x-0.5"
+        }`}
+      />
+    </button>
   );
 }
