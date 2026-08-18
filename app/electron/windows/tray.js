@@ -1,24 +1,14 @@
 const { app, Menu, Tray, nativeImage } = require("electron");
-const fs = require("fs");
 const path = require("path");
-const { isMac } = require("./env");
-const { readSettings } = require("./settings-store");
+const { isMac } = require("../env");
+const { readSettings } = require("../settings-store");
 const windows = require("./windows");
-const { getGlobalHotkey } = require("./global-hotkey");
+const { getGlobalHotkey } = require("../hotkey/global-hotkey");
 
 let tray = null;
 
 function getMenuIconPath(filename) {
-  const candidates = [
-    path.join(__dirname, "..", "src", "app", filename),
-    path.join(__dirname, filename),
-  ];
-
-  for (const candidate of candidates) {
-    if (fs.existsSync(candidate)) return candidate;
-  }
-
-  return path.join(__dirname, "..", "src", "app", filename);
+  return path.join(__dirname, "..", "assets", filename);
 }
 
 function getTrayIcon() {

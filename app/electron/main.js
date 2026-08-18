@@ -12,18 +12,18 @@ const { pathToFileURL } = require("url");
 const { isDev } = require("./env");
 const { readSettings, writeSettings } = require("./settings-store");
 const { getOutDir, resolveAppPath } = require("./app-protocol");
-const { positionWindowTopCenter } = require("./window-geometry");
-const windows = require("./windows");
-const tray = require("./tray");
-const appMenu = require("./app-menu");
-const globalHotkey = require("./global-hotkey");
-const { applyDockIconSetting } = require("./dock");
+const { positionWindowTopCenter } = require("./windows/window-geometry");
+const windows = require("./windows/windows");
+const tray = require("./windows/tray");
+const appMenu = require("./windows/app-menu");
+const globalHotkey = require("./hotkey/global-hotkey");
+const { applyDockIconSetting } = require("./windows/dock");
 const {
   ensureLocalAIReady,
   stopLocalAIIfStartedByUs,
   warmUpModel,
-} = require("./local-ai");
-const { ensureEngineHome, getLocalModelsPath } = require("./engine-path");
+} = require("./engine/local-ai");
+const { ensureEngineHome, getLocalModelsPath } = require("./engine/engine-path");
 
 protocol.registerSchemesAsPrivileged([
   {

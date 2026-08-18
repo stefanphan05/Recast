@@ -40,8 +40,6 @@
     "files": [
       "electron/**/*",
       "out/**/*",
-      "src/app/menu-icon-22.png",
-      "src/app/menu-icon-44.png",
       "package.json"
     ],
     "directories": {

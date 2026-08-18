@@ -1,5 +1,5 @@
 const { app } = require("electron");
-const { isMac } = require("./env");
+const { isMac } = require("../env");
 
 function applyDockIconSetting(hide) {
   if (!isMac || !app.dock) return;

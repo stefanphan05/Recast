@@ -1,6 +1,6 @@
 const { BrowserWindow, screen } = require("electron");
 const path = require("path");
-const { isDev, isMac } = require("./env");
+const { isDev, isMac } = require("../env");
 const {
   WINDOW_WIDTH,
   PROMPT_WINDOW_MIN_HEIGHT,
@@ -11,7 +11,7 @@ const {
   positionWindowTopCenter,
   getLayoutHeight,
 } = require("./window-geometry");
-const { loadWindowRoute } = require("./app-protocol");
+const { loadWindowRoute } = require("../app-protocol");
 
 let mainWindow = null;
 let settingsWindow = null;

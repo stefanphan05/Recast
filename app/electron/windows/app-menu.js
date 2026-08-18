@@ -1,7 +1,7 @@
 const { app, Menu, dialog } = require("electron");
-const { isDev, isMac } = require("./env");
+const { isDev, isMac } = require("../env");
 const windows = require("./windows");
-const { getGlobalHotkey } = require("./global-hotkey");
+const { getGlobalHotkey } = require("../hotkey/global-hotkey");
 const { refreshTrayMenu } = require("./tray");
 
 function buildMenu() {

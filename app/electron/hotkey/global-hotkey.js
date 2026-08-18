@@ -1,7 +1,7 @@
 const { globalShortcut } = require("electron");
 const { inputEventToAccelerator } = require("./hotkey");
-const { DEFAULT_SETTINGS, readSettings, writeSettings } = require("./settings-store");
-const windows = require("./windows");
+const { DEFAULT_SETTINGS, readSettings, writeSettings } = require("../settings-store");
+const windows = require("../windows/windows");
 
 let hotkeyRecording = false;
 let hotkeyRecordingHandler = null;
