@@ -6,9 +6,10 @@ export const TEXTAREA_MAX_LANDING_PX = 480;
 export const TEXTAREA_MIN_COMPACT_PX = 24;
 export const TEXTAREA_MAX_COMPACT_PX = 72;
 
-/** Shared surface styling for composer + output panels */
-export const PANEL_SURFACE_CLASS =
-  "panel-surface rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.35)]";
+/** Shared surface styling for composer + output panels.
+ *  No drop shadow: the window is transparent, so a shadow would paint a grey
+ *  halo onto whatever is behind the app. The 1px border does the separating. */
+export const PANEL_SURFACE_CLASS = "panel-surface rounded-[24px]";
 
 /** Vertical rhythm between toolbar rows and panels in expanded mode */
 export const EXPANDED_BLOCK_GAP_CLASS = "gap-2";
