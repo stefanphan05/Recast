@@ -12,7 +12,7 @@ import {
   type PullProgress,
 } from "@/lib/rewrite";
 import { DEFAULT_MODEL_ID } from "@/lib/rewrite/models";
-import { CloseWindowButton, DRAG_STYLE } from "@/components/WindowChrome";
+import { CloseWindowButton, DRAG_STYLE } from "@/components/layout/WindowChrome";
 import { useAppSettings } from "@/hooks/useAppSettings";
 import { type LocalAIEngineProgress } from "@/types/local-ai-engine";
 import { useCallback, useEffect, useRef, useState } from "react";

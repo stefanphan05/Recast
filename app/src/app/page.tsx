@@ -1,4 +1,4 @@
-import ClientAppShell from "@/components/ClientAppShell";
+import ClientAppShell from "@/components/layout/ClientAppShell";
 
 export default function Home() {
   return <ClientAppShell />;

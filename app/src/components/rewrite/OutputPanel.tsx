@@ -4,7 +4,7 @@ import {
   ICON_ACTION_BTN_SECONDARY_CLASS,
   PANEL_SURFACE_CLASS,
 } from "@/components/rewrite/constants";
-import { CloseWindowButton, NO_DRAG_STYLE } from "@/components/WindowChrome";
+import { CloseWindowButton, NO_DRAG_STYLE } from "@/components/layout/WindowChrome";
 import { useEffect, useState } from "react";
 
 const HOVER_REVEAL_CLASS =

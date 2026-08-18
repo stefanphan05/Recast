@@ -4,7 +4,7 @@ import AISection from "@/components/settings/AISection";
 import GeneralSection from "@/components/settings/GeneralSection";
 import SettingsSidebarIcon from "@/components/settings/SettingsSidebarIcon";
 import ShortcutsSection from "@/components/settings/ShortcutsSection";
-import WindowChrome from "@/components/WindowChrome";
+import WindowChrome from "@/components/layout/WindowChrome";
 import { AppSettingsProvider } from "@/hooks/useAppSettings";
 import { useEffect, useState } from "react";
 

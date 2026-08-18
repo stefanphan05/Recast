@@ -1,9 +1,9 @@
 "use client";
 
 import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
-import LocalAISetupBanner from "@/components/LocalAISetupBanner";
+import LocalAISetupBanner from "@/components/layout/LocalAISetupBanner";
 import RewriteWorkspace from "@/components/rewrite/RewriteWorkspace";
-import WindowChrome from "@/components/WindowChrome";
+import WindowChrome from "@/components/layout/WindowChrome";
 import { AppSettingsProvider, useAppSettings } from "@/hooks/useAppSettings";
 import { WINDOW_MAX_HEIGHT_PX } from "@/components/rewrite/constants";
 import {
