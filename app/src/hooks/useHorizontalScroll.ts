@@ -6,7 +6,10 @@ import {
   type RefObject,
 } from "react";
 
-export function useHorizontalScroll(ref: RefObject<HTMLElement | null>) {
+export function useHorizontalScroll(
+  ref: RefObject<HTMLElement | null>,
+  contentKey?: unknown,
+) {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
@@ -18,9 +21,11 @@ export function useHorizontalScroll(ref: RefObject<HTMLElement | null>) {
     setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 2);
   }, [ref]);
 
+  // `contentKey` re-runs this when the items change: a ResizeObserver on the
+  // container never fires for a scrollWidth-only change.
   useLayoutEffect(() => {
     updateScrollState();
-  }, [updateScrollState]);
+  }, [updateScrollState, contentKey]);
 
   useEffect(() => {
     const el = ref.current;
