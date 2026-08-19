@@ -4,7 +4,7 @@ import {
   SOURCE_LANGUAGE_AUTO,
   type LanguageCode,
 } from "./languages";
-import { type RewriteStyle } from "./styles";
+import { isBuiltInStyle, type BuiltInStyle, type RewriteStyle } from "./styles";
 
 export { ALLOWED_STYLES, type RewriteStyle } from "./styles";
 
@@ -17,6 +17,8 @@ export type RewriteInput = {
   targetLanguage?: LanguageCode;
   /** Optional user guidance (e.g. email tone, audience). Omitted when empty. */
   instructions?: string;
+  /** Set for user-defined modes; replaces the built-in style instruction. */
+  customStyle?: { label: string; prompt: string };
 };
 
 export const REWRITE_SYSTEM_INSTRUCTION = [
@@ -95,15 +97,19 @@ function buildFlirtInstruction(
 const SAME_LANGUAGE_SUFFIX =
   " Keep the output in the same language as the input message. Change tone only—do not translate.";
 
+function languageSuffix(targetLanguage?: LanguageCode): string {
+  return targetLanguage
+    ? ` Write the result in ${languageLabel(targetLanguage)}.`
+    : SAME_LANGUAGE_SUFFIX;
+}
+
 function buildStyleInstruction(
-  style: RewriteStyle,
+  style: BuiltInStyle,
   genzIntensity: number,
   flirtIntensity: number,
   targetLanguage?: LanguageCode,
 ): string {
-  const inLanguage = targetLanguage
-    ? ` Write the result in ${languageLabel(targetLanguage)}.`
-    : SAME_LANGUAGE_SUFFIX;
+  const inLanguage = languageSuffix(targetLanguage);
 
   if (style === "genz") {
     const genz = buildGenzInstruction(genzIntensity, targetLanguage);
@@ -116,7 +122,7 @@ function buildStyleInstruction(
   }
 
   const instructions: Record<
-    Exclude<RewriteStyle, "genz" | "flirt">,
+    Exclude<BuiltInStyle, "genz" | "flirt">,
     string
   > = {
     grammar: `Fix grammar, spelling, and punctuation only. Keep the same tone, length, and wording as much as possible.${inLanguage}`,
@@ -199,15 +205,35 @@ function buildInstructionsBlock(
   return `Additional instructions (follow these while rewriting):\n${trimmed}`;
 }
 
-export function buildUserPrompt(input: RewriteInput): string {
-  const languageBlock = buildLanguageInstruction(input);
-  const instructionsBlock = buildInstructionsBlock(input.instructions);
-  const styleBlock = `Style: ${input.style}\n${buildStyleInstruction(
-    input.style,
+/** Custom modes bring their own instruction and a human label, so the raw
+ *  `custom:` id never reaches the model. */
+function buildStyleBlock(input: RewriteInput): string {
+  const { customStyle, style } = input;
+
+  if (customStyle) {
+    return `Style: ${customStyle.label}\n${customStyle.prompt}${languageSuffix(
+      input.targetLanguage,
+    )}`;
+  }
+
+  if (!isBuiltInStyle(style)) {
+    // validateRewriteParams pairs every custom id with its prompt, so this only
+    // fires if a caller skips validation.
+    throw new Error(`Missing prompt for custom rewrite mode: ${style}`);
+  }
+
+  return `Style: ${style}\n${buildStyleInstruction(
+    style,
     input.genzIntensity,
     input.flirtIntensity,
     input.targetLanguage,
   )}`;
+}
+
+export function buildUserPrompt(input: RewriteInput): string {
+  const languageBlock = buildLanguageInstruction(input);
+  const instructionsBlock = buildInstructionsBlock(input.instructions);
+  const styleBlock = buildStyleBlock(input);
 
   const blocks = [languageBlock, instructionsBlock, styleBlock].filter(
     (block): block is string => block !== null,

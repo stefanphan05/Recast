@@ -13,25 +13,73 @@ export const STYLE_OPTIONS = [
 
 export const ALLOWED_STYLES = STYLE_OPTIONS.map((o) => o.value);
 
-export type RewriteStyle = (typeof STYLE_OPTIONS)[number]["value"];
+export type BuiltInStyle = (typeof STYLE_OPTIONS)[number]["value"];
 
-export type StyleOption = { value: RewriteStyle; label: string };
+/** Custom mode ids are namespaced so they can never collide with a built-in. */
+export const CUSTOM_STYLE_PREFIX = "custom:";
 
-function isRewriteStyle(value: string): value is RewriteStyle {
+export type CustomStyleId = `${typeof CUSTOM_STYLE_PREFIX}${string}`;
+
+export type RewriteStyle = BuiltInStyle | CustomStyleId;
+
+export const MAX_CUSTOM_MODES = 24;
+export const MAX_CUSTOM_MODE_LABEL_LENGTH = 40;
+export const MAX_CUSTOM_MODE_PROMPT_LENGTH = 1000;
+
+/** A user-defined mode. Its prompt replaces the built-in style instruction. */
+export type CustomRewriteMode = {
+  id: CustomStyleId;
+  label: string;
+  prompt: string;
+};
+
+/** A custom mode carries its own prompt; built-ins resolve theirs in prompts.ts. */
+export type StyleOption = {
+  value: RewriteStyle;
+  label: string;
+  prompt?: string;
+};
+
+export function isBuiltInStyle(value: string): value is BuiltInStyle {
   return (ALLOWED_STYLES as readonly string[]).includes(value);
 }
 
-/** All styles, ordered by the user's `styleOrder`. Unknown ids are dropped and
- *  styles missing from it keep their declaration order at the end, so a style
- *  added to STYLE_OPTIONS later shows up without migrating stored settings. */
-export function orderStyleOptions(styleOrder: string[] = []): StyleOption[] {
+export function isCustomStyleId(value: string): value is CustomStyleId {
+  return value.startsWith(CUSTOM_STYLE_PREFIX);
+}
+
+/** `crypto.randomUUID` needs a secure context, which the `app://` renderer is not. */
+export function createCustomModeId(): CustomStyleId {
+  const random = Math.random().toString(36).slice(2, 8);
+  return `${CUSTOM_STYLE_PREFIX}${Date.now().toString(36)}${random}`;
+}
+
+/** All styles, ordered by the user's `styleOrder`. Ids matching no known style are
+ *  dropped and styles missing from it keep their declaration order at the end, so a
+ *  style added to STYLE_OPTIONS later shows up without migrating stored settings. */
+export function orderStyleOptions(
+  styleOrder: string[] = [],
+  customModes: CustomRewriteMode[] = [],
+): StyleOption[] {
+  const pool: StyleOption[] = [
+    ...STYLE_OPTIONS.map((option) => ({
+      value: option.value,
+      label: option.label,
+    })),
+    ...customModes.map((mode) => ({
+      value: mode.id,
+      label: mode.label,
+      prompt: mode.prompt,
+    })),
+  ];
+
   const ordered: StyleOption[] = [];
   for (const value of styleOrder) {
-    if (!isRewriteStyle(value)) continue;
     if (ordered.some((o) => o.value === value)) continue;
-    ordered.push(STYLE_OPTIONS.find((o) => o.value === value)!);
+    const option = pool.find((o) => o.value === value);
+    if (option) ordered.push(option);
   }
-  for (const option of STYLE_OPTIONS) {
+  for (const option of pool) {
     if (ordered.some((o) => o.value === option.value)) continue;
     ordered.push(option);
   }
@@ -42,11 +90,11 @@ export function orderStyleOptions(styleOrder: string[] = []): StyleOption[] {
 export function visibleStyleOptions(
   styleOrder: string[] = [],
   hiddenStyles: string[] = [],
+  customModes: CustomRewriteMode[] = [],
 ): StyleOption[] {
-  const visible = orderStyleOptions(styleOrder).filter(
-    (option) => !hiddenStyles.includes(option.value),
-  );
-  return visible.length > 0 ? visible : orderStyleOptions(styleOrder);
+  const all = orderStyleOptions(styleOrder, customModes);
+  const visible = all.filter((option) => !hiddenStyles.includes(option.value));
+  return visible.length > 0 ? visible : all;
 }
 
 /** Keeps the active style valid when it gets hidden while the window is open. */

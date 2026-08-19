@@ -12,6 +12,8 @@ export type RewriteRequest = {
   sourceLanguage: string;
   targetLanguage: string;
   instructions?: string;
+  /** Present when `style` is a user-defined mode; its prompt drives the rewrite. */
+  customStyle?: { label: string; prompt: string };
 };
 
 export async function requestRewrite(

@@ -9,6 +9,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -21,6 +22,7 @@ const WEB_DEFAULT_SETTINGS: AppSettings = {
   hideDockIcon: false,
   styleOrder: [],
   hiddenStyles: [],
+  customModes: [],
 };
 
 type AppSettingsContextValue = {
@@ -36,6 +38,12 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<AppSettings>(WEB_DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(true);
   const [isElectron, setIsElectron] = useState(false);
+  /** Lets `updateSettings` read the current settings without re-creating itself. */
+  const settingsRef = useRef(settings);
+
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
 
   useEffect(() => {
     const api = window.electronAPI;
@@ -61,11 +69,17 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
   const updateSettings = useCallback(async (partial: Partial<AppSettings>) => {
     const api = window.electronAPI;
     if (!api?.setSettings) {
-      setSettings((current) => ({ ...current, ...partial }));
-      return { ...WEB_DEFAULT_SETTINGS, ...partial };
+      // Outside Electron, merge over current state: settings like `customModes`
+      // are edited read-modify-write and would otherwise reset to the defaults.
+      const next = { ...settingsRef.current, ...partial };
+      settingsRef.current = next;
+      setSettings(next);
+      return next;
     }
 
     const next = await api.setSettings(partial);
+    // Keep the ref authoritative at write time, not a commit behind.
+    settingsRef.current = next;
     setSettings(next);
     return next;
   }, []);
