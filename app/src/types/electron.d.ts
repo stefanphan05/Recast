@@ -1,3 +1,4 @@
+import type { CustomRewriteMode } from "@/lib/rewrite/styles";
 import type { LocalAIEngineProgress } from "./local-ai-engine";
 
 export type AppSettings = {
@@ -10,6 +11,8 @@ export type AppSettings = {
   styleOrder: string[];
   /** Rewrite mode ids hidden from the rewrite bar */
   hiddenStyles: string[];
+  /** User-defined rewrite modes, each with its own title and prompt */
+  customModes: CustomRewriteMode[];
 };
 
 export type { LocalAIEngineProgress };
