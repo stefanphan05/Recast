@@ -6,7 +6,7 @@ import {
   TARGET_LANGUAGE_SAME,
   type LanguageCode,
 } from "./languages";
-import { ALLOWED_STYLES, type RewriteStyle } from "./styles";
+import { ALLOWED_STYLES, isBuiltInStyle, type RewriteStyle } from "./styles";
 import type { RewriteInput } from "./prompts";
 
 export class ValidationError extends Error {
@@ -64,7 +64,7 @@ export function validateRewriteParams(
     );
   }
 
-  if (!style || !ALLOWED_STYLES.includes(style)) {
+  if (!style || !isBuiltInStyle(style)) {
     throw new ValidationError(
       `Style must be one of: ${ALLOWED_STYLES.join(", ")}.`,
     );

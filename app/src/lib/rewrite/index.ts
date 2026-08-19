@@ -1,8 +1,21 @@
 export type { RewriteInput } from "./prompts";
-export type { RewriteStyle, StyleOption } from "./styles";
+export type {
+  BuiltInStyle,
+  CustomRewriteMode,
+  CustomStyleId,
+  RewriteStyle,
+  StyleOption,
+} from "./styles";
 export {
   ALLOWED_STYLES,
+  CUSTOM_STYLE_PREFIX,
+  MAX_CUSTOM_MODES,
+  MAX_CUSTOM_MODE_LABEL_LENGTH,
+  MAX_CUSTOM_MODE_PROMPT_LENGTH,
   STYLE_OPTIONS,
+  createCustomModeId,
+  isBuiltInStyle,
+  isCustomStyleId,
   orderStyleOptions,
   resolveActiveStyle,
   visibleStyleOptions,
