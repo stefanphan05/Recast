@@ -102,6 +102,9 @@ Splits monolithic DataManager into separate repositories per domain
 entity. No behavior change intended; existing tests still pass.
 ```
 
+No `Co-Authored-By` or AI-attribution trailer — the commit message ends with
+the body/footer only.
+
 ## Notes
 
 - Never fabricate an issue/ticket number for the footer — only add `Refs #123` /
@@ -109,3 +112,5 @@ entity. No behavior change intended; existing tests still pass.
 - If unsure whether to split commits, ask, or default to splitting when the diff
   clearly spans unrelated concerns and stay as one commit otherwise.
 - Don't invent a `scope` that isn't reflected in the actual changed paths.
+- **Never include a `Co-Authored-By: Claude` (or similar) trailer in any commit
+  message**, whether committing directly or just printing a message to copy.
