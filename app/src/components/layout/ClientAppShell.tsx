@@ -24,8 +24,13 @@ function AppShell() {
   const showOnboarding = isElectron && !loading && !settings.onboardingComplete;
 
   const visibleStyles = useMemo(
-    () => visibleStyleOptions(settings.styleOrder, settings.hiddenStyles),
-    [settings.styleOrder, settings.hiddenStyles],
+    () =>
+      visibleStyleOptions(
+        settings.styleOrder,
+        settings.hiddenStyles,
+        settings.customModes,
+      ),
+    [settings.styleOrder, settings.hiddenStyles, settings.customModes],
   );
 
   useLayoutEffect(() => {

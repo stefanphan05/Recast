@@ -30,6 +30,8 @@ export default function RewriteWorkspace({
   const [selectedStyle, setStyle] = useState<RewriteStyle>(initialStyle);
   /** The picked mode can be hidden from settings while this window is open. */
   const style = resolveActiveStyle(selectedStyle, visibleStyles);
+  /** Custom modes carry their prompt on the option; built-ins have none. */
+  const activeOption = visibleStyles.find((option) => option.value === style);
   const [genzIntensity, setGenzIntensity] = useState(INITIAL_GENZ_INTENSITY);
   const [flirtIntensity, setFlirtIntensity] = useState(INITIAL_FLIRT_INTENSITY);
   const [result, setResult] = useState("");
@@ -85,6 +87,9 @@ export default function RewriteWorkspace({
           style,
           genzIntensity: style === "genz" ? genzIntensity : undefined,
           flirtIntensity: style === "flirt" ? flirtIntensity : undefined,
+          customStyle: activeOption?.prompt
+            ? { label: activeOption.label, prompt: activeOption.prompt }
+            : undefined,
           sourceLanguage: SOURCE_LANGUAGE_AUTO,
           targetLanguage: TARGET_LANGUAGE_SAME,
         },
