@@ -1,6 +1,7 @@
 "use client";
 
 import IntensitySlider from "@/components/rewrite/IntensitySlider";
+import { NO_DRAG_STYLE } from "@/components/layout/WindowChrome";
 import { useHorizontalScroll } from "@/hooks/useHorizontalScroll";
 import type { RewriteStyle, StyleOption } from "@/lib/rewrite";
 import { useRef } from "react";
@@ -38,7 +39,16 @@ export default function StylePicker({
           Rewrite as
         </p>
       ) : null}
-      <div className={`relative ${embedded ? "" : "mt-2"}`}>
+      {/**
+       * The mode row sits under the frameless window's top drag strip, and a
+       * drag region swallows mouse events even where it is `pointer-events-none`
+       * — so clicks landing on the upper part of a pill moved the window instead
+       * of picking the mode. `no-drag` punches the row back out of that region.
+       */}
+      <div
+        className={`relative ${embedded ? "" : "mt-2"}`}
+        style={NO_DRAG_STYLE}
+      >
         <div
           ref={stripRef}
           onScroll={onScroll}
