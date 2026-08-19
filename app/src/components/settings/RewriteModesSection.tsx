@@ -60,6 +60,12 @@ export default function RewriteModesSection() {
     setDragOrder(storedOrder);
   }
 
+  /** Dragging text inside the inline form also fires dragstart/drop on the row;
+   *  only the row itself may start or absorb a reorder drag. */
+  function isRowDrag(event: DragEvent<HTMLLIElement>) {
+    return event.target === event.currentTarget;
+  }
+
   function handleDragEnter(index: number) {
     if (!draggingValue) return;
     const from = options.findIndex((option) => option.value === draggingValue);
@@ -67,8 +73,13 @@ export default function RewriteModesSection() {
     setDragOrder(moveItem(options, from, index));
   }
 
-  function handleDragEnd() {
+  /** Only a real drop commits: dragend also fires for a cancelled drag (Escape,
+   *  or a release outside the list), which should leave the order untouched. */
+  function handleDrop() {
     if (dragOrder) persistOrder(dragOrder);
+  }
+
+  function handleDragEnd() {
     setDragOrder(null);
     setDraggingValue(null);
   }
@@ -159,18 +170,22 @@ export default function RewriteModesSection() {
                 // A draggable ancestor swallows text selection inside the form.
                 draggable={editor === null}
                 onDragStart={(event: DragEvent<HTMLLIElement>) => {
+                  if (!isRowDrag(event)) return;
                   event.dataTransfer.effectAllowed = "move";
                   event.dataTransfer.setData("text/plain", option.value);
                   handleDragStart(option.value);
                 }}
                 onDragEnter={() => handleDragEnter(index)}
                 onDragOver={(event: DragEvent<HTMLLIElement>) => {
+                  if (!draggingValue) return;
                   event.preventDefault();
                   event.dataTransfer.dropEffect = "move";
                 }}
-                onDrop={(event: DragEvent<HTMLLIElement>) =>
-                  event.preventDefault()
-                }
+                onDrop={(event: DragEvent<HTMLLIElement>) => {
+                  if (!draggingValue) return;
+                  event.preventDefault();
+                  handleDrop();
+                }}
                 onDragEnd={handleDragEnd}
                 className={`py-2.5 transition-opacity first:pt-0 last:pb-0 ${
                   isDragging ? "opacity-40" : ""
